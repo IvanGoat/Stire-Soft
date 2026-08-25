@@ -55,50 +55,58 @@ classDiagram
 
 El "Judge Engine" ejecuta código fuente proveído por estudiantes bajo un sandbox seguro y aislado, mitigando vulnerabilidades de ejecución remota de comandos (RCE) y ataques de denegación de servicio (DoS).
 
-> **Estado del Sandbox — Patrón Adaptador activo:**
-> El sistema implementa el **Patrón Adaptador** (`SandboxAdapter`) con dos modos configurables mediante la variable de entorno `SANDBOX_TYPE`:
+> **Estado del Sandbox — Patrón Adaptador activo (revisado tras la auditoría de la Ola 1):**
+> El sistema implementa el **Patrón Adaptador** (`SandboxAdapter`) con **fail-closed** por diseño: un valor no reconocido de `SANDBOX_TYPE` aborta el arranque con una excepción explícita, nunca degrada a un adaptador inseguro.
 >
 > | Modo | Configuración | Descripción | Disponibilidad |
 > |---|---|---|---|
-> | `local` | `SANDBOX_TYPE=local` | Usa `node:vm` de Node.js nativo. Timeout 1500ms. Soporta JavaScript. Sin Docker. ✅ | **Activo — validado en tests** |
-> | `docker` | `SANDBOX_TYPE=docker` | Usa `DockerSandboxAdapter`. Diseño de interfaz completo; integración con Dockerode lista para sprint de producción. | Pendiente infra Docker |
+> | `hardened` | `SANDBOX_TYPE=hardened` (default) | `HardenedProcessSandboxAdapter`: aislamiento por **proceso hijo del sistema operativo**, no por contexto de JavaScript. Cuatro barreras independientes (ver §2.2). Sin Docker ni Redis. | **Activo — único modo real, probado con los payloads de ataque del informe de auditoría** |
+> | `docker` | `SANDBOX_TYPE=docker` | No implementado. El adaptador anterior era un *mock* que aprobaba cualquier código que contuviera la palabra `"correct"` (hallazgo P0-05). | **Arranque abortado con excepción** |
+> | `vm` / `local` | `SANDBOX_TYPE=vm` | Deshabilitado. El adaptador anterior usaba `node:vm`, que **no es una frontera de seguridad**: escape de sandbox confirmado y reproducido (lectura de `process.env` y ejecución de comandos del sistema operativo vía `this.constructor.constructor('return process')()`), hallazgo P0-01. | **Arranque abortado con excepción** |
 >
-> El `JudgeWorker` no conoce el adaptador concreto — solo interactúa con la interfaz `SandboxAdapter.executeIsolated()`. Cambiar de modo no requiere modificar código, solo la variable de entorno.
+> El `JudgeWorker`/`JudgeExecutionService` no conocen el adaptador concreto — solo interactúan con la interfaz `SandboxAdapter.executeIsolated()`. El día que exista infraestructura Docker real, un cuarto adaptador puede entrar detrás de la misma interfaz sin tocar el resto del pipeline.
 
-### 2.1 Desacoplamiento por Mensajería (BullMQ)
-*   **NestJS (Productor):** Al identificar reactivos tipo `CODING`, el servicio de submissions añade una tarea en la cola distribuida `judge-queue` en Redis a través de BullMQ. La petición del cliente HTTP responde de manera inmediata liberando la conexión web.
-*   **BullMQ Worker (Consumidor):** Una clase procesadora ejecutada fuera del hilo principal de solicitudes web extrae la tarea para ejecutarla.
+### 2.1 Desacoplamiento del pipeline de calificación (puerto `JudgeQueue`)
+La calificación asíncrona pasa por un puerto (`JudgeQueue`), configurable con `QUEUE_DRIVER`, **no** por una dependencia directa a BullMQ:
 
+| Modo | Configuración | Descripción |
+|---|---|---|
+| `inline` | `QUEUE_DRIVER=inline` (default) | `InlineJudgeQueueAdapter`: el envío se despacha fuera del ciclo de la petición HTTP con `setImmediate` y se ejecuta contra el mismo `SandboxAdapter`, en el mismo proceso. Sin Redis. |
+| `redis` | `QUEUE_DRIVER=redis` | `BullJudgeQueueAdapter`: el pipeline con BullMQ para producción con concurrencia alta. `BullModule` solo se registra en este modo. |
 
+`JudgeExecutionService` contiene la lógica real de calificación (ejecutar cada test case, persistir `ExecutionResult`, calcular el puntaje) y es compartida por ambos modos — reporta el resultado emitiendo los eventos `judge.answer-graded` / `judge.answer-failed` (con `emitAsync`, para no perder el resultado en silencio si el listener falla) en vez de inyectar `SubmissionsService` directamente. Esto evita acoplar `judge-engine` al dominio `submissions` y rompe una dependencia circular real entre ambos módulos.
 
-### 2.2 Ciclo de Ejecución en Docker Sandbox
+### 2.2 Ciclo de ejecución en el sandbox endurecido
 ```mermaid
 flowchart LR
-    A[SubmissionsService detecta pregunta CODING] -->|bull.add| B[(Cola Redis: 'judge-queue')]
-    B --> C[JudgeWorker @Processor extrae el job]
-    C --> D{Itera testCases}
-    D --> E[DockerSandboxService]
-    E --> F["docker run --rm\n--memory=128m\n--cpus=0.5\n--network none"]
-    F --> G{¿Compiló y ejecutó?}
-    G -- Éxito --> H[Captura stdout, tiempo, memoria]
-    G -- Error --> I[Captura stderr, estado compile_error]
-    H & I --> G1[Guarda ExecutionResult en BD]
-    G1 --> K{¿Más testCases?}
-    K -- Sí --> D
-    K -- No --> L[Actualiza SubmissionAnswer.isCorrect]
-    L --> M[Emite resultado por WebSocket Gateway]
+    A[SubmissionsService detecta pregunta CODING] -->|JudgeQueue.enqueue| B{QUEUE_DRIVER}
+    B -- inline --> C[InlineJudgeQueueAdapter setImmediate]
+    B -- redis --> D[(Cola Redis)] --> E[JudgeWorker @Processor]
+    C --> F[JudgeExecutionService.gradeAnswer]
+    E --> F
+    F --> G{Itera testCases}
+    G --> H[HardenedProcessSandboxAdapter: proceso hijo]
+    H --> I["--permission\n--disallow-code-generation-from-strings\nentorno minimo\ncortafuegos de red"]
+    I --> J{¿Ejecutó correctamente?}
+    J -- Éxito --> K[Captura stdout, tiempo]
+    J -- Error/timeout --> L[Captura stderr saneado, estado]
+    K & L --> M[Guarda ExecutionResult en BD]
+    M --> N{¿Más testCases?}
+    N -- Sí --> G
+    N -- No --> O[Emite judge.answer-graded]
+    O --> P[JudgeGradedListener actualiza SubmissionAnswer/Submission]
 ```
-1.  **Iteración:** El `JudgeWorker` lee los test cases (tanto los públicos como los ocultos que el docente ha configurado).
-2.  **Aislamiento en Contenedor:** Se invoca a `DockerSandboxService` que realiza una llamada al daemon de Docker para aprovisionar un contenedor efímero.
-3.  **Configuración de Seguridad:**
-    *   `--rm`: Elimina el contenedor al terminar la ejecución para evitar saturar el storage del host.
-    *   `--memory=128m`: Limita la RAM a 128MB previniendo *Memory Leaks* inducidos y ataques de desbordamiento de memoria.
-    *   `--cpus=0.5`: Límite estricto de medio núcleo CPU para mitigar bucles infinitos de CPU.
-    *   `--network none`: Corta toda comunicación de red del contenedor para bloquear el robo de datos o ataques RCE de salida.
-4.  **Ejecución:** Se monta el código provisto por el estudiante y se evalúa inyectando los parámetros del caso de prueba actual a través de la entrada estándar (stdin).
-5.  **Análisis de Output:** Captura la salida estándar (`stdout`), el canal de errores (`stderr`) y los tiempos de CPU en milisegundos.
-6.  **Destrucción y Persistencia:** El contenedor se apaga y destruye inmediatamente. Los resultados de cada caso se persisten en la tabla `execution_results`. Si existe un fallo de compilación, el worker realiza un *Early Exit* deteniendo las pruebas restantes.
-7.  **Notificación de Tiempo Real:** Los resultados finales se transmiten al cliente mediante WebSockets a través de la pasarela Gateway para actualizar las vistas reactivas de la UI sin necesidad de refrescar la página.
+1.  **Iteración:** se recorren los `testCases` del `config` de la pregunta (array plano; no existe distinción `publicTestCases`/`hiddenTestCases` en el dato real — ver §5).
+2.  **Aislamiento por proceso, no por contexto de JS:** cada test case se ejecuta en un proceso hijo real de Node (`child_process.spawn`), con cuatro barreras independientes:
+    *   **Entorno mínimo:** el proceso hijo no hereda las variables del proceso padre (`JWT_SECRET`, `DB_PASSWORD`, `OPENAI_API_KEY` no están disponibles). En Windows se declaran a mano las variables que `libuv` inyectaría igualmente si faltaran (`SystemRoot`, `TEMP`, etc.), neutralizadas.
+    *   **Modelo de permisos de Node (`--permission`):** sin `--allow-fs-write`, `--allow-child-process`, `--allow-worker` — bloquea escritura en disco, RCE vía procesos hijos anidados e hilos.
+    *   **Sin generación de código (`--disallow-code-generation-from-strings`):** neutraliza el vector exacto del hallazgo P0-01.
+    *   **Cortafuegos de red en el preludio:** un script `--require` anula `net.connect`, `http.request`, `fetch`, etc. antes de que el código del estudiante se ejecute.
+3.  **Límites de recurso:** timeout de 2000ms (mata el proceso con `SIGKILL`), `--max-old-space-size=128` para memoria, y un tope de bytes de salida para evitar bombas de `stdout`.
+4.  **Análisis de salida:** captura `stdout` y, ante error, `stderr` saneado (rutas absolutas del host eliminadas antes de mostrarlo al estudiante).
+5.  **Persistencia:** cada resultado de test case se guarda en `execution_results`.
+6.  **Reporte del resultado:** al terminar todos los test cases, se emite `judge.answer-graded` (o `judge.answer-failed` si algo falló de forma no recuperable), que un listener en el dominio `submissions` consume para actualizar la nota real.
+7.  **WebSocket Gateway:** **no existe** en el código (era una aspiración documental, no una funcionalidad implementada). El resultado se conoce en la siguiente consulta HTTP del cliente, no en tiempo real.
 
 ---
 

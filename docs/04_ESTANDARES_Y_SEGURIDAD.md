@@ -45,10 +45,16 @@ src/nombre-modulo/
 
 STIRE está diseñado para aislar los recursos académicos y proteger al servidor host de comportamientos fraudulentos o maliciosos de usuarios malintencionados.
 
-### 2.1 Control de Acceso Granular (RBAC + CBAC)
-*   El sistema implementa un modelo híbrido basado en Roles (Role-Based Access Control) y Permisos (Claim-Based Access Control).
-*   Los controladores deben decorarse con la combinación de `@Roles('docente')` y decoradores específicos de políticas o permisos `@RequirePermissions('create:activity')`.
-*   El `PermissionsGuard` y `JwtAuthGuard` inyectados a nivel global leen e interceptan los tokens JWT en las cabeceras HTTP, validan la expiración del payload firmado con algoritmo simétrico HMAC-SHA256 y descartan peticiones no autorizadas retornando un `403 Forbidden` inmediato.
+### 2.1 Control de Acceso Real (RBAC por rol + verificación de propiedad)
+
+> **Corrección (Ola 1, post-auditoría):** esta sección afirmaba un modelo `PermissionsGuard` + `@RequirePermissions()` global que **nunca estuvo registrado** (hallazgo de la auditoría técnica: `PermissionsGuard` existe como archivo pero no es un `APP_GUARD`). El modelo real es el descrito abajo.
+
+*   **Autenticación global:** `JwtAuthGuard` y `RolesGuard` están registrados como `APP_GUARD` en `app.module.ts` — todo endpoint exige JWT válido salvo `@Public()`. `RolesGuard` lee el metadato `@Roles(...)` del handler; si un endpoint no lo declara, cualquier rol autenticado pasa (esto fue precisamente el vector de varios hallazgos P0/P1 cerrados en la Ola 1 — un endpoint mutante sin `@Roles` no está protegido por rol en absoluto).
+*   **Verificación de propiedad (`AuthorizationService`):** tener el rol correcto no basta para mutar un recurso ajeno. `src/common/authorization/authorization.service.ts` expone dos primitivas reutilizables:
+    *   `assertTeacherOwnsClass(user, classId)` — admin siempre pasa; un docente debe ser el `teacherId` real de la clase (recorriendo la cadena `activity → learningUnit → topic → section → class` cuando el recurso no es la clase misma). Se usa en `/activities`, `/class/:id` (remove), `/sections/:id` (update/publish/remove) y `/enrollment/class/:classId`.
+    *   `assertEnrolledInClass(user, classId)` — un estudiante debe tener una matrícula `active` en la clase para ver contenido de esa clase (p. ej. `GET /activities/:id`), y una actividad en estado `draft` nunca es visible para un estudiante aunque esté matriculado.
+    *   Ambos métodos lanzan `ForbiddenException`/`NotFoundException` — nunca devuelven un booleano que el llamador pueda ignorar por error.
+*   **Auto-edición vs. administración de terceros:** `PATCH /users/me` (DTO `UpdateProfileDto`, solo campos no sensibles) está separado de `PATCH /users/:id` (DTO `AdminUpdateUserDto`, exclusivo de `@Roles('admin')`). Antes de esta separación, un único DTO heredado por `PartialType` exponía `role`/`isActive` también en la ruta de auto-edición — la causa raíz de un hallazgo P0 de escalada de privilegios.
 
 ### 2.2 Prevención de Inyección SQL y XSS
 *   **Inyección SQL:** TypeORM previene inyecciones SQL nativas al parametrizar todas las consultas enviadas al motor MySQL a través del gestor de parámetros de consultas preparadas. Se debe evitar concatenar cadenas crudas dentro de las cláusulas `.where()` o queries nativas `.query()`.
@@ -64,27 +70,37 @@ El sistema resguarda los endpoints sensibles mediante políticas restrictivas de
 | `POST /submissions/:id/submit` | 10 peticiones | 1 minuto | Mitigación de abusos en colas de Docker Sandbox |
 
 ### 2.4 Medidas de Seguridad en el Sandbox del Juez de Código
-El microservicio de evaluación asíncrona de código fuente implementa un aislamiento estricto para mitigar ataques de ejecución remota de comandos (RCE), bombas de bifurcación (fork bombs), desbordamientos de memoria RAM y accesos de red no permitidos:
+
+> **Corrección (Ola 1, post-auditoría):** esta sección describía un aislamiento por contenedor Docker que **no existía en el código** — el adaptador Docker era un *mock* que aprobaba cualquier envío conteniendo la palabra `"correct"` (hallazgo P0-05), y el adaptador activo por defecto usaba `node:vm`, con un escape de sandbox confirmado y reproducido en vivo (lectura de `process.env` y ejecución de comandos del sistema operativo, hallazgo P0-01). El modelo real, implementado y probado con los payloads de ataque del propio informe de auditoría, es el siguiente.
+
+`HardenedProcessSandboxAdapter` aísla por **proceso hijo del sistema operativo**, no por contexto de JavaScript ni por contenedor — sin depender de infraestructura Docker:
 
 ```
-                      +---------------------------------------+
-                      |             Servidor Host             |
-                      |                                       |
-                      |   +-------------------------------+   |
-                      |   |      Contenedor Docker        |   |
-                      |   |                               |   |
-                      |   |  - Sin red (--network none)   |   |
-                      |   |  - Memoria max 128MB          |   |
-                      |   |  - CPU max 0.5 cores          |   |
-                      |   |  - Ciclo de vida efímero      |   |
-                      |   |  - Timeout forzado de proceso |   |
-                      |   +-------------------------------+   |
-                      +---------------------------------------+
+                      +----------------------------------------------+
+                      |                Servidor Host                 |
+                      |                                                |
+                      |   +----------------------------------------+ |
+                      |   |     Proceso hijo (child_process.spawn)  | |
+                      |   |                                          | |
+                      |   |  - Entorno minimo (sin JWT_SECRET,       | |
+                      |   |    DB_PASSWORD, OPENAI_API_KEY)          | |
+                      |   |  - --permission (sin fs-write,           | |
+                      |   |    child-process, worker)                | |
+                      |   |  - --disallow-code-generation-from-strings| |
+                      |   |  - Cortafuegos de red en el preludio     | |
+                      |   |  - --max-old-space-size=128 (heap)       | |
+                      |   |  - Timeout 2000ms -> SIGKILL             | |
+                      |   +----------------------------------------+ |
+                      +----------------------------------------------+
 ```
 
-*   **Red Cero:** Se aplica la configuración `--network none` en la instanciación de Docker, inhabilitando las conexiones salientes y entrantes del código evaluado para impedir ataques de exfiltración de credenciales.
-*   **Límites de Recursos:** Cada ejecución está forzada a consumir como máximo `128MB` de memoria RAM (`--memory=128m`) y `0.5` cores de CPU (`--cpus=0.5`), neutralizando leaks e inyecciones diseñadas para degradar el host.
-*   **Timeout de Ciclo de Vida:** El `JudgeWorker` vigila activamente el ciclo del contenedor. Si un script Python o JavaScript entra en un bucle infinito, un timer de seguridad asíncrono fuerza la finalización del proceso (`docker kill`) después de transcurrido el tiempo configurado para el reactivo.
+*   **Entorno mínimo declarado a mano:** el proceso hijo no hereda las variables de entorno del proceso padre. En Windows, `libuv` inyecta a la fuerza ciertas variables del sistema (`HOMEDRIVE`, `PATH`, `LOGONSERVER`, etc.) si no se declaran explícitamente — se declaran neutralizadas para que no filtren el nombre de host ni rutas de usuario.
+*   **Modelo de permisos de Node (`--permission`):** sin `--allow-fs-write`, `--allow-child-process`, `--allow-worker`, `--allow-addons` — bloquea escritura en disco, ejecución de comandos anidados, hilos y bindings nativos.
+*   **Sin generación de código desde strings:** `--disallow-code-generation-from-strings` bloquea específicamente el vector de escape confirmado en el informe (`this.constructor.constructor('return process')()` y variantes equivalentes).
+*   **Cortafuegos de red en el preludio:** un script `--require` cargado antes del código del estudiante reemplaza `net.connect`, `http.request`, `https.request`, `fetch`, `dns.lookup`, etc. por funciones que lanzan `SandboxViolation` — bloquea exfiltración y SSRF contra servicios internos (MySQL, la propia API).
+*   **Límites de recurso:** `--max-old-space-size=128` acota la memoria del heap V8; un timeout de 2000ms fuerza `SIGKILL` sobre el proceso completo si no termina a tiempo; un tope de bytes de salida corta bombas de `stdout`/`stderr`.
+*   **Riesgo residual documentado, no oculto:** no hay cuota estricta de CPU (solo el timeout de reloj), y el bloqueo de red opera en el propio proceso, no a nivel de kernel — mitigación: mantener baja la concurrencia del worker y el timeout corto. Solo JavaScript está soportado; otros lenguajes devuelven `runtime_error` explícito, nunca se aprueban por defecto.
+*   **Verificado con los 10 vectores del informe de auditoría** (incluido un test de canario que prueba, con un secreto real inyectado en el proceso padre, que jamás aparece en la salida del hijo) — ver `src/judge-engine/hardened-process-sandbox.adapter.spec.ts`.
 
 ---
 

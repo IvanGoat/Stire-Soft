@@ -2,6 +2,50 @@
 
 ---
 
+## v0.3.0 — Cierre de Ola 1 de Remediacion · 25 de Agosto de 2026
+
+Base: `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` (auditoria tecnica de alta intensidad sobre el commit `c7aac0e`, veredicto original: NO APTO, 3.05/10). Ejecutado en 4 bloques (build, autorizacion de usuarios, sandbox/cola/preguntas, cierre), cada uno con build + test en verde y commit propio.
+
+**Este documento NO declara un veredicto de aptitud para produccion.** Esa determinacion corresponde a una reauditoria independiente sobre el commit final de esta ola, no al autor de los cambios que se auditan a si mismo. Lo que sigue es un registro objetivo de que se cerro y que sigue abierto, con evidencia verificable.
+
+### Hallazgos cerrados en esta ola
+
+| Hallazgo | Descripcion | Commit |
+|---|---|---|
+| P1-01 | Build roto (6 errores de TypeScript) impedia compilar y arrancar | `44ad1ee` |
+| P0-02 | Escalada de privilegios via `PATCH /users/:id` (mass assignment de `role`/`isActive`) | `98c12c3` |
+| P1-10 a P1-13 | `POST /users` sin rol, politica de contrasena inconsistente, `GET /users` sin control, `addAffiliation` sin DTO validado, `validateToken()` sin chequeo de `isActive` | `ad6be2b` |
+| P0-01 | Escape de sandbox confirmado en `node:vm` (lectura de secretos + ejecucion de comandos) — reemplazado por aislamiento de proceso hijo | `6fb1842` |
+| P0-05 | Adaptador Docker mock que aprobaba codigo conteniendo `"correct"`, activo por defecto | `6fb1842` |
+| P0-03 | `ActivityQuestion` servida cruda a estudiantes, exponiendo respuestas correctas (y orden revelador en DRAG_DROP/MATCHING/ORDERING) | `6fb1842` |
+| P0-04 | `/activities` (update/publish/archive/remove) sin control de rol ni de propiedad de la clase | `0558f80` |
+| P1-06 | Misma falta de verificacion de `teacherId` en `class.remove`, `section.update/togglePublish/remove` y `enrollment.findByClass` | `3559af6` |
+| P1-03 | `ThrottlerGuard` declarado pero nunca registrado — sin rate limiting funcional en ningun endpoint | `e18ce4e` |
+| P1-02 | `auth.service.ts`/`auth.controller.ts` al 0% de cobertura | `f2d5519` |
+| — | Preguntas CODING sin ningun `testCase` publico dejaban al estudiante sin saber el formato esperado | `c15effb` |
+
+### Verificacion end-to-end (no solo unitaria)
+
+Con `SANDBOX_TYPE=hardened` y `QUEUE_DRIVER=inline` (ambos default), el servidor arranca completo **sin Docker y sin Redis** (`"Nest application successfully started"`, `GET /docs` -> 200) y califica codigo real: una entrega correcta obtiene 100/100 con `stdout` real capturado en `execution_results`; una entrega incorrecta obtiene 0/100. El sandbox fue atacado con los 10 payloads del informe de auditoria (incluido un test de canario con un secreto real inyectado en el proceso padre) y ninguno tuvo exito.
+
+### Hallazgos que SIGUEN abiertos — no se declaran cerrados sin evidencia
+
+| Hallazgo | Estado | Nota |
+|---|---|---|
+| P1-04 | XSS almacenado (sanitizador `ContentRenderingService` existe pero no se invoca en ningun flujo de guardado) | Sin tocar en esta ola |
+| P1-05 | Dependencias de produccion con 1 vulnerabilidad critica y 18 altas (`npm audit`) | Sin tocar |
+| P1-07 | Condicion de carrera en el limite de intentos (`startSubmission`, sin `UNIQUE` constraint) | Sin tocar |
+| P1-08 | Perdida de eventos si el proceso de negocio falla — parcialmente mitigado en el pipeline del judge (`emitAsync`), no revisado en `submission.graded` original | Parcial |
+| P1-09 | 25 de 26 tablas sin `CREATE TABLE` en migraciones — el esquema no es reproducible desde cero | Sin tocar |
+| — | Deuda arquitectonica menor: `UserService`/otros servicios siguen inyectando `Repository<Entity>` directamente | Sin tocar, deuda conocida |
+| — | `GET /users` sigue con `@Roles('admin','docente')` — un docente ve el padron completo de la institucion, no solo sus estudiantes. Senalado como diseno amplio, no corregido en esta ola | Decision pendiente |
+
+### Proximo paso obligatorio
+
+Reauditoria independiente con el mismo prompt de alta intensidad de `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md`, sobre el commit final de esta ola, con la misma vara de medir que produjo el veredicto original (NO APTO, 3.05/10). El resultado de esa reauditoria — y no esta nota — es lo que determina si la calificacion cambio y en cuanto.
+
+---
+
 ## v0.2.1 — Ola 1 · Bloque 1: Reparacion del Build · 25 de Agosto de 2026
 
 Base: `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` (hallazgo P1-01), commit `c7aac0e`.
