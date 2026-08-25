@@ -1,20 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { PublicationStatus } from '../common/enums/status.enum';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 
 @ApiTags('Activities')
 @Controller('activities')
+@UseGuards(JwtAuthGuard)
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Post()
+  @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Crear una nueva actividad' })
   @ApiResponse({ status: 201, description: 'La actividad ha sido creada exitosamente.' })
@@ -39,37 +43,45 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Obtener una actividad por ID' })
   @ApiResponse({ status: 200, description: 'Retorna la actividad solicitada.' })
   @ApiResponse({ status: 404, description: 'Actividad no encontrada.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.activitiesService.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.activitiesService.findOneForRequester(id, user);
   }
 
   @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Actualizar una actividad' })
   @ApiResponse({ status: 200, description: 'La actividad ha sido actualizada.' })
   @ApiResponse({ status: 404, description: 'Actividad no encontrada.' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateActivityDto: UpdateActivityDto) {
-    return this.activitiesService.update(id, updateActivityDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateActivityDto: UpdateActivityDto, @GetUser() user: User) {
+    return this.activitiesService.update(id, updateActivityDto, user);
   }
 
   @Patch(':id/publish')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Publicar una actividad' })
-  publish(@Param('id', ParseIntPipe) id: number) {
-    return this.activitiesService.changeStatus(id, PublicationStatus.PUBLISHED);
+  publish(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.activitiesService.changeStatus(id, PublicationStatus.PUBLISHED, user);
   }
 
   @Patch(':id/archive')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Archivar una actividad' })
-  archive(@Param('id', ParseIntPipe) id: number) {
-    return this.activitiesService.changeStatus(id, PublicationStatus.ARCHIVED);
+  archive(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.activitiesService.changeStatus(id, PublicationStatus.ARCHIVED, user);
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Eliminar (soft delete) una actividad' })
   @ApiResponse({ status: 200, description: 'La actividad ha sido eliminada.' })
   @ApiResponse({ status: 404, description: 'Actividad no encontrada.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.activitiesService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.activitiesService.remove(id, user);
   }
 }
