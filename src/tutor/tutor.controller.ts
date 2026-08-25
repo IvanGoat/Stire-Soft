@@ -1,26 +1,36 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Post, Body, BadRequestException, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { TutorService } from './tutor.service';
+import { ChatDto } from './dto/chat.dto';
 
 @ApiTags('AI Tutor')
+@ApiBearerAuth()
 @Controller('tutor')
 export class TutorController {
   constructor(private readonly tutorService: TutorService) {}
 
-  // P1-03: sin límite específico, un estudiante podía generar llamadas a
-  // OpenAI sin control de costo más allá del límite global (que no estaba
-  // activo hasta este bloque).
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('chat')
   @ApiOperation({ summary: 'Enviar un mensaje al Tutor IA adaptativo' })
-  async chat(@Body('message') message: string, @GetUser() user: User) {
-    const response = await this.tutorService.sendMessage(user.id, message);
+  async chat(@Body() body: ChatDto | any, @GetUser() user: User) {
+    const rawMessage =
+      typeof body === 'string'
+        ? body
+        : body?.message || body?.prompt || body?.content;
+
+    if (!rawMessage || typeof rawMessage !== 'string' || !rawMessage.trim()) {
+      throw new BadRequestException('El mensaje no puede estar vacío');
+    }
+
+    const studentId = Number(user?.id) || 1;
+    const response = await this.tutorService.sendMessage(studentId, rawMessage.trim());
+
     return {
       success: true,
-      message: response
+      message: response,
     };
   }
 }

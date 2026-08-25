@@ -131,10 +131,50 @@ export class TutorService {
   }
 
   private mockLlmInference(userMessage: string): string {
-    const isCode = userMessage.includes('{') || userMessage.includes('function');
-    if (isCode) {
-      return 'Veo que estás intentando escribir código. Recuerda revisar la condición de parada de tu bucle. ¿Qué crees que pasaría si la variable "i" nunca alcanza el límite?';
+    const text = userMessage.toLowerCase().trim();
+
+    // 1. Saludos
+    if (/^(hola|buenas|buen[oa]s d[ií]as|buenas tardes|buenas noches|saludos|hi|hello|hey)/i.test(text)) {
+      return '¡Hola! Soy tu Tutor Inteligente de STIRE. Estoy aquí para acompañarte en tu aprendizaje de Algoritmia y Programación. ¿Qué concepto, ejercicio o duda te gustaría que analicemos juntos hoy?';
     }
-    return 'Entiendo tu duda. Piensa en esto como si estuvieras organizando libros en un estante. ¿Cómo aplicarías ese concepto aquí?';
+
+    // 2. Bloques de código explícito
+    const isCode = userMessage.includes('{') || userMessage.includes('}') || userMessage.includes('function') || userMessage.includes('def ') || userMessage.includes('return ') || userMessage.includes('console.log');
+    if (isCode) {
+      return 'Veo que estás analizando código. Recuerda revisar la condición de parada de tu bucle y los tipos de tus variables. ¿Qué resultado esperas obtener y qué salida estás observando actualmente?';
+    }
+
+    // 3. Variables y tipos de datos
+    if (text.includes('variable') || text.includes('tipo de dato') || text.includes('declarar') || text.includes('string') || text.includes('int') || text.includes('boolean')) {
+      return 'En algoritmia, una variable es un contenedor con nombre que almacena un dato en memoria. Dependiendo de lo que guardes (números, texto, booleanos), cambia su tipo. ¿Qué tipo de información necesitas guardar en tu algoritmo y cómo planeas nombrarla?';
+    }
+
+    // 4. Condicionales (if / else / switch)
+    if (text.includes('condicional') || text.includes(' if') || text.includes('else') || text.includes('switch') || text.includes('decisi')) {
+      return 'Las estructuras condicionales permiten que tu algoritmo tome caminos diferentes según se cumpla o no una condición booleana. ¿Cuál es la condición lógica exacta (verdadero o falso) que debe evaluarse en este paso?';
+    }
+
+    // 5. Bucles / Ciclos (for / while)
+    if (text.includes('bucle') || text.includes('ciclo') || text.includes(' for') || text.includes('while') || text.includes('iterar') || text.includes('repetir')) {
+      return 'Un ciclo te ayuda a ejecutar un bloque de instrucciones múltiples veces. Todo bucle requiere: (1) un punto de inicio, (2) una condición de parada y (3) un paso o incremento. ¿Cuál de estos tres elementos crees que requiere atención en tu ejercicio?';
+    }
+
+    // 6. Funciones / Métodos
+    if (text.includes('funcion') || text.includes('función') || text.includes('metodo') || text.includes('método') || text.includes('parametro') || text.includes('parámetro')) {
+      return 'Una función es una subrutina reutilizable que resuelve una tarea específica. Recibe parámetros de entrada y puede retornar un resultado. ¿Qué datos de entrada necesita tu función y qué valor debería devolver?';
+    }
+
+    // 7. Arreglos / Vectores / Matrices
+    if (text.includes('arreglo') || text.includes('vector') || text.includes('array') || text.includes('matriz') || text.includes('lista') || text.includes('indice') || text.includes('índice')) {
+      return 'Un arreglo es una estructura de datos secuencial donde cada elemento se accede por su índice (comenzando en 0). ¿Cómo estás pensando recorrer las posiciones del arreglo para acceder o modificar los datos?';
+    }
+
+    // 8. Recursividad
+    if (text.includes('recursiv') || text.includes('recursión') || text.includes('recursivo')) {
+      return 'La recursividad ocurre cuando una función se invoca a sí misma para resolver un subproblema más pequeño. Todo algoritmo recursivo necesita un caso base para no caer en un bucle infinito. ¿Identificas cuál es el caso base de tu problema?';
+    }
+
+    // 9. Fallback socrático general (mantiene "Entiendo tu duda" para compatibilidad de tests)
+    return 'Entiendo tu duda. Piensa en esto descomponiendo el problema en partes más simples: ¿cuál es el estado inicial, qué transformación paso a paso debes realizar y cuál es el resultado esperado?';
   }
 }
