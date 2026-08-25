@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -17,7 +18,11 @@ export class AuthController {
     return await this.authService.register(registerDto);
   }
 
+  // P1-03: sin este límite específico, /auth/login solo dependía del límite
+  // global de 100/min (y ese guard ni siquiera estaba registrado hasta este
+  // mismo bloque) — abierto a fuerza bruta de contraseñas.
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);

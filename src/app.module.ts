@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
@@ -122,6 +122,13 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    // P1-03: declarado en ThrottlerModule.forRoot pero nunca aplicado —
+    // el limite global de 100/min no protegia nada porque este guard
+    // jamas se registraba.
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

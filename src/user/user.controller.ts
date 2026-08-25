@@ -9,6 +9,7 @@ import {
   Delete,
   ForbiddenException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
@@ -46,6 +47,8 @@ export class UserController {
     return this.userService.updateProfile(user.id, updateProfileDto);
   }
 
+  // P1-03: verificacion de credenciales, fuerza-brutable igual que el login.
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Patch('me/password')
   changePassword(@GetUser() user: User, @Body() changePasswordDto: ChangePasswordDto) {
     return this.userService.changePassword(user.id, changePasswordDto);
