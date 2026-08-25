@@ -21,9 +21,14 @@ export class TutorService {
     this.openAiModel = this.configService.get<string>('OPENAI_MODEL', 'gpt-4o-mini');
     this.openAiRetryCount = this.configService.get<number>('OPENAI_RETRY_COUNT', 3);
 
-    if (apiKey) {
-      const baseURL = this.configService.get<string>('OPENAI_API_URL', 'https://api.openai.com/v1');
-      this.openai = new OpenAI({ apiKey, baseURL });
+    if (apiKey && apiKey.trim().length > 0) {
+      const rawBaseURL = this.configService.get<string>('OPENAI_API_URL', 'https://api.openai.com/v1');
+      // Asegurar que baseURL no termine en /chat/completions para el SDK oficial
+      const baseURL = (rawBaseURL || 'https://api.openai.com/v1')
+        .trim()
+        .replace(/\/chat\/completions\/?$/, '');
+      this.openai = new OpenAI({ apiKey: apiKey.trim(), baseURL });
+      this.logger.log(`Tutor IA inicializado con LLM (${this.openAiModel}) en ${baseURL}`);
     }
   }
 
