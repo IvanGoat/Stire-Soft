@@ -98,7 +98,7 @@ describe('SubmissionsService', () => {
     };
 
     judgeQueue = {
-      add: jest.fn().mockResolvedValue(undefined),
+      enqueue: jest.fn().mockResolvedValue(undefined),
     };
 
     service = new SubmissionsService(

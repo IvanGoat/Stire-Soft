@@ -4,6 +4,9 @@ import { ActivityQuestionsService, CreateActivityQuestionDto } from './activity-
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User, UserRole } from '../user/entities/user.entity';
+import { StudentQuestionDto } from './dto/student-question.dto';
 
 @ApiTags('Activity Questions')
 @Controller('activity-questions')
@@ -26,11 +29,23 @@ export class ActivityQuestionsController {
 
   /**
    * GET /activity-questions/activity/:activityId
-   * Lista todas las preguntas de una actividad.
+   * Lista las preguntas de una actividad. Un estudiante NUNCA recibe la
+   * entidad cruda (P0-03): la respuesta correcta se quita del `config`, y en
+   * DRAG_DROP/MATCHING/ORDERING las listas se barajan porque el orden en que
+   * se guardan ES la respuesta. Docente/admin sí reciben la entidad completa.
    */
   @Get('activity/:activityId')
   @ApiOperation({ summary: 'Listar preguntas de una actividad' })
-  findByActivity(@Param('activityId', ParseIntPipe) activityId: number) {
-    return this.questionsService.findByActivity(activityId);
+  async findByActivity(
+    @Param('activityId', ParseIntPipe) activityId: number,
+    @GetUser() requester: User,
+  ) {
+    const questions = await this.questionsService.findByActivity(activityId);
+
+    if (requester.role === UserRole.DOCENTE || requester.role === UserRole.ADMIN) {
+      return questions;
+    }
+
+    return questions.map((q) => StudentQuestionDto.fromEntity(q));
   }
 }

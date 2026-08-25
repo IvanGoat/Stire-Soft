@@ -1,0 +1,185 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
+import { mkdtempSync, writeFileSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import type { SandboxAdapter, RunResult } from './sandbox-adapter.interface';
+
+// ADR 06 — aislamiento por proceso hijo del sistema operativo, no por
+// contexto de JavaScript (node:vm nunca fue una frontera de seguridad:
+// ver P0-01, escape confirmado y reproducido). Cuatro barreras
+// independientes: entorno vacío, --permission de Node, sin generacion de
+// codigo desde strings, y cortafuegos de red en el preludio del hijo.
+
+const TIMEOUT_MS = 2000;
+const MAX_OUTPUT_BYTES = 64 * 1024;
+const MAX_HEAP_MB = 128;
+
+const NETWORK_GUARD = `
+const deny = (w) => { throw new Error('SandboxViolation: red bloqueada (' + w + ')'); };
+const patch = (mod, keys) => { let m; try { m = require(mod); } catch { return; }
+  for (const k of keys) if (m && typeof m[k] === 'function') m[k] = () => deny(mod + '.' + k); return m; };
+const net = patch('net', ['connect', 'createConnection']);
+if (net && net.Socket) net.Socket.prototype.connect = () => deny('net.Socket.connect');
+patch('tls', ['connect', 'createConnection']); patch('dgram', ['createSocket']);
+patch('http', ['request', 'get']); patch('https', ['request', 'get']);
+patch('http2', ['connect']); patch('dns', ['lookup', 'resolve', 'resolve4', 'resolve6']);
+try { globalThis.fetch = () => deny('fetch'); } catch {}
+`;
+
+@Injectable()
+export class HardenedProcessSandboxAdapter implements SandboxAdapter {
+  private readonly logger = new Logger(HardenedProcessSandboxAdapter.name);
+
+  async executeIsolated(
+    code: string,
+    language: string,
+    testCase: any,
+  ): Promise<RunResult> {
+    if (language !== 'javascript' && language !== 'js') {
+      return {
+        status: 'runtime_error',
+        stdout: '',
+        stderr: `Sandbox endurecido: solo JavaScript. Recibido: ${language}`,
+        timeMs: 0,
+        memoryKb: 0,
+      };
+    }
+
+    const dir = mkdtempSync(join(tmpdir(), `stire-sbx-${randomUUID()}-`));
+    const guardFile = join(dir, 'guard.cjs');
+    const codeFile = join(dir, 'student.js');
+    writeFileSync(guardFile, NETWORK_GUARD, 'utf8');
+    writeFileSync(codeFile, code, 'utf8');
+
+    const start = Date.now();
+    try {
+      return await new Promise<RunResult>((resolve) => {
+        const child = spawn(
+          process.execPath,
+          [
+            '--permission',
+            `--allow-fs-read=${dir}`,
+            '--disallow-code-generation-from-strings',
+            `--max-old-space-size=${MAX_HEAP_MB}`,
+            '--require',
+            guardFile,
+            codeFile,
+          ],
+          {
+            // Entorno minimo declarado a mano: si el aislamiento cayera, no
+            // hay secretos que robar. En Windows libuv inyecta a la fuerza
+            // ciertas variables del proceso padre cuando faltan en `env` —
+            // se neutralizan aqui en vez de dejar que libuv decida.
+            env: this.buildSandboxEnv(dir),
+            cwd: dir,
+            stdio: ['pipe', 'pipe', 'pipe'],
+            windowsHide: true,
+          },
+        );
+
+        let stdout = '';
+        let stderr = '';
+        let killed = false;
+
+        const timer = setTimeout(() => {
+          killed = true;
+          child.kill('SIGKILL');
+        }, TIMEOUT_MS);
+
+        child.stdout.on('data', (d) => {
+          stdout += d;
+          if (stdout.length > MAX_OUTPUT_BYTES) {
+            killed = true;
+            child.kill('SIGKILL');
+          }
+        });
+        child.stderr.on('data', (d) => {
+          stderr += d;
+          if (stderr.length > MAX_OUTPUT_BYTES) {
+            killed = true;
+            child.kill('SIGKILL');
+          }
+        });
+        child.on('error', (e) => {
+          clearTimeout(timer);
+          resolve({
+            status: 'runtime_error',
+            stdout: '',
+            stderr: `Sandbox no disponible: ${e.message}`,
+            timeMs: Date.now() - start,
+            memoryKb: 0,
+          });
+        });
+        child.stdin.end(String(testCase.input ?? testCase.inputData ?? ''));
+
+        child.on('close', (exitCode) => {
+          clearTimeout(timer);
+          const timeMs = Date.now() - start;
+          let status: RunResult['status'];
+          if (killed) {
+            status = 'time_limit';
+          } else if (exitCode !== 0) {
+            status = 'runtime_error';
+          } else {
+            status =
+              String(testCase.expected ?? '').trim() === stdout.trim()
+                ? 'accepted'
+                : 'wrong_answer';
+          }
+
+          resolve({
+            status,
+            stdout: stdout.trim(),
+            // Nunca stderr crudo al estudiante: filtra rutas del host.
+            stderr: status === 'runtime_error' ? this.sanitizeStderr(stderr) : '',
+            timeMs,
+            memoryKb: 0,
+          });
+        });
+      });
+    } finally {
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch {
+        /* noop: limpieza de mejor esfuerzo */
+      }
+    }
+  }
+
+  /**
+   * En Windows, uv_spawn inyecta a la fuerza HOMEDRIVE, HOMEPATH, LOGONSERVER,
+   * PATH, SYSTEMDRIVE, SYSTEMROOT, TEMP, USERDOMAIN, USERNAME, USERPROFILE y
+   * WINDIR en el hijo cuando no vienen declaradas en `env` — `env: {}` nunca
+   * produce un entorno vacío en Windows. Como libuv solo añade lo que falta,
+   * se declaran aquí neutralizadas para que no filtren datos del host
+   * (nombre de máquina, usuario, rutas de perfil).
+   */
+  private buildSandboxEnv(workDir: string): NodeJS.ProcessEnv {
+    if (process.platform !== 'win32') return {};
+    return {
+      SystemRoot: process.env.SystemRoot ?? 'C:\\Windows',
+      SystemDrive: process.env.SystemDrive ?? 'C:',
+      windir: process.env.windir ?? 'C:\\Windows',
+      TEMP: workDir,
+      TMP: workDir,
+      PATH: '',
+      HOMEDRIVE: '',
+      HOMEPATH: '',
+      LOGONSERVER: '',
+      USERNAME: 'sandbox',
+      USERDOMAIN: 'sandbox',
+      USERPROFILE: '',
+    };
+  }
+
+  /** Elimina rutas absolutas y da un mensaje pedagógico ante agotamiento de heap. */
+  private sanitizeStderr(raw: string): string {
+    if (/JavaScript heap out of memory|FATAL ERROR/i.test(raw)) {
+      return `Límite de memoria excedido (${MAX_HEAP_MB} MB).`;
+    }
+    const first = raw.split('\n').find((l) => /Error|error/.test(l)) ?? 'Error de ejecución';
+    return first.replace(/[A-Za-z]:\\[^\s)]+|\/[^\s)]+/g, '<ruta>').trim().slice(0, 300);
+  }
+}

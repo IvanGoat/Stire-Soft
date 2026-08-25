@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SubmissionsRepository } from './submissions.repository';
@@ -11,8 +11,8 @@ import { SubmitAnswersDto } from './dto/submit-answers.dto';
 import { Submission } from './entities/submission.entity';
 import { SubmissionStatus } from '../common/enums/submission-status.enum';
 import { SubmissionGradedEvent } from '../common/events/submission-graded.event';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { JUDGE_QUEUE } from '../judge-engine/judge-queue.interface';
+import type { JudgeQueue } from '../judge-engine/judge-queue.interface';
 
 @Injectable()
 export class SubmissionsService {
@@ -24,7 +24,9 @@ export class SubmissionsService {
     private readonly questionsRepo: ActivityQuestionsRepository,
     private readonly evalEngine: EvaluationEngineService,
     private readonly eventEmitter: EventEmitter2,
-    @InjectQueue('judge') private readonly judgeQueue: Queue,
+    // Puerto, no BullMQ directo (ADR 08): antes @InjectQueue('judge')
+    // acoplaba este servicio a Redis incluso para poder arrancar.
+    @Inject(JUDGE_QUEUE) private readonly judgeQueue: JudgeQueue,
   ) {}
 
   async startSubmission(dto: StartSubmissionDto, studentId: number): Promise<Submission> {
@@ -146,32 +148,23 @@ export class SubmissionsService {
         );
       }
 
-      // Encolar jobs en BullMQ FUERA de la transacción.
-      // Si Redis no está disponible, el job no se encola pero la submission
-      // permanece en estado SUBMITTED. El MaintenanceService limpia el limbo.
+      // Encolar jobs FUERA de la transacción, vía el puerto JudgeQueue.
+      // En modo inline (default) no hay Redis que pueda fallar aquí; en modo
+      // redis, si BullMQ no está disponible, el job no se encola pero la
+      // submission permanece en estado SUBMITTED — el MaintenanceService
+      // limpia el limbo.
       for (const job of asyncJobs) {
         try {
-          await this.judgeQueue.add(
-            'evaluate-code',
-            {
-              submissionAnswerId: job.savedAnswer.id,
-              code: job.answerDto.answer.code,
-              language: job.question.config.language || 'javascript',
-              testCases: job.question.config.testCases || [],
-            },
-            {
-              attempts: 3,
-              backoff: { type: 'exponential', delay: 2000 },
-              removeOnComplete: true,
-              removeOnFail: false,
-            }
-          );
+          await this.judgeQueue.enqueue({
+            submissionAnswerId: job.savedAnswer.id,
+            code: job.answerDto.answer.code,
+            language: job.question.config.language || 'javascript',
+            testCases: job.question.config.testCases || [],
+          });
         } catch (queueError: any) {
-          // Redis no disponible — loguear pero NO fallar. La submission ya fue guardada.
-          // El servicio de mantenimiento marcará estas respuestas como incorrectas.
           console.warn(
             `[SubmissionsService] No se pudo encolar job para respuesta ID ${job.savedAnswer.id}. ` +
-            `Redis no disponible: ${queueError.message}. La limpieza de mantenimiento actuará sobre el limbo.`
+            `${queueError.message}. La limpieza de mantenimiento actuará sobre el limbo.`
           );
         }
       }

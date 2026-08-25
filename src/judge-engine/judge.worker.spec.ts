@@ -1,5 +1,6 @@
 import { DataSource, Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { JudgeWorker } from './judge.worker';
+import { JudgeExecutionService } from './judge-execution.service';
 import { createTestDataSource } from '../test-data-source';
 
 @Entity('execution_results')
@@ -47,8 +48,7 @@ describe('JudgeWorker integration', () => {
   let dataSource: DataSource;
   let resultsRepo: TestExecutionResultsRepository;
   let worker: JudgeWorker;
-  let updateAnswerScore: jest.Mock;
-  let consolidateSubmission: jest.Mock;
+  let emitAsync: jest.Mock;
 
   beforeAll(async () => {
     dataSource = createTestDataSource([TestExecutionResult]);
@@ -66,17 +66,15 @@ describe('JudgeWorker integration', () => {
       }),
     } as any;
 
-    updateAnswerScore = jest.fn().mockResolvedValue({ submissionId: 'submission-123' });
-    consolidateSubmission = jest.fn().mockResolvedValue(undefined);
+    emitAsync = jest.fn().mockResolvedValue(undefined);
 
-    worker = new JudgeWorker(
+    const executionService = new JudgeExecutionService(
       sandboxMock,
       resultsRepo as any,
-      {
-        updateAnswerScore,
-        consolidateSubmission,
-      } as any,
+      { emitAsync } as any,
     );
+
+    worker = new JudgeWorker(executionService);
   });
 
   afterAll(async () => {
@@ -107,7 +105,14 @@ describe('JudgeWorker integration', () => {
     expect(rows[0].status).toBe('accepted');
     expect(rows[0].stdout).toBe('OK');
 
-    expect(updateAnswerScore).toHaveBeenCalledWith(1, true, 10, expect.stringContaining('¡Excelente!'));
-    expect(consolidateSubmission).toHaveBeenCalledWith('submission-123');
+    expect(emitAsync).toHaveBeenCalledWith(
+      'judge.answer-graded',
+      expect.objectContaining({
+        submissionAnswerId: 1,
+        isCorrect: true,
+        score: 10,
+        feedback: expect.stringContaining('¡Excelente!'),
+      }),
+    );
   });
 });

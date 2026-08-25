@@ -8,7 +8,8 @@ import { SubmissionAnswersModule } from '../submission-answers/submission-answer
 import { ActivitiesModule } from '../activities/activities.module';
 import { ActivityQuestionsModule } from '../activity-questions/activity-questions.module';
 import { EvaluationEngineModule } from '../evaluation-engine/evaluation-engine.module';
-import { BullModule } from '@nestjs/bullmq';
+import { JudgeEngineModule } from '../judge-engine/judge-engine.module';
+import { JudgeGradedListener } from './listeners/judge-graded.listener';
 
 @Module({
   imports: [
@@ -17,12 +18,13 @@ import { BullModule } from '@nestjs/bullmq';
     ActivitiesModule,
     ActivityQuestionsModule,
     EvaluationEngineModule,
-    BullModule.registerQueue({
-      name: 'judge',
-    }),
+    // Import normal: JudgeEngineModule ya no depende de SubmissionsModule
+    // (ver la nota de diseño en judge-engine.module.ts), así que no hay
+    // ciclo que resolver con forwardRef.
+    JudgeEngineModule,
   ],
   controllers: [SubmissionsController],
-  providers: [SubmissionsService, SubmissionsRepository],
+  providers: [SubmissionsService, SubmissionsRepository, JudgeGradedListener],
   exports: [SubmissionsService, SubmissionsRepository],
 })
 export class SubmissionsModule {}
