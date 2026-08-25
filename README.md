@@ -30,6 +30,17 @@ Para el índice completo de documentación: [`docs/README.md`](./docs/README.md)
 
 ---
 
+## 👥 Gestión del Proyecto
+
+El equipo trabaja con **Sprint Semanal y Kanban en Trello**. Hay solo dos documentos de gestión:
+
+| Documento | Contenido |
+|-----------|-----------|
+| [`MONITOREO_SEMANAL.md`](./MONITOREO_SEMANAL.md) | Bitácora oficial del curso: avances, cuellos de botella y compromisos de la semana. |
+| [`docs/05_METODOLOGIA_Y_EQUIPO.md`](./docs/05_METODOLOGIA_Y_EQUIPO.md) | Cómo trabaja el equipo: cadencia semanal, roles, tablero de Trello y entregables. |
+
+---
+
 ## 🏗️ Stack Tecnológico
 
 | Capa | Tecnología |
@@ -153,10 +164,8 @@ STIRE implementa un modelo de **seguridad por defecto** (secure-by-default) vali
 ## 🤝 Contribución
 
 1. Lee [`docs/04_ESTANDARES_Y_SEGURIDAD.md`](./docs/04_ESTANDARES_Y_SEGURIDAD.md) antes de contribuir.
-2. Crea una rama descriptiva (`feature/nombre-feature` o `fix/descripcion`).
-3. Escribe tests para tu cambio.
-4. Asegúrate de que `npm run test` pase al 100 %.
-5. Abre un Pull Request con descripción de motivación y cambios.
+2. Escribe tests para tu cambio y asegúrate de que `npm run test` pase al 100 %.
+3. Sube el archivo al repositorio antes del cierre semanal del viernes — sin reglas estrictas de ramas, revisiones cruzadas o convenciones de commits (ver [`docs/05_METODOLOGIA_Y_EQUIPO.md`](./docs/05_METODOLOGIA_Y_EQUIPO.md)).
 
 ---
 

@@ -23,6 +23,10 @@
 
 | Archivo | Descripción |
 |---------|-------------|
+| [05_METODOLOGIA_Y_EQUIPO.md](./05_METODOLOGIA_Y_EQUIPO.md) | **Cómo trabaja el equipo:** sprint semanal, reunión del viernes, reportes de martes y jueves, tablero en Trello, roles y los 3 entregables. |
+| [`../MONITOREO_SEMANAL.md`](../MONITOREO_SEMANAL.md) | Bitácora oficial del curso (vive en la raíz del repositorio). |
+| [modesec/](./modesec/) | Diseño multimedial MODESEC Fase II: plantillas y documentos de trabajo. |
+| [pitch/](./pitch/) | Guiones del pitch en inglés por reto. |
 | [RELEASE_NOTES.md](./RELEASE_NOTES.md) | Historial de versiones y cambios principales por sprint. |
 | `archive/` | Documentos históricos o deprecados. No forman parte de la documentación activa. |
 | `testing/` | Guías y artefactos relacionados con la estrategia de pruebas. |
