@@ -179,7 +179,7 @@ export const messageApi = {
 
 export const tutorApi = {
   chat: (message: string) =>
-    request<{ response: string }>('tutor/chat', {
+    request<{ response?: string; message?: string; success?: boolean }>('tutor/chat', {
       method: 'POST',
       body: JSON.stringify({ message }),
     }),

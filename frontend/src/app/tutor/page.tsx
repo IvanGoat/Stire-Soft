@@ -42,11 +42,17 @@ export default function TutorChat() {
 
     try {
       const response = await tutorApi.chat(userMessage);
+      const replyContent =
+        response?.response ||
+        response?.message ||
+        (typeof response === 'string' ? response : '') ||
+        '¡Hola! He recibido tu mensaje.';
+
       setMessages((prev) => [
         ...prev,
         {
           role: 'tutor',
-          content: response.response,
+          content: replyContent,
           timestamp: new Date(),
         },
       ]);
@@ -73,7 +79,11 @@ export default function TutorChat() {
   };
 
   // Simple markdown-like rendering
-  const renderContent = (content: string) => {
+  const renderContent = (content?: string) => {
+    if (!content || typeof content !== 'string') {
+      return <span>{String(content || '')}</span>;
+    }
+
     // Handle code blocks
     const parts = content.split(/(```[\s\S]*?```)/g);
     return parts.map((part, i) => {
@@ -87,12 +97,15 @@ export default function TutorChat() {
       }
       // Handle inline markdown
       return (
-        <span key={i} dangerouslySetInnerHTML={{
-          __html: part
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/`(.*?)`/g, '<code>$1</code>')
-            .replace(/\n/g, '<br/>')
-        }} />
+        <span
+          key={i}
+          dangerouslySetInnerHTML={{
+            __html: part
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/`(.*?)`/g, '<code>$1</code>')
+              .replace(/\n/g, '<br/>'),
+          }}
+        />
       );
     });
   };
