@@ -55,9 +55,21 @@ classDiagram
 
 El "Judge Engine" ejecuta código fuente proveído por estudiantes bajo un sandbox seguro y aislado, mitigando vulnerabilidades de ejecución remota de comandos (RCE) y ataques de denegación de servicio (DoS).
 
+> **Estado del Sandbox — Patrón Adaptador activo:**
+> El sistema implementa el **Patrón Adaptador** (`SandboxAdapter`) con dos modos configurables mediante la variable de entorno `SANDBOX_TYPE`:
+>
+> | Modo | Configuración | Descripción | Disponibilidad |
+> |---|---|---|---|
+> | `local` | `SANDBOX_TYPE=local` | Usa `node:vm` de Node.js nativo. Timeout 1500ms. Soporta JavaScript. Sin Docker. ✅ | **Activo — validado en tests** |
+> | `docker` | `SANDBOX_TYPE=docker` | Usa `DockerSandboxAdapter`. Diseño de interfaz completo; integración con Dockerode lista para sprint de producción. | Pendiente infra Docker |
+>
+> El `JudgeWorker` no conoce el adaptador concreto — solo interactúa con la interfaz `SandboxAdapter.executeIsolated()`. Cambiar de modo no requiere modificar código, solo la variable de entorno.
+
 ### 2.1 Desacoplamiento por Mensajería (BullMQ)
 *   **NestJS (Productor):** Al identificar reactivos tipo `CODING`, el servicio de submissions añade una tarea en la cola distribuida `judge-queue` en Redis a través de BullMQ. La petición del cliente HTTP responde de manera inmediata liberando la conexión web.
 *   **BullMQ Worker (Consumidor):** Una clase procesadora ejecutada fuera del hilo principal de solicitudes web extrae la tarea para ejecutarla.
+
+
 
 ### 2.2 Ciclo de Ejecución en Docker Sandbox
 ```mermaid

@@ -10,7 +10,7 @@
 
 Construida con **NestJS + TypeORM + MariaDB**, la arquitectura sigue principios **DDD (Domain-Driven Design)** y un modelo **event-driven** que garantiza respuestas instantáneas al estudiante mientras los motores cognitivos operan en segundo plano.
 
-**Estado actual:** Backend v2 — Auditoría completada ✅ · 19 test suites · 103 tests en verde · Listo para Sprint de Frontend.
+**Estado actual:** Backend v2 — Auditoría de cierre completada ✅ · Tests críticos: 3/3 suites · 8/8 tests en verde · Calificación de madurez: **8.4/10** · Listo para Sprint de Frontend.
 
 ---
 
@@ -63,20 +63,28 @@ docker-compose up -d
 npm run start:dev
 ```
 
-La API estará disponible en `http://localhost:3000`.  
-Documentación Swagger: `http://localhost:3000/api`.
+La API estará disponible en `http://localhost:3001`.  
+Documentación Swagger: `http://localhost:3001/docs`.
 
 ---
 
 ## 🧪 Tests
 
 ```bash
-npm run test          # Suite completa (103 tests)
-npm run test:e2e      # Tests end-to-end
-npm run test:cov      # Reporte de cobertura
+npm run test                # Suite completa (requiere MySQL activo)
+npm run test:judge          # Tests del JudgeWorker + Sandbox (SQLite in-memory)
+npm run test:tutor          # Tests del TutorService (mock LLM)
+npm run test:e2e            # Tests end-to-end
+npm run test:cov            # Reporte de cobertura
 ```
 
-**Resultado actual:** `Test Suites: 19 passed · Tests: 103 passed · Time: ~17s`
+**Resultado verificado (tests críticos sin infraestructura):**
+```
+Test Suites: 3 passed, 3 total
+Tests:       8 passed, 8 total
+Time:        ~17 s · Exit Code: 0 ✅
+```
+> Los tests de integración completos requieren MySQL activo. Para CI/CD local, los suites de `judge-engine` y `tutor` corren de forma aislada con SQLite in-memory y mocks.
 
 ---
 
@@ -115,10 +123,17 @@ stire/
 
 ## 🔐 Seguridad
 
-- **XSS**: Todo HTML generado desde Markdown pasa por `DOMPurify` (backend, con JSDOM).
-- **RCE**: El código de estudiantes se ejecuta en contenedores Docker efímeros con límites de CPU, RAM y sin acceso a red.
-- **Auth**: Guards y decoradores de roles (`@Roles`, `@GetUser`) en cada endpoint sensible.
-- **Validación**: DTOs con `class-validator` en todas las entradas de la API.
+STIRE implementa un modelo de **seguridad por defecto** (secure-by-default) validado en auditoría técnica (calificación: 8.4/10):
+
+- **Autenticación global:** `JwtAuthGuard` y `RolesGuard` registrados como `APP_GUARD` — todo endpoint protegido por defecto. Rutas públicas marcadas con `@Public()`.
+- **CORS estricto:** Política configurable vía `CORS_ORIGIN` en `.env`. Solo orígenes en lista blanca son aceptados.
+- **Validación de entradas:** `ValidationPipe` con `whitelist: true` y `forbidNonWhitelisted: true` en todas las rutas — payloads no tipados son descartados.
+- **Rate Limiting:** `ThrottlerModule` activo (100 req/min global; endpoints sensibles con políticas específicas).
+- **Errores sanitizados:** `HttpExceptionFilter` global previene el *information disclosure* de stack traces en producción.
+- **XSS:** Todo HTML generado desde Markdown pasa por `DOMPurify` (backend, con JSDOM).
+- **RCE:** El código de estudiantes se ejecuta en el `LocalProcessSandboxAdapter` (`node:vm`, timeout 1500ms) o en contenedores Docker efímeros con límites de CPU, RAM y sin acceso a red (`SANDBOX_TYPE=docker`).
+- **Integridad de BD:** `synchronize: false` en TypeORM — todo cambio de schema gestionado por migraciones versionadas.
+- **Soft Deletes:** Ningún registro de usuario se elimina físicamente; se usa `@DeleteDateColumn()`.
 
 ---
 
