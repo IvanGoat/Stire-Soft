@@ -43,7 +43,7 @@ export class EnrollmentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Ver estudiantes matriculados en una clase' })
-  findByClass(@Param('classId') classId: string) {
-    return this.enrollmentService.findByClass(+classId);
+  findByClass(@Param('classId') classId: string, @GetUser() user: User) {
+    return this.enrollmentService.findByClass(+classId, user);
   }
 }

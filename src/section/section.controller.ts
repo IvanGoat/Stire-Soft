@@ -68,8 +68,8 @@ export class SectionController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Actualizar una sección' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSectionDto) {
-    return this.sectionService.update(id, dto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSectionDto, @GetUser() user: User) {
+    return this.sectionService.update(id, dto, user);
   }
 
   /**
@@ -81,8 +81,8 @@ export class SectionController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Publicar / despublicar una sección' })
-  togglePublish(@Param('id', ParseIntPipe) id: number) {
-    return this.sectionService.togglePublish(id);
+  togglePublish(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.sectionService.togglePublish(id, user);
   }
 
   /**
@@ -94,7 +94,7 @@ export class SectionController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Eliminar una sección (y sus topics en cascada)' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.sectionService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.sectionService.remove(id, user);
   }
 }

@@ -11,7 +11,8 @@ import { Enrollment } from './entities/enrollment.entity';
 import { EnrollmentStatus } from './enums/enrollment-status.enum';
 import { ClassService } from '../class/class.service';
 import { UserService } from '../user/user.service';
-import { UserRole } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
+import { AuthorizationService } from '../common/authorization/authorization.service';
 
 @Injectable()
 export class EnrollmentService {
@@ -20,6 +21,7 @@ export class EnrollmentService {
     private readonly enrollmentRepository: Repository<Enrollment>,
     private readonly classService: ClassService,
     private readonly userService: UserService,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async joinClass(userId: number, code: string): Promise<Enrollment> {
@@ -89,7 +91,8 @@ export class EnrollmentService {
     });
   }
 
-  async findByClass(classId: number): Promise<Enrollment[]> {
+  async findByClass(classId: number, user: User): Promise<Enrollment[]> {
+    await this.authorizationService.assertTeacherOwnsClass(user, classId);
     return await this.enrollmentRepository.find({
       where: { classId },
       relations: ['student'],

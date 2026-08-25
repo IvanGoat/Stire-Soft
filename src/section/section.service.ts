@@ -5,6 +5,8 @@ import { Section } from './entities/section.entity';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 import { ClassService } from '../class/class.service';
+import { AuthorizationService } from '../common/authorization/authorization.service';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class SectionService {
@@ -12,6 +14,7 @@ export class SectionService {
     @InjectRepository(Section)
     private readonly sectionRepository: Repository<Section>,
     private readonly classService: ClassService,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   /**
@@ -62,28 +65,32 @@ export class SectionService {
   }
 
   /**
-   * Actualizar una sección.
+   * Actualizar una sección. Solo el docente dueño de la clase (o admin).
    */
-  async update(id: number, dto: UpdateSectionDto): Promise<Section> {
+  async update(id: number, dto: UpdateSectionDto, user: User): Promise<Section> {
     const section = await this.findOne(id);
+    await this.authorizationService.assertTeacherOwnsClass(user, section.classId);
     Object.assign(section, dto);
     return this.sectionRepository.save(section);
   }
 
   /**
-   * Publicar o despublicar una sección.
+   * Publicar o despublicar una sección. Solo el docente dueño de la clase (o admin).
    */
-  async togglePublish(id: number): Promise<Section> {
+  async togglePublish(id: number, user: User): Promise<Section> {
     const section = await this.findOne(id);
+    await this.authorizationService.assertTeacherOwnsClass(user, section.classId);
     section.isPublished = !section.isPublished;
     return this.sectionRepository.save(section);
   }
 
   /**
    * Eliminar una sección (hard delete — la cascada borra sus topics).
+   * Solo el docente dueño de la clase (o admin).
    */
-  async remove(id: number): Promise<void> {
+  async remove(id: number, user: User): Promise<void> {
     const section = await this.findOne(id);
+    await this.authorizationService.assertTeacherOwnsClass(user, section.classId);
     await this.sectionRepository.remove(section);
   }
 }

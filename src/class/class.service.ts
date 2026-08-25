@@ -10,7 +10,8 @@ import { Class } from './entities/class.entity';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { UserService } from '../user/user.service';
-import { UserRole } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
+import { AuthorizationService } from '../common/authorization/authorization.service';
 
 @Injectable()
 export class ClassService {
@@ -18,6 +19,7 @@ export class ClassService {
     @InjectRepository(Class)
     private readonly classRepository: Repository<Class>,
     private readonly userService: UserService,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async create(createClassDto: CreateClassDto, teacherId: number): Promise<Class> {
@@ -80,8 +82,9 @@ export class ClassService {
     return await this.classRepository.save(classEntity);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, user: User): Promise<void> {
     const classEntity = await this.findOne(id);
+    await this.authorizationService.assertTeacherOwnsClass(user, classEntity.id);
     await this.classRepository.remove(classEntity);
   }
 }

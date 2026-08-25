@@ -65,7 +65,7 @@ export class ClassController {
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
-  remove(@Param('id') id: string) {
-    return this.classService.remove(+id);
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.classService.remove(+id, user);
   }
 }

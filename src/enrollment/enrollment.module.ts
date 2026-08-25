@@ -5,12 +5,14 @@ import { EnrollmentService } from './enrollment.service';
 import { EnrollmentController } from './enrollment.controller';
 import { ClassModule } from '../class/class.module';
 import { UserModule } from '../user/user.module';
+import { AuthorizationModule } from '../common/authorization/authorization.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Enrollment]),
     ClassModule,
     UserModule,
+    AuthorizationModule,
   ],
   controllers: [EnrollmentController],
   providers: [EnrollmentService],
