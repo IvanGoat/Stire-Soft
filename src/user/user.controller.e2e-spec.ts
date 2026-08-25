@@ -139,4 +139,111 @@ describe('UserController (e2e) — P0-02 escalada de privilegios', () => {
 
     expect(mockUserService.update).not.toHaveBeenCalled();
   });
+
+  // B1 — POST /users pasa a ser exclusivo de admin.
+  describe('B1 — POST /users', () => {
+    it('estudiante autenticado NO puede crear usuarios (403)', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .send({ email: 'nuevo@stire.local', password: 'Segura1!', fullName: 'Nuevo' })
+        .expect(403);
+
+      expect(mockUserService.create).not.toHaveBeenCalled();
+    });
+
+    it('admin SÍ puede crear usuarios (201/200 según el controller)', async () => {
+      currentUser = { id: 5, email: 'admin@stire.local', role: UserRole.ADMIN };
+      mockUserService.create.mockResolvedValue({ id: 42 });
+
+      await request(app.getHttpServer())
+        .post('/users')
+        .send({ email: 'nuevo@stire.local', password: 'Segura1!', fullName: 'Nuevo' })
+        .expect(201);
+
+      expect(mockUserService.create).toHaveBeenCalled();
+    });
+  });
+
+  // B3 — GET /users y GET /users/:id dejan de ser enumeración libre.
+  describe('B3 — GET /users y GET /users/:id', () => {
+    const rawUsers = [
+      {
+        id: 1,
+        email: 'estudiante@stire.local',
+        fullName: 'Estudiante Uno',
+        role: UserRole.ESTUDIANTE,
+        isActive: true,
+        createdAt: new Date('2026-01-01'),
+      },
+    ];
+
+    it('estudiante NO puede listar todos los usuarios (403)', async () => {
+      await request(app.getHttpServer()).get('/users').expect(403);
+      expect(mockUserService.findAll).not.toHaveBeenCalled();
+    });
+
+    it('docente SÍ puede listar, y la respuesta usa el DTO de salida (sin password)', async () => {
+      currentUser = { id: 2, email: 'docente@stire.local', role: UserRole.DOCENTE };
+      mockUserService.findAll.mockResolvedValue(rawUsers);
+
+      const res = await request(app.getHttpServer()).get('/users').expect(200);
+
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0]).not.toHaveProperty('password');
+      expect(res.body[0].email).toBe('estudiante@stire.local');
+    });
+
+    it('un estudiante SÍ puede leer su propio perfil por id', async () => {
+      mockUserService.findOne.mockResolvedValue(rawUsers[0]);
+
+      await request(app.getHttpServer()).get('/users/1').expect(200);
+    });
+
+    it('un estudiante NO puede leer el perfil de otro usuario por id (403)', async () => {
+      await request(app.getHttpServer()).get('/users/999').expect(403);
+      expect(mockUserService.findOne).not.toHaveBeenCalled();
+    });
+
+    it('un admin SÍ puede leer el perfil de cualquier usuario', async () => {
+      currentUser = { id: 5, email: 'admin@stire.local', role: UserRole.ADMIN };
+      mockUserService.findOne.mockResolvedValue(rawUsers[0]);
+
+      await request(app.getHttpServer()).get('/users/1').expect(200);
+    });
+  });
+
+  // B4 — POST /users/me/affiliations exige CreateAffiliationDto tipado.
+  describe('B4 — POST /users/me/affiliations', () => {
+    it('roleType fuera del enum es rechazado con 400', async () => {
+      await request(app.getHttpServer())
+        .post('/users/me/affiliations')
+        .send({ programId: 1, roleType: 'super-admin' })
+        .expect(400);
+
+      expect(mockUserService.addAffiliation).not.toHaveBeenCalled();
+    });
+
+    it('programId no numérico es rechazado con 400', async () => {
+      await request(app.getHttpServer())
+        .post('/users/me/affiliations')
+        .send({ programId: 'no-es-un-id', roleType: 'estudiante' })
+        .expect(400);
+
+      expect(mockUserService.addAffiliation).not.toHaveBeenCalled();
+    });
+
+    it('un cuerpo válido sí pasa al service, tipado', async () => {
+      mockUserService.addAffiliation.mockResolvedValue({ id: 1 });
+
+      await request(app.getHttpServer())
+        .post('/users/me/affiliations')
+        .send({ programId: 1, roleType: 'estudiante' })
+        .expect(201);
+
+      expect(mockUserService.addAffiliation).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ programId: 1, roleType: 'estudiante' }),
+      );
+    });
+  });
 });

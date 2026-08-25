@@ -13,6 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateAffiliationDto } from './dto/create-affiliation.dto';
 import { InstitutionService } from '../institution/institution.service';
 
 @Injectable()
@@ -154,7 +155,7 @@ export class UserService {
   /**
    * Agregar afiliación académica a un usuario
    */
-  async addAffiliation(userId: number, data: { programId: number; roleType: string; currentSemester?: number }) {
+  async addAffiliation(userId: number, data: CreateAffiliationDto) {
     const user = await this.findOne(userId);
     const program = await this.institutionService.findProgramById(data.programId);
 

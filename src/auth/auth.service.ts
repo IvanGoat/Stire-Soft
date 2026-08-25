@@ -89,8 +89,8 @@ export class AuthService {
 
       const user = await this.userService.findOne(payload.sub);
 
-      if (!user) {
-        throw new UnauthorizedException('Usuario no encontrado');
+      if (!user || !user.isActive) {
+        throw new UnauthorizedException('Usuario inválido o inactivo');
       }
 
       return user;

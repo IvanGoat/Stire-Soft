@@ -1,4 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import {
+  PASSWORD_COMPLEXITY_REGEX,
+  PASSWORD_COMPLEXITY_MESSAGE,
+} from '../../common/validators/password-complexity';
 
 export class CreateUserDto {
   // Validación de email con formato correcto
@@ -6,9 +10,11 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'El email es obligatorio' })
   email: string;
 
-  // Validación de contraseña con mínimo 6 caracteres
+  // Misma política de complejidad que RegisterDto (POST /users no es una vía
+  // alterna para crear cuentas con contraseñas débiles).
   @IsString({ message: 'La contraseña debe ser una cadena de texto' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  @Matches(PASSWORD_COMPLEXITY_REGEX, { message: PASSWORD_COMPLEXITY_MESSAGE })
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   password: string;
 

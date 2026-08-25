@@ -20,7 +20,9 @@ import { RolesGuard } from './guards/roles.guard';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRATION'),
+          // Default explicito: sin esto, un despliegue sin JWT_EXPIRATION en
+          // el entorno firma tokens SIN expiracion (validez indefinida).
+          expiresIn: configService.get('JWT_EXPIRATION', '1h'),
         },
       }),
       inject: [ConfigService],
