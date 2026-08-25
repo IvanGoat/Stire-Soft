@@ -1,6 +1,6 @@
 // API client para comunicación con el backend STIRE
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 /**
  * Obtener el token JWT del localStorage
