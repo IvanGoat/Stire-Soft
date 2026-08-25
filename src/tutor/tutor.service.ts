@@ -9,26 +9,35 @@ import { TutorContextService } from './tutor-context.service';
 export class TutorService {
   private readonly logger = new Logger(TutorService.name);
   private readonly openai?: OpenAI;
+  private readonly apiKey: string;
   private readonly openAiModel: string;
   private readonly openAiRetryCount: number;
+  private readonly isGemini: boolean;
 
   constructor(
     private readonly convRepo: TutorConversationsRepository,
     private readonly contextService: TutorContextService,
     private readonly configService: ConfigService,
   ) {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-    this.openAiModel = this.configService.get<string>('OPENAI_MODEL', 'gpt-4o-mini');
+    const rawApiKey = this.configService.get<string>('OPENAI_API_KEY');
+    this.apiKey = rawApiKey ? rawApiKey.trim() : '';
+    this.openAiModel = this.configService.get<string>('OPENAI_MODEL', 'gemini-3.6-flash');
     this.openAiRetryCount = this.configService.get<number>('OPENAI_RETRY_COUNT', 3);
+    const rawBaseURL = this.configService.get<string>('OPENAI_API_URL', '');
 
-    if (apiKey && apiKey.trim().length > 0) {
-      const rawBaseURL = this.configService.get<string>('OPENAI_API_URL', 'https://api.openai.com/v1');
-      // Asegurar que baseURL no termine en /chat/completions para el SDK oficial
+    this.isGemini =
+      this.apiKey.startsWith('AQ.') ||
+      this.apiKey.startsWith('AIza') ||
+      (typeof rawBaseURL === 'string' && rawBaseURL.includes('generativelanguage.googleapis.com'));
+
+    if (this.apiKey && !this.isGemini) {
       const baseURL = (rawBaseURL || 'https://api.openai.com/v1')
         .trim()
         .replace(/\/chat\/completions\/?$/, '');
-      this.openai = new OpenAI({ apiKey: apiKey.trim(), baseURL });
+      this.openai = new OpenAI({ apiKey: this.apiKey, baseURL });
       this.logger.log(`Tutor IA inicializado con LLM (${this.openAiModel}) en ${baseURL}`);
+    } else if (this.apiKey && this.isGemini) {
+      this.logger.log(`Tutor IA inicializado con Google Gemini AI Studio (${this.openAiModel})`);
     }
   }
 
@@ -47,17 +56,28 @@ export class TutorService {
 
     let aiResponseContent: string;
 
-    if (!this.openai) {
+    if (!this.apiKey) {
       this.logger.warn('OPENAI_API_KEY no configurada. Usando inferencia local mock.');
       aiResponseContent = this.mockLlmInference(message);
-    } else {
+    } else if (this.isGemini) {
+      try {
+        aiResponseContent = await this.callWithRetry(
+          () => this.callGeminiApi(systemPrompt, history, message),
+          this.openAiRetryCount,
+        );
+      } catch (err: any) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        this.logger.error(`Error en Google Gemini: ${errorMessage}`);
+        aiResponseContent = this.mockLlmInference(message);
+      }
+    } else if (this.openai) {
       const client = this.openai;
       try {
         const response = await this.callWithRetry(() =>
           client.chat.completions.create({
             model: this.openAiModel,
             messages: payload,
-            max_tokens: 300,
+            max_tokens: 500,
             temperature: 0.7,
           }),
           this.openAiRetryCount,
@@ -67,7 +87,7 @@ export class TutorService {
         if (!aiResponseContent) {
           throw new Error('OpenAI returned empty response content');
         }
-      } catch (err) {
+      } catch (err: any) {
         const errorMessage = err instanceof Error ? err.message : String(err);
 
         if (errorMessage.includes('429')) {
@@ -83,6 +103,8 @@ export class TutorService {
         this.logger.error(`Error en OpenAI: ${errorMessage}`);
         aiResponseContent = this.mockLlmInference(message);
       }
+    } else {
+      aiResponseContent = this.mockLlmInference(message);
     }
 
     await this.convRepo.save({
@@ -92,6 +114,53 @@ export class TutorService {
     });
 
     return aiResponseContent;
+  }
+
+  private async callGeminiApi(
+    systemPrompt: string,
+    history: Array<{ role: string; content: string }>,
+    userMessage: string,
+  ): Promise<string> {
+    const model = this.openAiModel || 'gemini-3.6-flash';
+    const cleanModel = model.replace(/^models\//, '');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${this.apiKey}`;
+
+    const contents = [
+      ...history.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }],
+      })),
+      { role: 'user', parts: [{ text: userMessage }] },
+    ];
+
+    const body = {
+      system_instruction: {
+        parts: [{ text: systemPrompt }],
+      },
+      contents,
+      generationConfig: {
+        maxOutputTokens: 600,
+        temperature: 0.7,
+      },
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Google Gemini Error ${res.status}: ${errText}`);
+    }
+
+    const data: any = await res.json();
+    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!candidateText) {
+      throw new Error('Google Gemini devolvió una respuesta vacía');
+    }
+    return candidateText;
   }
 
   private async callWithRetry<T>(fn: () => Promise<T>, retries: number, attempt = 1): Promise<T> {
