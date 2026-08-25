@@ -2,6 +2,64 @@
 
 ---
 
+## v0.2.1 — Ola 1 · Bloque 1: Reparacion del Build · 25 de Agosto de 2026
+
+Base: `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` (hallazgo P1-01), commit `c7aac0e`.
+Alcance exclusivo de este bloque: dejar `npm run build` en 0 errores, sin tocar seguridad ni logica de negocio. Ejecutado siguiendo `docs/PLAN_OLA1_BLOQUE1_BUILD.md`.
+
+### Correcciones aplicadas (contador de errores estrictamente decreciente: 6 -> 0)
+
+| # | Archivo:linea | Codigo TS | Cambio aplicado | Errores tras el cambio |
+|---|---|---|---|---|
+| 1 | `src/judge-engine/judge.worker.ts:14` | TS1272 | Separada la importacion de la interfaz `SandboxAdapter` (`import type`) del token `SANDBOX_ADAPTER` (import normal) | 5 |
+| 2 | `src/test-data-source.ts:10` | TS2322 | Firma cambiada a `(entities: (Function \| string \| EntitySchema)[])`, importando `EntitySchema` de `typeorm` | 4 |
+| 3 | `src/content-rendering/content-rendering.service.ts:8` | TS2724 | Anotacion cambiada a `ReturnType<typeof createDOMPurify>` (agnostica de version); eliminada la dependencia obsoleta `@types/dompurify` (`npm rm @types/dompurify`) | 3 |
+| 4 | `src/tutor/tutor.service.ts:50` | TS2532 | Capturada la referencia ya estrechada en `const client = this.openai;` dentro del bloque `else`, usada en el closure de `callWithRetry` | 3 (fix junto con #5) |
+| 5 | `src/tutor/tutor.service.ts:52` | TS2769 | Tipado el retorno de `buildMessages()` como `ChatCompletionMessageParam[]`; anadido `normalizeRole()` que mapea cualquier valor de `role` proveniente de BD a la union literal `'system'\|'user'\|'assistant'` (default `'user'`) | 1 |
+| 6 | `src/tutor/tutor.service.ts:59` | TS2339 | Sin cambio adicional: el error desaparecio solo al corregir #5, tal como preveia el plan. No se aplico el fallback `stream: false` porque no fue necesario | **0** |
+
+Sin `as any`, `@ts-ignore`, `@ts-expect-error` ni relajacion de `strict` en ningun punto (Regla de Oro del plan, punto 4).
+
+### Resultado literal
+
+```
+$ npm run build
+> stire@0.0.1 build
+> nest build
+EXIT_CODE=0
+
+$ npm test
+Test Suites: 19 passed, 19 total
+Tests:       105 passed, 105 total
+Time:        16.501 s
+
+$ npx jest --coverage --coverageReporters=text-summary
+Statements   : 26.92% ( 981/3643 )
+Branches     : 35.47% ( 542/1528 )
+Functions    : 16.92% ( 76/449 )
+Lines        : 26.36% ( 872/3308 )
+```
+
+Linea base de tests preservada exactamente (19 suites / 105 tests, sin regresiones). Cobertura estable respecto a la auditoria (26.88% -> 26.92%, variacion atribuible a la nueva funcion `normalizeRole`).
+
+### Verificacion de arranque real (PASO 5) — hallazgo nuevo, fuera de alcance de este bloque
+
+Con `SANDBOX_TYPE=local` (solo para esta prueba puntual, **no** fijado como default: la Objecion 2 del plan sigue pendiente de decision), se ejecuto `node dist/src/main.js` de forma directa. La aplicacion inicializo todos los modulos, conecto correctamente contra el MySQL nativo del entorno y mapeo todas las rutas HTTP — confirmando que la correccion del build es funcionalmente valida. Sin embargo, **el proceso completo termino con una excepcion no capturada** al no encontrar Redis disponible:
+
+```
+Error: Worker requires a connection
+    at new Worker (node_modules/bullmq/dist/cjs/classes/worker.js:45:19)
+    at BullExplorer.handleProcessor (node_modules/@nestjs/bullmq/dist/bull.explorer.js:135:24)
+```
+
+Esto es una version mas severa de lo ya documentado en la Fase 2 de la auditoria (dependencia dura de BullMQ/Redis): no se trata solo de que el pipeline de calificacion quede en limbo sin Redis, sino de que **el arranque completo del servidor falla de forma fatal** si `BullModule.registerQueue`/`@Processor('judge')` no logran conectar. No se pudo confirmar la escucha efectiva en el puerto 3001 en este entorno por falta de Redis (Docker Desktop no disponible de forma estable durante esta sesion). Se anade como candidato a Ola 2, junto a P1-08 y P1-09.
+
+### Estado de seguridad — sin cambios en este bloque
+
+**P0-01 a P0-05 de la auditoria tecnica SIGUEN ABIERTOS.** Este bloque unicamente corrige errores de tipado que impedian compilar; no se toco autorizacion, sandbox, ni el adaptador de calificacion por defecto. Ningun hallazgo de seguridad se considera remediado por esta entrada.
+
+---
+
 ## v0.2.0 — Auditoria de Cierre · 24 de Agosto de 2026
 
 ### Resumen Ejecutivo

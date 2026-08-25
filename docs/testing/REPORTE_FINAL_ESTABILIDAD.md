@@ -5,6 +5,11 @@
 
 ---
 
+> **⚠️ DOCUMENTO HISTÓRICO — OBSOLETO RESPECTO AL COMMIT ACTUAL (`c7aac0e`)**
+> Este reporte corresponde a un commit muy anterior (`7848426`) y sus afirmaciones ("el sistema arranca limpiamente, compila sin errores") **no se sostienen** en `c7aac0e`: `npm run build` falló con 6 errores de TypeScript hasta la corrección aplicada en `docs/RELEASE_NOTES.md` v0.2.1 (25 de agosto de 2026). Ver `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` para el estado real verificado al 24 de agosto de 2026. No usar este documento como referencia del estado actual del sistema.
+
+---
+
 ## ✅ Resumen Ejecutivo
 
 STIRE ha completado la fase de **hardening de seguridad** basada en la auditoría técnica formal.

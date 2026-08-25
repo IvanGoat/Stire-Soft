@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { TutorConversationsRepository } from './tutor-conversations.repository';
 import { TutorContextService } from './tutor-context.service';
 
@@ -45,9 +46,10 @@ export class TutorService {
       this.logger.warn('OPENAI_API_KEY no configurada. Usando inferencia local mock.');
       aiResponseContent = this.mockLlmInference(message);
     } else {
+      const client = this.openai;
       try {
         const response = await this.callWithRetry(() =>
-          this.openai.chat.completions.create({
+          client.chat.completions.create({
             model: this.openAiModel,
             messages: payload,
             max_tokens: 300,
@@ -109,10 +111,21 @@ export class TutorService {
     }
   }
 
-  private buildMessages(systemPrompt: string, history: Array<{ role: string; content: string }>, userMessage: string) {
+  private normalizeRole(role: string): 'system' | 'user' | 'assistant' {
+    return role === 'system' || role === 'assistant' ? role : 'user';
+  }
+
+  private buildMessages(
+    systemPrompt: string,
+    history: Array<{ role: string; content: string }>,
+    userMessage: string,
+  ): ChatCompletionMessageParam[] {
     return [
       { role: 'system', content: systemPrompt },
-      ...history.map(msg => ({ role: msg.role, content: msg.content })),
+      ...history.map(msg => ({
+        role: this.normalizeRole(msg.role),
+        content: msg.content,
+      })),
       { role: 'user', content: userMessage },
     ];
   }

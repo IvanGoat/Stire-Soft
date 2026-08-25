@@ -2,7 +2,8 @@ import { Inject, Logger } from '@nestjs/common';
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { ExecutionResultsRepository } from './judge-engine.repository';
-import { SandboxAdapter, SANDBOX_ADAPTER } from './sandbox-adapter.interface';
+import { SANDBOX_ADAPTER } from './sandbox-adapter.interface';
+import type { SandboxAdapter } from './sandbox-adapter.interface';
 import { SubmissionsService } from '../submissions/submissions.service';
 
 @Processor('judge')

@@ -5,7 +5,7 @@ import createDOMPurify = require('dompurify');
 
 @Injectable()
 export class ContentRenderingService {
-  private readonly purify: createDOMPurify.DOMPurifyI;
+  private readonly purify: ReturnType<typeof createDOMPurify>;
 
   constructor() {
     const window = new JSDOM('').window;

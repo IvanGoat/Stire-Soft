@@ -1,6 +1,8 @@
-import { DataSource, EntityTarget } from 'typeorm';
+import { DataSource, EntitySchema } from 'typeorm';
 
-export function createTestDataSource(entities: EntityTarget<any>[]) {
+export function createTestDataSource(
+  entities: (Function | string | EntitySchema)[],
+) {
   return new DataSource({
     type: 'sqlite',
     database: ':memory:',
