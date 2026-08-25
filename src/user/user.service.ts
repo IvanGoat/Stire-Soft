@@ -1,7 +1,8 @@
-import { 
-  Injectable, 
-  ConflictException, 
-  NotFoundException 
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,7 +10,9 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from './entities/user.entity';
 import { UserAffiliation } from './entities/user-affiliation.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { InstitutionService } from '../institution/institution.service';
 
 @Injectable()
@@ -81,20 +84,59 @@ export class UserService {
   }
 
   /**
-   * Actualizar un usuario
+   * Actualizar un usuario (uso exclusivo de administradores sobre terceros).
+   * Ver updateProfile/changePassword para la auto-edición del propio usuario.
    */
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, adminUpdateUserDto: AdminUpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
     // Si se actualiza la contraseña, encriptarla
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    if (adminUpdateUserDto.password) {
+      adminUpdateUserDto.password = await bcrypt.hash(adminUpdateUserDto.password, 10);
     }
 
     // Actualizar los campos
-    Object.assign(user, updateUserDto);
+    Object.assign(user, adminUpdateUserDto);
 
     return await this.userRepository.save(user);
+  }
+
+  /**
+   * Auto-edición de perfil: solo campos no sensibles (fullName).
+   * El id SIEMPRE viene del JWT del solicitante, nunca de un parámetro de ruta.
+   */
+  async updateProfile(id: number, updateProfileDto: UpdateProfileDto): Promise<User> {
+    const user = await this.findOne(id);
+    Object.assign(user, updateProfileDto);
+    return await this.userRepository.save(user);
+  }
+
+  /**
+   * Cambio de contraseña del propio usuario. Exige la contraseña actual.
+   */
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ['id', 'password'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('La contraseña actual es incorrecta');
+    }
+
+    user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
+    await this.userRepository.save(user);
+
+    return { message: 'Contraseña actualizada con éxito' };
   }
 
   /**
