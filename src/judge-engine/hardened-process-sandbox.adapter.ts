@@ -27,6 +27,20 @@ if (net && net.Socket) net.Socket.prototype.connect = () => deny('net.Socket.con
 patch('tls', ['connect', 'createConnection']); patch('dgram', ['createSocket']);
 patch('http', ['request', 'get']); patch('https', ['request', 'get']);
 patch('http2', ['connect']);
+// Ola 3 P6 (docs/REAUDITORIA_OLA2.md, hallazgo P2-R1): lo de arriba bloquea
+// solo el lado que INICIA una conexion saliente. Un socket de ESCUCHA
+// (net.createServer(...).listen(), http(s)/http2.createServer(...).listen())
+// nunca pasaba por ninguna de esas funciones, asi que el codigo del
+// estudiante podia aceptar conexiones entrantes sin que el cortafuegos lo
+// notara — un canal de comunicacion con el exterior tan real como uno de
+// salida, solo que de sentido contrario. Mismo patron de guardia: la
+// funcion de creacion del servidor lanza antes de devolver nada usable.
+if (net) net.createServer = () => deny('net.createServer');
+patch('http', ['createServer']);
+patch('https', ['createServer']);
+patch('http2', ['createServer', 'createSecureServer']);
+// dgram.createSocket ya esta bloqueado arriba (linea 27) — cubre tanto el
+// envio como la recepcion UDP, porque ambos requieren ese mismo socket.
 // Ola 2 P4: dns.promises y dns.Resolver son superficies DISTINTAS de las
 // funciones planas de 'dns' — parchear solo dns.lookup/resolve* dejaba
 // pasar dns.promises.lookup() y new dns.Resolver().resolve*(), suficiente

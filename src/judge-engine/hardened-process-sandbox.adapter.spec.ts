@@ -176,6 +176,75 @@ describe('HardenedProcessSandboxAdapter', () => {
       expect(result.stderr).toContain('SandboxViolation');
     });
 
+    // Ola 3 - PUNTO 6 (P2-R1, docs/REAUDITORIA_OLA2.md): las pruebas de
+    // arriba bloquean el lado que INICIA una conexión saliente, pero nunca
+    // se probó el lado que ESCUCHA — un socket de servidor es un canal de
+    // comunicación con el exterior tan real como uno saliente, solo que de
+    // sentido contrario (alguien se conecta AL proceso hijo en vez de que
+    // el proceso hijo se conecte afuera).
+    it('bloquea la apertura de un socket de escucha vía net.createServer', async () => {
+      const result = await adapter.executeIsolated(
+        `const srv = require('net').createServer(() => {});
+         srv.listen(0, '127.0.0.1', () => console.log('LISTENING'));
+         setTimeout(() => console.log('fin'), 100);`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('LISTENING');
+      expect(result.stdout).not.toContain('fin');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
+    it('bloquea la apertura de un servidor HTTP vía http.createServer', async () => {
+      const result = await adapter.executeIsolated(
+        `const srv = require('http').createServer((req, res) => res.end('hola'));
+         srv.listen(0, '127.0.0.1', () => console.log('LISTENING'));
+         setTimeout(() => console.log('fin'), 100);`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('LISTENING');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
+    it('bloquea la apertura de un servidor HTTPS vía https.createServer', async () => {
+      const result = await adapter.executeIsolated(
+        `try {
+           require('https').createServer(() => {});
+           console.log('NO_THREW');
+         } catch (e) {
+           throw e;
+         }`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('NO_THREW');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
+    it('bloquea la apertura de un servidor vía http2.createServer', async () => {
+      const result = await adapter.executeIsolated(
+        `try {
+           require('http2').createServer(() => {});
+           console.log('NO_THREW');
+         } catch (e) {
+           throw e;
+         }`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('NO_THREW');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
     it('corta un bucle infinito por timeout sin colgar el proceso host', async () => {
       const result = await adapter.executeIsolated('while(true){}', 'javascript', {
         expected: '',
