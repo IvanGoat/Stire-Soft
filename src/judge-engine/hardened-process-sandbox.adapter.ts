@@ -20,11 +20,37 @@ const NETWORK_GUARD = `
 const deny = (w) => { throw new Error('SandboxViolation: red bloqueada (' + w + ')'); };
 const patch = (mod, keys) => { let m; try { m = require(mod); } catch { return; }
   for (const k of keys) if (m && typeof m[k] === 'function') m[k] = () => deny(mod + '.' + k); return m; };
+const patchProto = (proto, keys, label) => { if (!proto) return;
+  for (const k of keys) if (typeof proto[k] === 'function') proto[k] = () => deny(label + '.' + k); };
 const net = patch('net', ['connect', 'createConnection']);
 if (net && net.Socket) net.Socket.prototype.connect = () => deny('net.Socket.connect');
 patch('tls', ['connect', 'createConnection']); patch('dgram', ['createSocket']);
 patch('http', ['request', 'get']); patch('https', ['request', 'get']);
-patch('http2', ['connect']); patch('dns', ['lookup', 'resolve', 'resolve4', 'resolve6']);
+patch('http2', ['connect']);
+// Ola 2 P4: dns.promises y dns.Resolver son superficies DISTINTAS de las
+// funciones planas de 'dns' — parchear solo dns.lookup/resolve* dejaba
+// pasar dns.promises.lookup() y new dns.Resolver().resolve*(), suficiente
+// para exfiltrar datos codificados en el propio nombre de host consultado,
+// sin necesitar que la resolución llegue a completarse.
+const DNS_FLAT = ['lookup', 'lookupService', 'resolve', 'resolve4', 'resolve6', 'resolveAny',
+  'resolveCname', 'resolveMx', 'resolveNs', 'resolvePtr', 'resolveSoa', 'resolveSrv',
+  'resolveTxt', 'resolveCaa', 'resolveNaptr', 'reverse'];
+const DNS_RESOLVER_ONLY = DNS_FLAT.filter((k) => k !== 'lookup' && k !== 'lookupService');
+const dnsCb = patch('dns', DNS_FLAT);
+if (dnsCb) {
+  patchProto(dnsCb.Resolver && dnsCb.Resolver.prototype, DNS_RESOLVER_ONLY, 'dns.Resolver.prototype');
+  if (dnsCb.promises) {
+    for (const k of DNS_FLAT) {
+      if (typeof dnsCb.promises[k] === 'function') dnsCb.promises[k] = () => deny('dns.promises.' + k);
+    }
+    patchProto(
+      dnsCb.promises.Resolver && dnsCb.promises.Resolver.prototype,
+      DNS_RESOLVER_ONLY,
+      'dns.promises.Resolver.prototype',
+    );
+  }
+}
+patch('dns/promises', DNS_FLAT); // mismo objeto que dns.promises, se parchea igual por si acaso
 try { globalThis.fetch = () => deny('fetch'); } catch {}
 `;
 
