@@ -21,7 +21,9 @@ src/nombre-modulo/
 ├── nombre-modulo.service.ts
 └── nombre-modulo.repository.ts (custom repository)
 ```
-> **REGLA DE INYECCIÓN:** Está terminantemente prohibido inyectar `Repository<Entity>` de TypeORM de manera directa en los constructores de los servicios. Toda interacción con la base de datos debe ser encapsulada en una clase Repositorio Personalizada (ej: `ActivitiesRepository`) que extienda o envuelva las operaciones del ORM, con el fin de centralizar los QueryBuilders, queries nativas y optimizaciones de índices.
+> **REGLA DE INYECCIÓN (redactada de nuevo al cierre de Ola 2 — decisión explícita del dueño del proyecto, no una relajación silenciosa):** un Repositorio Personalizado (ej. `ActivitiesRepository`) es obligatorio solo donde hay complejidad real de consulta — `QueryBuilder`, agregaciones, optimización de índices. Para CRUD simple (buscar por id, guardar, actualizar un campo) se permite inyectar `Repository<Entity>` de TypeORM directamente en el constructor del servicio.
+>
+> **Motivo del cambio:** la redacción anterior ("terminantemente prohibido... siempre") no describía el código real — `AuthorizationService` ya inyectaba `Repository<Class>`/`Repository<Enrollment>` directo desde la Ola 1, y la propagación de ownership de la Ola 2 (`learning-unit`, `content`, `activity-questions`, `activities.create`) hizo lo mismo por necesidad (resolver una cadena de relaciones vía `.findOne({ relations: [...] })`, sin ningún `QueryBuilder` de por medio). Una regla documentada que el proyecto entero incumple no protege nada — hace mentir a la documentación. Se prefiere una regla que describa la práctica real y sea exigible, a una aspiracional que nadie sigue.
 
 ### 1.2 Convenciones de Nombres (Naming Conventions)
 *   **Archivos Físicos:** `kebab-case` (ej. `learning-progress.service.ts`, `spaced-repetition.utils.ts`).

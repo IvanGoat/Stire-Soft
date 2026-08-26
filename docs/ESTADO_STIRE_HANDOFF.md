@@ -30,7 +30,7 @@ Se ejecutó una auditoría forense adversarial sobre el commit `c7aac0e`, seguid
 | Tests | 19 suites / 105 tests | 33 suites / 183 tests | **36 suites / 215 tests** |
 | Tablas con migración de creación | — | 1 de 26 | **26 de 26** (línea base única, ver §2) |
 | XSS (ADR 07) | — | diseñado, no implementado | **implementado y cableado en los 5 puntos de escritura** |
-| Vulnerabilidades npm audit | — | 1 crítica + 18 altas | **7 restantes (todas en `sqlite3`, dev-only)** |
+| Vulnerabilidades npm audit | — | 1 crítica + 18 altas | **7 aceptadas como riesgo (todas en `sqlite3`, dev-only — ver §4)** |
 | Veredicto | NO APTO | NO APTO (hallazgos residuales acotados) | **sin veredicto propio — ver Nota** |
 
 > **Nota — por qué no hay una calificación de la Ola 2:** el 5.1/10 de la Ola 1 lo puso una reauditoría independiente, no el autor de los cambios. Este documento reporta qué se cerró y con qué evidencia (commits, tests, verificación end-to-end con `curl`), pero **no se autoasigna una nota** — eso le corresponde a la próxima reauditoría, con el mismo prompt y la misma vara que las anteriores.
@@ -63,11 +63,16 @@ Detalle completo, con commits, en `docs/RELEASE_NOTES.md` (v0.4.0).
 
 ## 4. Abierto
 
-1. **P1-05 (parcial):** 7 vulnerabilidades npm restantes (2 low, 4 high, 1 critical), todas en el árbol de `sqlite3` (devDependency, solo usada en tests). Requiere bump mayor (`--force`) — decisión pendiente, deliberadamente no tomada dentro de un "audit fix no disruptivo".
-2. **P1-07** — condición de carrera en el límite de intentos (`startSubmission`, sin `UNIQUE` constraint).
-3. **P1-08** — eventos `submission.graded` sin garantía de entrega si el proceso de negocio falla.
-4. **Regla de inyección de repositorios (`docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1)** — varios servicios (`AuthorizationService` desde Ola 1, y en Ola 2 `LearningUnitService`/`ContentService`/`ActivitiesService`/`ActivityQuestionsService`) inyectan `Repository<Entity>` directamente en vez de una clase Repositorio Personalizada, contra la regla documentada. Señalado explícitamente, no corregido — habría significado tocar muchos más archivos de los que pedía la Ola 2.
-5. `easeFactor` de SM-2 no persistido · integración del `ActivityLog` en el Tutor — sin tocar, heredado de antes de Ola 1.
+1. **P1-07** — condición de carrera en el límite de intentos (`startSubmission`, sin `UNIQUE` constraint).
+2. **P1-08** — eventos `submission.graded` sin garantía de entrega si el proceso de negocio falla.
+3. `easeFactor` de SM-2 no persistido · integración del `ActivityLog` en el Tutor — sin tocar, heredado de antes de Ola 1.
+
+### Riesgos aceptados (decisión explícita del dueño del proyecto, cierre de Ola 2)
+
+Estos dos ítems **no están pendientes** — se revisaron y se decidió conscientemente no actuar sobre ellos, o cambiar la regla en vez del código. No deben reabrirse como hallazgos en la próxima reauditoría sin que cambie el hecho que los sostiene.
+
+1. **P1-05 (parcial) — 7 vulnerabilidades npm restantes** (2 low, 4 high, 1 critical), todas en el árbol de `sqlite3`. **Riesgo aceptado:** `sqlite3` es una devDependency usada únicamente para bases de datos en memoria en tests (`src/test-data-source.ts`) — nunca corre en producción ni en el proceso servido a usuarios. El único fix disponible exige un bump mayor de `sqlite3` (`--force`), que puede romper la API de tests o requerir binarios prebuilt distintos. Sin impacto en ejecución real: no se hace el bump.
+2. **Regla de inyección de repositorios** (`docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1) — la regla original ("terminantemente prohibido" inyectar `Repository<Entity>` directo) no describía el código real desde la Ola 1 (`AuthorizationService`) y menos aún tras la Ola 2. **Decisión: se cambió la regla, no el código.** Repositorio Personalizado obligatorio solo con complejidad real de consulta (`QueryBuilder`, agregaciones, índices); `Repository<Entity>` directo permitido en CRUD simple. Una regla que el proyecto entero incumple no protege nada — hace mentir a la documentación.
 
 ---
 

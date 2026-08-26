@@ -18,7 +18,7 @@ Base: reauditoria independiente sobre el commit final de la Ola 1 (`0600783`), q
 | — | No existia forma reproducible de dejar el sistema en un estado utilizable de demo | `stire-seeder-demo.ts` (`npm run db:seed:demo`), idempotente |
 | — | `npm start`/`npm run start:prod` fallaban en un checkout limpio (MODULE_NOT_FOUND) | Dos bugs de `tsconfig.json` corregidos (`rootDir`/`include` ausentes; `incremental` incompatible con `deleteOutDir` de Nest CLI) — ver mas abajo, es el hallazgo mas importante de esta ola |
 | P1-04 | XSS: `ContentRenderingService` existia pero no se invocaba en ningun flujo de guardado | Implementado (perfiles RICH/PLAIN, ADR 07) y cableado en los 5 puntos de escritura reales. Suite sin mocks: `content-rendering.service.no-mock.spec.ts` |
-| P1-05 (parcial) | Dependencias con 1 critica + 18 altas | `npm audit fix` (sin `--force`, dos pasadas): 39 -> 7 vulnerabilidades. Las 7 restantes son todas del arbol de `sqlite3` (dev-only), requieren un bump mayor — ver Punto 7 en el commit `chore(deps)` |
+| P1-05 (parcial) | Dependencias con 1 critica + 18 altas | `npm audit fix` (sin `--force`, dos pasadas): 39 -> 7 vulnerabilidades. Las 7 restantes se aceptan como riesgo — ver "Riesgos aceptados" abajo |
 
 ### El hallazgo mas importante: reproducibilidad real, verificada de punta a punta
 
@@ -33,11 +33,18 @@ Con ambos corregidos, la secuencia completa se verifico con `curl` real (no solo
 
 | Hallazgo | Estado | Nota |
 |---|---|---|
-| P1-05 | 7 vulnerabilidades (2 low, 4 high, 1 critical), todas en el arbol de `sqlite3` (dev-only) | Requiere bump mayor (`--force`), fuera de alcance de un "audit fix no disruptivo" |
 | P1-07 | Condicion de carrera en el limite de intentos (`startSubmission`, sin `UNIQUE` constraint) | Sin tocar |
 | P1-08 | Perdida de eventos si el proceso de negocio falla | Sin tocar |
-| — | `AuthorizationService`/otros servicios inyectan `Repository<Entity>` directamente en varios puntos (incluidos los nuevos de esta ola), contra la regla documentada en `docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1 | Deuda preexistente (ya presente en `AuthorizationService` de la Ola 1), extendida — no corregida, senalada explicitamente |
 | — | `unit_2.3.3`/`fill-code` y otros evaluadores devuelven `feedback` estatico; no hay indicio de que el saneamiento PLAIN cambie el comportamiento observable salvo ante un intento real de inyeccion | Sin verificar contra trafico real |
+
+### Riesgos aceptados — decision explicita del dueno del proyecto (cierre de Ola 2)
+
+Estos dos items no estan pendientes: se revisaron y el dueno decidio conscientemente no actuar sobre el codigo. No deben reabrirse como hallazgos en la proxima reauditoria sin que cambie el hecho que los sostiene.
+
+| Item | Decision | Motivo |
+|---|---|---|
+| P1-05 (7 vulnerabilidades restantes, todas en el arbol de `sqlite3`) | No se hace el bump mayor de `sqlite3` | `sqlite3` es devDependency, usada solo para bases de datos en memoria en tests (`src/test-data-source.ts`) — nunca corre en produccion. Sin impacto en ejecucion real |
+| Regla de inyeccion de repositorios (`docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1) | Se cambia la REGLA, no el codigo: repositorio personalizado obligatorio solo con complejidad real de consulta (QueryBuilder, agregaciones, indices); `Repository<Entity>` directo permitido en CRUD simple | La redaccion anterior ("terminantemente prohibido") no describia el codigo real desde la Ola 1 (`AuthorizationService`). Una regla documentada que el proyecto entero incumple hace mentir a la documentacion |
 
 ### Proximo paso obligatorio
 
