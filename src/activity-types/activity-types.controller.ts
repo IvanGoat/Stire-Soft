@@ -1,16 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { ActivityTypesService } from './activity-types.service';
 import { CreateActivityTypeDto } from './dto/create-activity-type.dto';
 import { UpdateActivityTypeDto } from './dto/update-activity-type.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Activity Types')
 @Controller('activity-types')
+@UseGuards(JwtAuthGuard)
 export class ActivityTypesController {
   constructor(private readonly activityTypesService: ActivityTypesService) {}
 
+  // Ola 2 P1: sin esto, cualquier usuario autenticado (incluido un
+  // estudiante) podia crear/editar/borrar tipos de actividad — no habia
+  // ningun @Roles ni @Public declarado. Mismo patron que activities/content/
+  // topic para este tipo de dato de referencia.
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Crear un nuevo tipo de actividad' })
   @ApiResponse({ status: 201, description: 'El tipo de actividad ha sido creado exitosamente.' })
   @ApiResponse({ status: 409, description: 'El código del tipo de actividad ya existe.' })
@@ -36,6 +46,8 @@ export class ActivityTypesController {
   }
 
   @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Actualizar un tipo de actividad' })
   @ApiResponse({ status: 200, description: 'El tipo de actividad ha sido actualizado.' })
   @ApiResponse({ status: 404, description: 'Tipo de actividad no encontrado.' })
@@ -44,6 +56,8 @@ export class ActivityTypesController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Eliminar (soft delete) un tipo de actividad' })
   @ApiResponse({ status: 200, description: 'El tipo de actividad ha sido eliminado.' })
   @ApiResponse({ status: 404, description: 'Tipo de actividad no encontrado.' })
