@@ -41,7 +41,6 @@ import { ContentRenderingModule } from './content-rendering/content-rendering.mo
 import { ContentModule } from './content/content.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { PrerequisitesModule } from './prerequisites/prerequisites.module';
-import { WorkersModule } from './common/workers/workers.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 
 @Module({
@@ -111,7 +110,6 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
     PrerequisitesModule,
     ContentModule,
     ActivityLogModule,
-    WorkersModule,
     MaintenanceModule,
   ],
   providers: [

@@ -45,7 +45,14 @@ export class ContentRenderingService {
 
   constructor() {
     const window = new JSDOM('').window;
-    this.purify = createDOMPurify(window as unknown as Window);
+    // Sin cast: el DOMWindow de jsdom ya satisface WindowLike estructuralmente
+    // (expone Node/Element/DocumentFragment/etc. como propiedades propias).
+    // `as unknown as Window` (el tipo del DOM del navegador, no el de jsdom)
+    // rompe esa forma estructural y produce TS2345 con dompurify >=3.4.5 +
+    // typescript >=5.9 — build roto en cualquier checkout limpio. No añadir
+    // de vuelta sin verificar `npm ci && npm run build` en un directorio
+    // limpio primero.
+    this.purify = createDOMPurify(window);
 
     // ADR 07: iframe solo contra hosts embebibles permitidos. DOMPurify no
     // tiene una opción declarativa para "lista blanca de hosts de src", así
