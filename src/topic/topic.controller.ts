@@ -35,7 +35,7 @@ export class TopicController {
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Crear un topic dentro de una sección' })
   create(@Body() createDto: CreateTopicDto, @GetUser() user: User) {
-    return this.topicService.create(createDto, user.id);
+    return this.topicService.create(createDto, user);
   }
 
   /**
@@ -66,8 +66,12 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Actualizar un topic' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateTopicDto) {
-    return this.topicService.update(id, updateDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateTopicDto,
+    @GetUser() user: User,
+  ) {
+    return this.topicService.update(id, updateDto, user);
   }
 
   /**
@@ -78,7 +82,7 @@ export class TopicController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Desactivar un topic' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.topicService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.topicService.remove(id, user);
   }
 }
