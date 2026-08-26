@@ -101,7 +101,7 @@ flowchart LR
     *   **Entorno mínimo:** el proceso hijo no hereda las variables del proceso padre (`JWT_SECRET`, `DB_PASSWORD`, `OPENAI_API_KEY` no están disponibles). En Windows se declaran a mano las variables que `libuv` inyectaría igualmente si faltaran (`SystemRoot`, `TEMP`, etc.), neutralizadas.
     *   **Modelo de permisos de Node (`--permission`):** sin `--allow-fs-write`, `--allow-child-process`, `--allow-worker` — bloquea escritura en disco, RCE vía procesos hijos anidados e hilos.
     *   **Sin generación de código (`--disallow-code-generation-from-strings`):** neutraliza el vector exacto del hallazgo P0-01.
-    *   **Cortafuegos de red en el preludio:** un script `--require` anula `net.connect`, `http.request`, `fetch`, etc. antes de que el código del estudiante se ejecute.
+    *   **Cortafuegos de red en el preludio:** un script `--require` anula `net.connect`, `http.request`, `fetch`, y toda la resolución DNS (incluidos `dns.promises` y `dns.Resolver`, que evadían el cortafuegos original — corregido en Ola 2) antes de que el código del estudiante se ejecute.
 3.  **Límites de recurso:** timeout de 2000ms (mata el proceso con `SIGKILL`), `--max-old-space-size=128` para memoria, y un tope de bytes de salida para evitar bombas de `stdout`.
 4.  **Análisis de salida:** captura `stdout` y, ante error, `stderr` saneado (rutas absolutas del host eliminadas antes de mostrarlo al estudiante).
 5.  **Persistencia:** cada resultado de test case se guarda en `execution_results`.

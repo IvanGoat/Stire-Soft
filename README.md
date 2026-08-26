@@ -10,7 +10,7 @@
 
 Construida con **NestJS + TypeORM + MariaDB**, la arquitectura sigue principios **DDD (Domain-Driven Design)** y un modelo **event-driven** que garantiza respuestas instantáneas al estudiante mientras los motores cognitivos operan en segundo plano.
 
-**Estado actual:** Backend v2 — Auditoría de cierre completada ✅ · Tests críticos: 3/3 suites · 8/8 tests en verde · Calificación de madurez: **8.4/10** · Listo para Sprint de Frontend.
+**Estado actual:** Ola 2 de remediación cerrada · 36/36 suites · 215/215 tests en verde · sistema reproducible desde cero (`npm ci → migration:run → db:seed:demo → build → start`, verificado). Sin veredicto de aptitud autoasignado — ver `docs/ESTADO_STIRE_HANDOFF.md` y `docs/RELEASE_NOTES.md`.
 
 ---
 

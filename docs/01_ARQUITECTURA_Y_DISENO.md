@@ -28,7 +28,8 @@ Para asegurar la escalabilidad y mitigar el crecimiento de un monolito inmanejab
 
 ### ADR 03: Sandboxing Asíncrono para Código (Judge Engine)
 *   **Decisión:** Delegar la compilación e integración del código entregado por los estudiantes de forma aislada y no síncrona.
-*   **Justificación:** La ejecución directa de código de usuario en el servidor presenta riesgos de inyección de comandos maliciosos y de bloqueo del *Event Loop*. Se emplea una combinación de colas distribuidas (`BullMQ` sobre `Redis`) y contenedores efímeros Docker para aislar las ejecuciones con límites estrictos de CPU y memoria.
+*   **Justificación:** La ejecución directa de código de usuario en el servidor presenta riesgos de inyección de comandos maliciosos y de bloqueo del *Event Loop*. Se emplea una cola (`JudgeQueue`, con `BullMQ`/Redis opcional — ver ADR 08) para desacoplar el request HTTP de la ejecución.
+*   **Corrección (Ola 1):** el aislamiento real NO es por contenedor Docker — ver ADR 06. `BullMQ`/Redis es opcional (ADR 08), no un requisito para que el sandbox funcione.
 
 ### ADR 04: RAG y Memoria Contextual para el Tutor Inteligente (IA)
 *   **Decisión:** Alimentar al LLM del Tutor con datos agregados en el prompt de sistema, incluyendo el Mastery de la unidad y el historial reciente de diálogos.
@@ -37,6 +38,20 @@ Para asegurar la escalabilidad y mitigar el crecimiento de un monolito inmanejab
 ### ADR 05: Event-Driven Architecture para Efectos Secundarios de Calificación
 *   **Decisión:** El recálculo de analíticas, actualización de dominios y agendamientos del algoritmo SM-2 ocurren fuera de la transacción de calificación mediante eventos de dominio.
 *   **Justificación:** Reduce los tiempos de respuesta del request HTTP principal. El estudiante recibe la notificación de calificación inmediatamente al terminar la transacción base, delegando a procesos en background el resto de las actualizaciones pesadas de base de datos.
+
+### ADR 06: Aislamiento de ejecución de código sin Docker
+*   **Decisión:** `HardenedProcessSandboxAdapter` — aislamiento por **proceso hijo del sistema operativo**, no por contenedor ni por contexto de JavaScript (`node:vm` nunca fue una frontera de seguridad: escape confirmado, hallazgo P0-01). Cuatro barreras independientes: entorno vacío, `--permission` de Node, `--disallow-code-generation-from-strings`, y cortafuegos de red en el preludio del proceso hijo (extendido en Ola 2 a `dns.promises` y `dns.Resolver`, que evadían el cortafuegos original — ver `docs/03_MOTOR_Y_TUTOR.md`).
+*   **Justificación:** El sandbox debía funcionar y poder demostrarse sin depender de infraestructura Docker, que no estaba disponible. `SANDBOX_TYPE=docker`/`vm` **abortan el arranque** con excepción — nunca degradan a un adaptador inseguro.
+*   **Detalle:** `docs/ADR-06-07_SANDBOX_SIN_DOCKER_Y_CONTENIDO.md` (documento con detalle de hallazgos, no publicado mientras el repositorio sea público — ver `.gitignore`).
+
+### ADR 07: Sanitización de contenido con dos perfiles (RICH/PLAIN)
+*   **Decisión:** `ContentRenderingService` sanea con dos perfiles según quién escribe. `RICH` (autoría docente: `content.body`, `activity.description`, `activity_question.question`) permite una lista blanca generosa — encabezados, listas, tablas, imágenes, enlaces, bloques de código, e `iframe` solo contra hosts embebibles permitidos (YouTube, Vimeo). `PLAIN` (texto de estudiante o del Tutor IA: `submission_answer.feedback`, `tutor_conversation.content`) no permite ningún HTML.
+*   **Justificación:** Los docentes necesitan crear contenido con formato rico; un estudiante nunca necesita inyectar marcado, y la salida de un LLM tampoco es HTML de confianza aunque no venga de un humano. Saneamiento en dos capas — al escribir (conserva el Markdown fuente, quita HTML peligroso ya incrustado) y al renderizar (único camino hacia HTML) — porque cada capa atrapa vectores distintos: la de escritura no ve el HTML que nace de la propia sintaxis Markdown (`[texto](javascript:...)`), invisible ahí porque es simple texto.
+*   **Consecuencias:** implementado en Ola 2 (antes: servicio existente pero sin ningún importador en el árbol — diseñado, no conectado). Ver `docs/04_ESTANDARES_Y_SEGURIDAD.md` §2.2.
+
+### ADR 08: Redis opcional para el Judge Engine
+*   **Decisión:** Puerto `JudgeQueue` con dos implementaciones: `InlineJudgeQueueAdapter` (por defecto, `setImmediate`, sin Redis) y `BullJudgeQueueAdapter`. `BullModule` se registra condicionalmente.
+*   **Justificación:** El sistema debía poder arrancar y calificar código real sin depender de infraestructura Redis no disponible en el entorno de desarrollo. El ciclo de instancias entre `SubmissionsService` y `JudgeExecutionService` se rompe con eventos de dominio (`judge.answer-graded`/`judge.answer-failed`), no con `forwardRef`.
 
 ---
 

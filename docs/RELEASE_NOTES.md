@@ -2,6 +2,49 @@
 
 ---
 
+## v0.4.0 — Cierre de Ola 2 de Remediacion · 26 de Agosto de 2026
+
+Base: reauditoria independiente sobre el commit final de la Ola 1 (`0600783`), que ademas de confirmar los hallazgos cerrados encontro cuatro cosas nuevas que la primera pasada no vio. Ejecutado en 8 puntos, cada uno con build + test en verde y commit propio. Igual que en la Ola 1: **este documento no declara un veredicto de aptitud para produccion** — eso lo determina una reauditoria, no el autor del cambio.
+
+### Hallazgos cerrados en esta ola
+
+| Hallazgo | Descripcion | Evidencia |
+|---|---|---|
+| — | Sin test que lo impida, el patron de autorizacion por rol se puede volver a olvidar en el proximo modulo nuevo | `src/common/authorization/route-role-metadata.spec.ts` — recorre TODOS los controllers por filesystem, sin lista escrita a mano. Fallo el primer dia contra 3 rutas reales (`activity-types` sin ningun `@Roles`/`@Public`), ya corregidas |
+| — | `AuthorizationService` no se habia propagado a `topic`/`learning-unit`/`content`/`activity-questions`, ni a `activities.create()` | Los cinco quedan con el mismo patron que `activities`/`class`/`section`/`enrollment` |
+| — | `topic.service.ts`: verificacion de propiedad que nunca podia fallar (comparaba contra una relacion — `section.class` — que nunca se carga) | Corregido; `src/topic/topic.service.spec.ts` reproduce el escenario exacto (docente ajeno crea/edita/borra un topic de otro) |
+| — | Exfiltracion por DNS en el sandbox: `dns.promises` y `dns.Resolver` evadian el cortafuegos original | 4 tests nuevos con el payload real, `src/judge-engine/hardened-process-sandbox.adapter.spec.ts` |
+| P1-09 | 25 de 26 tablas sin `CREATE TABLE` propio en migraciones — el esquema no era reproducible desde cero | `src/migrations/1779000000000-InitialSchema.ts`, linea base unica generada y verificada contra una BD vacia real |
+| — | No existia forma reproducible de dejar el sistema en un estado utilizable de demo | `stire-seeder-demo.ts` (`npm run db:seed:demo`), idempotente |
+| — | `npm start`/`npm run start:prod` fallaban en un checkout limpio (MODULE_NOT_FOUND) | Dos bugs de `tsconfig.json` corregidos (`rootDir`/`include` ausentes; `incremental` incompatible con `deleteOutDir` de Nest CLI) — ver mas abajo, es el hallazgo mas importante de esta ola |
+| P1-04 | XSS: `ContentRenderingService` existia pero no se invocaba en ningun flujo de guardado | Implementado (perfiles RICH/PLAIN, ADR 07) y cableado en los 5 puntos de escritura reales. Suite sin mocks: `content-rendering.service.no-mock.spec.ts` |
+| P1-05 (parcial) | Dependencias con 1 critica + 18 altas | `npm audit fix` (sin `--force`, dos pasadas): 39 -> 7 vulnerabilidades. Las 7 restantes son todas del arbol de `sqlite3` (dev-only), requieren un bump mayor — ver Punto 7 en el commit `chore(deps)` |
+
+### El hallazgo mas importante: reproducibilidad real, verificada de punta a punta
+
+La verificacion obligatoria (`npm ci` -> `migration:run` -> `db:seed:demo` -> `npm run build` -> `npm start`, sobre una base de datos MySQL real y vacia) **fallo la primera vez**, y la segunda, antes de pasar limpia. Dos bugs reales, ninguno relacionado con datos:
+
+1. `tsconfig.json` no declaraba `rootDir` ni `include`. Como el proyecto compila tanto `src/**` como los scripts `stire-*.ts` de la raiz, TypeScript inferia el rootDir implicito como la raiz del proyecto y `nest build` emitia `dist/src/main.js` en vez de `dist/main.js` — `node dist/main` (`npm start`/`start:prod`) fallaba con `MODULE_NOT_FOUND` en cualquier checkout limpio.
+2. `"incremental": true` en `tsconfig.json` es incompatible con `"deleteOutDir": true` en `nest-cli.json`: `deleteOutDir` borra los `.js` pero no el `.tsbuildinfo`, asi que la siguiente compilacion cree que no hay nada que emitir y no escribe NINGUN archivo — build a `EXIT 0` sin generar `dist/`, silenciosamente.
+
+Con ambos corregidos, la secuencia completa se verifico con `curl` real (no solo con el log de arranque): el docente y los 3 estudiantes de demo inician sesion, y `GET /enrollment/my`/`GET /class` devuelven los datos sembrados.
+
+### Hallazgos que SIGUEN abiertos
+
+| Hallazgo | Estado | Nota |
+|---|---|---|
+| P1-05 | 7 vulnerabilidades (2 low, 4 high, 1 critical), todas en el arbol de `sqlite3` (dev-only) | Requiere bump mayor (`--force`), fuera de alcance de un "audit fix no disruptivo" |
+| P1-07 | Condicion de carrera en el limite de intentos (`startSubmission`, sin `UNIQUE` constraint) | Sin tocar |
+| P1-08 | Perdida de eventos si el proceso de negocio falla | Sin tocar |
+| — | `AuthorizationService`/otros servicios inyectan `Repository<Entity>` directamente en varios puntos (incluidos los nuevos de esta ola), contra la regla documentada en `docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1 | Deuda preexistente (ya presente en `AuthorizationService` de la Ola 1), extendida — no corregida, senalada explicitamente |
+| — | `unit_2.3.3`/`fill-code` y otros evaluadores devuelven `feedback` estatico; no hay indicio de que el saneamiento PLAIN cambie el comportamiento observable salvo ante un intento real de inyeccion | Sin verificar contra trafico real |
+
+### Proximo paso obligatorio
+
+Igual que al cierre de la Ola 1: reauditoria independiente sobre el commit final de esta ola. El resultado de esa reauditoria — no esta nota — es lo que determina si la calificacion cambia y en cuanto.
+
+---
+
 ## v0.3.0 — Cierre de Ola 1 de Remediacion · 25 de Agosto de 2026
 
 Base: `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` (auditoria tecnica de alta intensidad sobre el commit `c7aac0e`, veredicto original: NO APTO, 3.05/10). Ejecutado en 4 bloques (build, autorizacion de usuarios, sandbox/cola/preguntas, cierre), cada uno con build + test en verde y commit propio.
