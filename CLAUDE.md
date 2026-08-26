@@ -47,6 +47,24 @@ hallazgo más importante.
 - Ningún hallazgo de build/arranque se declara cerrado sin la salida de este comando. "Corrió en
   mi máquina" (con un `node_modules` que no vino de un `npm ci` fresco) no es evidencia.
 
+**Nota de diagnóstico (Ola 3, no oculta):** durante el cierre de esta ola, `npm run verify:clean`
+falló de forma intermitente en su fase de arranque (el hijo que corre `dist/main.js` quedaba vivo
+pero nunca abría su puerto ni escribía a stdout/stderr) en la MISMA máquina donde, minutos antes,
+la secuencia idéntica había funcionado sin problema. Se investigó a fondo (arquitectura de
+procesos, `stdio`/`shell`, anidamiento, `&&` vs. invocaciones separadas) sin encontrar una causa
+en el código. La causa más probable, encontrada al final: la sesión de trabajo que produjo esta
+ola llevaba muchas horas de actividad intensiva (`npm ci` repetido, suites de Jest completas,
+muchos procesos Node concurrentes) y había reducido la memoria libre del sistema a ~1 GB de 8 GB
+totales — condición bajo la cual el arranque de una app NestJS completa (grafo de DI de ~30
+módulos, metadata de TypeORM para 26 entidades) puede degradarse severamente o no completar en el
+plazo esperado, sin que sea un defecto de `verify-clean.js` en sí. Evidencia a favor: en varias
+corridas AISLADAS más tempranas de la misma sesión (memoria menos comprometida), tanto el arranque
+como el login real funcionaron correctamente y con rapidez (variando entre ~8 y ~13 segundos).
+**Recomendación:** si `npm run verify:clean` falla en su fase de arranque, comprobar primero la
+memoria libre del sistema antes de sospechar del script; repetir en una sesión de terminal nueva
+(no en medio de una sesión larga con muchos procesos acumulados) antes de declarar un hallazgo de
+código.
+
 ## Prohibiciones
 
 - **Prohibido** `as any`, `@ts-ignore`, relajar `tsconfig` o desactivar reglas para hacer pasar

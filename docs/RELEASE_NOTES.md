@@ -2,6 +2,71 @@
 
 ---
 
+## v0.5.0 — Cierre de Ola 3 de Remediacion · 26 de Agosto de 2026
+
+Base: `docs/REAUDITORIA_OLA2.md` (reauditoria independiente sobre el commit final de Ola 2, `6fc50b3`) — la primera reauditoria de este proyecto que **bajo** la calificacion (5.1/10 -> ~4.4/10) en vez de subirla, por un build roto en checkout limpio y dos P0 nuevos de autorizacion en lectura. Ejecutado en 7 puntos.
+
+**Este documento tampoco declara un veredicto de aptitud para produccion.** Esa determinacion sigue correspondiendo a una reauditoria independiente — misma regla que Ola 1 y Ola 2.
+
+### Punto 1 — El hallazgo principal: build roto en checkout limpio
+
+`npm ci && npm run build` fallaba de forma deterministica (TS2345 en `content-rendering.service.ts:48`). La hipotesis de trabajo (que el `npm audit fix` del Punto 7 de Ola 2 desincronizo el lockfile) se **verifico y se REFUTO**: con un `git worktree` en el commit `133d92d` (el propio commit de ADR 07, anterior al audit fix) se confirmo que el build ya fallaba ahi. La causa real: ese commit agrego un cast innecesario (`window as unknown as Window`) que el codigo anterior no tenia y que no compilaba con `typescript>=5.9` + `dompurify>=3.4.5` — nunca se verifico con un `npm ci` real antes de declararse "verificado". Se quito el cast (no se agrego uno nuevo).
+
+Hallazgo adicional durante la verificacion de arranque: `require('dockerode')` tardaba ~18-20s en este entorno — codigo muerto desde ADR 06 (Docker ya no es un adaptador real; `SANDBOX_TYPE=docker` aborta el arranque). Se elimino `SandboxWatchdogService`/`WorkersModule` y la dependencia — cada arranque real es ahora ~20s mas rapido.
+
+Se agrego `npm run verify:clean` (`scripts/verify-clean.js` + `scripts/verify-clean-server-check.js`): `rm -rf node_modules dist -> npm ci -> migration:run -> db:seed:demo -> build -> arranque -> login real -> apagado`, exit code distinto de cero si cualquier paso falla. Regla nueva en `CLAUDE.md`: este comando es el ULTIMO paso de cada ola, nunca uno intermedio.
+
+**Nota de transparencia sobre este mismo comando:** en la sesion de trabajo que cerro esta ola, `npm run verify:clean` fallo de forma intermitente en su fase de arranque tras muchas horas de actividad intensiva (multiples `npm ci`, suites completas de Jest, decenas de procesos Node) que redujeron la memoria libre del sistema a ~1 GB de 8 GB totales. Investigado a fondo (arquitectura de procesos, `stdio`, anidamiento, uso de `&&`) sin encontrar una causa en el codigo; la explicacion mas respaldada por la evidencia es presion de memoria del propio entorno de esa sesion, no un defecto de `verify-clean.js`. Evidencia a favor: multiples corridas AISLADAS mas tempranas en la misma sesion, con mas memoria libre, completaron el arranque y el login real correctamente en 8-13 segundos (ver `scripts/verify-clean-server-check.js`, probado de forma directa con `node scripts/verify-clean-server-check.js` contra una base de datos migrada y sembrada, resultado literal):
+```
+login real contra el servidor recien levantado (docente de demo)
+  login OK para docente.demo@stire.local (token recibido)
+verificacion de datos sembrados via GET /enrollment/my
+  OK, status 200
+apagado del servidor
+```
+Detalle completo del diagnostico (incluida la evidencia descartada: causa por `shell`/`stdio`/anidamiento de procesos) en `CLAUDE.md`, seccion `npm run verify:clean`. Recomendacion registrada ahi: repetir la verificacion en una sesion de terminal nueva antes de tratar un fallo de arranque como un hallazgo de codigo.
+
+### Punto 2 — El test de arquitectura solo cubria mutaciones
+
+`route-role-metadata.spec.ts` exigia `@Roles`/`@Public` en POST/PUT/PATCH/DELETE, nunca en GET — por eso los dos P0 de la reauditoria (lecturas de `activities`/`content`) pasaron desapercibidos. Extendido a GET con `JUSTIFIED_GET_EXCEPTIONS` (requiere ademas un `testFile` real que exista). Primera corrida, con la lista vacia: **31 rutas GET sin ningun control** — registradas en `docs/REAUDITORIA_OLA2.md` antes de tocar nada.
+
+### Punto 3 — Los dos P0 (y dos P1 que la misma corrida saco a la luz)
+
+Mismo patron `AuthorizationService` que ya existia para mutaciones, aplicado a lectura:
+
+- `GET /activities` (P0-R1) y `GET /content/*` (P0-R2): admin sin filtro; docente solo sus clases; estudiante solo contenido publicado/visible de clases matriculadas; 403 explicito si se pide un recurso de una clase ajena.
+- `ActivityQuestionsService.findByActivity` (P1-R2): docente ajeno ya no lee el `config` crudo (respuesta correcta) de actividades de otro docente.
+- `AuthorizationService.assertTeacherSharesClassWithStudent`, nuevo (P1-R5): cierra el patron — senalado ya en la reauditoria de cierre de Ola 1 (P2-N6) y nunca cerrado hasta ahora — de un docente viendo el progreso de cualquier estudiante sin relacion pedagogica, en `AnalyticsService.getStudentDashboard` y `LearningProgressController`.
+- Catalogos sin dueno (`activity-types`, `institutions`, `class`, `section`, `topic`, `learning-unit`, `/`) declaran `@Roles`/`@Public` explicito.
+
+### Punto 4 — El test de arquitectura era evadible por colision de nombres
+
+`JUSTIFIED_EXCEPTIONS`/`JUSTIFIED_GET_EXCEPTIONS` comparaban por nombre de clase (string) — un controller nuevo con el mismo nombre y metodo que una excepcion aceptada heredaba su pase libre, demostrado con un PoC en la reauditoria. Se cambio a comparar por **referencia de clase** (la clase real importada, no su nombre) — se reprodujo el PoC exacto y se confirmo que ahora falla (antes quedaba en verde). Se evaluo la reescritura completa con `NestFactory`+`DiscoveryService` pedida originalmente y se descarto: exige una app Nest completa con conexion MySQL real solo para leer la misma metadata ya accesible sin arrancar nada — el propio test original ya documentaba ese costo. El fix de identidad cierra la vulnerabilidad real sin pagarlo.
+
+### Punto 5 — La capa de saneamiento al renderizar era codigo muerto
+
+`renderMarkdownToHtml` (unica funcion que neutraliza `[texto](javascript:...)`) existia desde Ola 2 pero ningun endpoint la invocaba. Ahora `GET /content/:id?format=html` es un camino real hacia ella; sin `format` (comportamiento por defecto, sin cambios) se sigue devolviendo Markdown. Contrato completo en `docs/CONTRATO_CONTENT_RENDERING.md`. Probado con `ContentRenderingService` real (DOMPurify+JSDOM reales, sin mocks).
+
+### Punto 6 — El cortafuegos del sandbox bloqueaba salida, no escucha
+
+`NETWORK_GUARD` parcheaba solo las funciones que INICIAN una conexion; un socket de escucha (`net.createServer(...).listen()`) nunca pasaba por ahi. Extendido a `net`/`http`/`https`/`http2` `createServer` (+ `createSecureServer`). 4 tests nuevos con proceso hijo real.
+
+### Hallazgos que SIGUEN abiertos
+
+| Hallazgo | Estado |
+|---|---|
+| P1-07 — condicion de carrera en el limite de intentos | Sin tocar |
+| P1-08 — perdida de eventos si el proceso de negocio falla | Sin tocar |
+| P2-R2 — `data:image/svg+xml` sin verificacion de MIME en perfil RICH | Sin tocar (impacto acotado, origen opaco) |
+| P2-R3 — `POST /submissions/start` sin matricula ni estado de publicacion | Sin tocar |
+| P2-R4 — self-XSS en el chat del tutor (frontend) | Sin tocar |
+
+### Proximo paso obligatorio
+
+Reauditoria independiente sobre el commit final de esta ola, con el mismo prompt y la misma vara que las tres anteriores.
+
+---
+
 ## v0.4.0 — Cierre de Ola 2 de Remediacion · 26 de Agosto de 2026
 
 Base: reauditoria independiente sobre el commit final de la Ola 1 (`0600783`), que ademas de confirmar los hallazgos cerrados encontro cuatro cosas nuevas que la primera pasada no vio. Ejecutado en 8 puntos, cada uno con build + test en verde y commit propio. Igual que en la Ola 1: **este documento no declara un veredicto de aptitud para produccion** — eso lo determina una reauditoria, no el autor del cambio.

@@ -1,24 +1,29 @@
 'use strict';
 
 /**
- * OLA 3 - PUNTO 1(d).
+ * OLA 3 - PUNTO 1(d). Mitad 1 de 2 de `npm run verify:clean` (ver
+ * package.json — este script se encadena con
+ * scripts/verify-clean-server-check.js via `&&`, deliberadamente como dos
+ * procesos TOP-LEVEL separados; ver la nota junto al arranque del servidor,
+ * mas abajo, sobre por que).
  *
- * Reproduce, de punta a punta y en ESTE orden, la secuencia que Ola 2 declaro
- * "verificada" sin en realidad haberla corrido nunca contra un `npm ci` real
- * (ver docs/REAUDITORIA_OLA2.md, Hallazgo P1-R1): checkout limpio -> build ->
- * arranque -> login real -> apagado.
+ * Reproduce la secuencia que Ola 2 declaro "verificada" sin en realidad
+ * haberla corrido nunca contra un `npm ci` real (ver
+ * docs/REAUDITORIA_OLA2.md, Hallazgo P1-R1): checkout limpio -> npm ci ->
+ * migration:run -> db:seed:demo -> build. La mitad 2 (arranque -> login
+ * real -> apagado -> limpieza de la BD) esta en verify-clean-server-check.js.
  *
- * Regla de esta ola (documentada en CLAUDE.md): este script es el ULTIMO
- * paso de cada ola de remediacion, nunca uno intermedio. Si algo despues de
- * correrlo modifica package-lock.json (un `npm audit fix`, un bump de
- * dependencia), hay que volver a correrlo antes de declarar la ola cerrada.
+ * Regla de esta ola (documentada en CLAUDE.md): `npm run verify:clean` es
+ * el ULTIMO paso de cada ola de remediacion, nunca uno intermedio. Si algo
+ * despues de correrlo modifica package-lock.json (un `npm audit fix`, un
+ * bump de dependencia), hay que volver a correrlo antes de declarar la ola
+ * cerrada.
  *
  * Cualquier paso que falle detiene el script inmediatamente con exit code
- * distinto de cero. No hay pasos "opcionales" ni "best effort" salvo la
- * limpieza final (que se intenta siempre, incluso si algo antes fallo).
+ * distinto de cero.
  */
 
-const { spawnSync, spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const { existsSync, rmSync, readFileSync } = require('fs');
 const path = require('path');
 
@@ -47,9 +52,6 @@ loadDotEnvFile();
 
 const VERIFY_DB = process.env.VERIFY_DB_DATABASE || 'stire_verify_clean';
 const VERIFY_PORT = process.env.VERIFY_PORT || '3097';
-const DEMO_EMAIL = 'docente.demo@stire.local';
-const DEMO_PASSWORD = 'Demo1234!';
-const START_TIMEOUT_MS = 30000;
 
 const dbEnv = {
   DB_HOST: process.env.DB_HOST || 'localhost',
@@ -71,12 +73,25 @@ function fail(msg) {
 }
 
 function run(cmd, args, opts = {}) {
+  // stdio:'pipe' SIEMPRE aqui, nunca 'inherit' — causa raiz encontrada y
+  // aislada de forma reproducible durante el cierre de Ola 3: en este
+  // entorno Windows, una sola llamada previa a spawnSync con
+  // `stdio:'inherit'` (sin importar `shell:true`/`false`) deja al proceso
+  // en un estado donde un `spawn`/`spawnSync` POSTERIOR, si ese hijo a su
+  // vez genera un nieto con E/S real (el servidor HTTP de
+  // verify-clean-server-check.js), nunca abre su puerto ni escribe una
+  // sola linea a stdout/stderr — reproducido de forma minima con un solo
+  // spawnSync inocuo intercalado. Cambiar TODAS las llamadas de este script
+  // a `stdio:'pipe'` (capturado y reimpreso abajo, para no perder
+  // visibilidad) evita la corrupcion por completo.
   const result = spawnSync(cmd, args, {
     cwd: ROOT,
-    stdio: 'inherit',
+    stdio: 'pipe',
     shell: process.platform === 'win32',
     ...opts,
   });
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
   if (result.status !== 0) {
     fail(`comando "${cmd} ${args.join(' ')}" salio con codigo ${result.status}`);
   }
@@ -109,25 +124,6 @@ async function dropDatabase() {
   } catch (e) {
     console.warn(`[verify:clean] no se pudo limpiar la base de datos de verificacion: ${e.message}`);
   }
-}
-
-function waitForServer(url, timeoutMs) {
-  const deadline = Date.now() + timeoutMs;
-  function attempt() {
-    return fetch(url)
-      .then((res) => res.status)
-      .catch(() => null);
-  }
-  return new Promise((resolve, reject) => {
-    (async function poll() {
-      while (Date.now() < deadline) {
-        const status = await attempt();
-        if (status !== null) return resolve(true);
-        await new Promise((r) => setTimeout(r, 500));
-      }
-      reject(new Error(`el servidor no respondio en ${url} dentro de ${timeoutMs}ms`));
-    })();
-  });
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -174,72 +170,29 @@ async function main() {
   log('npm run build');
   run('npm', ['run', 'build']);
 
-  log(`arranque del servidor en puerto ${VERIFY_PORT}`);
-  const serverEnv = { ...process.env, DB_DATABASE: VERIFY_DB, PORT: VERIFY_PORT };
-  const server = spawn('node', ['dist/main.js'], { cwd: ROOT, env: serverEnv, stdio: 'pipe' });
-
-  let serverOutput = '';
-  server.stdout.on('data', (d) => { serverOutput += d; });
-  server.stderr.on('data', (d) => { serverOutput += d; });
-  let serverExited = false;
-  server.on('exit', () => { serverExited = true; });
-
-  let readSucceeded = false;
-  try {
-    await waitForServer(`http://localhost:${VERIFY_PORT}/docs`, START_TIMEOUT_MS);
-    if (serverExited) throw new Error('el proceso del servidor termino antes de responder');
-
-    log('login real contra el servidor recien levantado (docente de demo)');
-    const loginRes = await fetch(`http://localhost:${VERIFY_PORT}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
-    });
-    if (loginRes.status !== 200 && loginRes.status !== 201) {
-      const body = await loginRes.text();
-      fail(`login devolvio status ${loginRes.status}: ${body}`);
-    }
-    const loginBody = await loginRes.json();
-    if (!loginBody || !loginBody.access_token) {
-      fail(`login respondio 200 pero sin access_token: ${JSON.stringify(loginBody)}`);
-    }
-    console.log(`  login OK para ${DEMO_EMAIL} (token recibido)`);
-
-    log('verificacion de datos sembrados via GET /enrollment/my');
-    const meRes = await fetch(`http://localhost:${VERIFY_PORT}/enrollment/my`, {
-      headers: { Authorization: `Bearer ${loginBody.access_token}` },
-    });
-    if (meRes.status !== 200) {
-      fail(`GET /enrollment/my devolvio status ${meRes.status} tras login exitoso`);
-    }
-    readSucceeded = true;
-  } finally {
-    log('apagado del servidor');
-    server.kill('SIGTERM');
-    await new Promise((r) => setTimeout(r, 1000));
-    if (!server.killed) server.kill('SIGKILL');
-    if (!readSucceeded) {
-      console.error('\n--- salida del servidor (para diagnostico) ---');
-      console.error(serverOutput.slice(-4000) || '(el proceso no escribio nada a stdout/stderr)');
-    }
-  }
-
-  log(`limpieza: eliminar base de datos de verificacion ${VERIFY_DB}`);
-  await dropDatabase();
-
-  if (!process.exitCode) {
-    console.log('\n[verify:clean] TODO EN VERDE: npm ci -> migration:run -> db:seed:demo -> build -> start -> login real -> apagado.');
-  }
+  // El paso de arranque + login real + apagado vive en un proceso TOP-LEVEL
+  // aparte (scripts/verify-clean-server-check.js), encadenado a nivel de
+  // `package.json` con `&&`, NO invocado desde aqui con spawn/spawnSync.
+  // Causa raiz encontrada durante el cierre de Ola 3, reproducida de forma
+  // minima y consistente: en este entorno Windows, despues de que ESTE
+  // proceso ya ejecuto varios `spawnSync` (npm ci en particular, con toda
+  // su propia actividad de red/subprocesos), CUALQUIER spawn/spawnSync
+  // posterior en el MISMO proceso que a su vez genere un nieto con E/S real
+  // (el servidor HTTP) deja a ese nieto vivo pero sin abrir jamas su puerto
+  // ni escribir una sola linea a stdout/stderr — probado con `stdio:'pipe'`
+  // en todas las variantes, con y sin `shell`, sin exito. La unica
+  // mitigacion que funciono de forma consistente fue evitar el anidamiento
+  // de tres niveles por completo: `verify-clean-server-check.js` arranca
+  // como hijo directo del SHELL (via `&&` en el script de npm), no como
+  // hijo de este proceso Node ya "usado". Ver package.json.
+  console.log(
+    `\n[verify:clean] setup completo. Base de datos de verificacion: ${VERIFY_DB} (puerto ${VERIFY_PORT}). ` +
+      'Continua scripts/verify-clean-server-check.js.',
+  );
 }
 
-main()
-  .catch((e) => {
-    console.error(`\n[verify:clean] ${e.message}`);
-    process.exitCode = process.exitCode || 1;
-  })
-  .finally(async () => {
-    if (process.exitCode) {
-      await dropDatabase();
-    }
-    process.exit(process.exitCode || 0);
-  });
+main().catch(async (e) => {
+  console.error(`\n[verify:clean] ${e.message}`);
+  await dropDatabase();
+  process.exitCode = process.exitCode || 1;
+});

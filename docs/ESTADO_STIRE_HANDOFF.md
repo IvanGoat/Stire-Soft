@@ -1,5 +1,5 @@
 # STIRE — Estado del proyecto y punto de continuación
-**Última actualización:** 2026-08-26 · **Commit actual:** `087f7b4` (rama `main`, repo público)
+**Última actualización:** 2026-08-26 · **Commit actual:** `83593cb` (rama `main`, repo público)
 **Propósito:** documento de traspaso. Leer esto basta para retomar el trabajo sin releer el histórico.
 
 ---
@@ -20,85 +20,91 @@ Reglas de tono: conciso, sin ceremonia, sin documento nuevo por cada turno. Un a
 
 ## 1. Dónde estamos
 
-Se ejecutó una auditoría forense adversarial sobre el commit `c7aac0e`, seguida de una Ola 1 de remediación en cuatro bloques, una reauditoría independiente sobre el resultado, y una Ola 2 de remediación en ocho puntos sobre esos hallazgos.
+Auditoría forense adversarial (`c7aac0e`) → Ola 1 de remediación → reauditoría independiente de cierre de Ola 1 (≈5.1/10) → Ola 2 de remediación (8 puntos) → **reauditoría independiente de cierre de Ola 2 (`docs/REAUDITORIA_OLA2.md`) que bajó la nota a ≈4.4/10** por un build roto en checkout limpio y dos P0 nuevos de autorización en lectura → **Ola 3 de remediación (7 puntos, este documento)**.
 
-| Métrica | Antes (`c7aac0e`) | Tras Ola 1 (`0600783`) | Tras Ola 2 (`087f7b4`) |
-|---|---|---|---|
-| Calificación global | 3.05/10 | ≈5.1/10 | **sin medir — pendiente de reauditoría, ver Nota abajo** |
-| Build | ❌ 6 errores TypeScript | ✅ exit 0 | ✅ exit 0 |
-| Arranque sin Docker ni Redis | ❌ el proceso moría | ✅ arranca y responde en `:3001/docs` | ✅ (verificado además de punta a punta: `npm ci → migration:run → db:seed:demo → build → start`, sobre BD vacía real) |
-| Tests | 19 suites / 105 tests | 33 suites / 183 tests | **36 suites / 215 tests** |
-| Tablas con migración de creación | — | 1 de 26 | **26 de 26** (línea base única, ver §2) |
-| XSS (ADR 07) | — | diseñado, no implementado | **implementado y cableado en los 5 puntos de escritura** |
-| Vulnerabilidades npm audit | — | 1 crítica + 18 altas | **7 aceptadas como riesgo (todas en `sqlite3`, dev-only — ver §4)** |
-| Veredicto | NO APTO | NO APTO (hallazgos residuales acotados) | **sin veredicto propio — ver Nota** |
+| Métrica | Antes (`c7aac0e`) | Ola 1 (`0600783`) | Ola 2 (`087f7b4`) | Ola 3 (`83593cb`) |
+|---|---|---|---|---|
+| Calificación (reauditoría independiente) | 3.05/10 | ≈5.1/10 | ≈4.4/10 (regresión) | **sin medir — pendiente de reauditoría** |
+| Build en checkout limpio (`npm ci && npm run build`) | ❌ 6 errores TS | ✅ | ❌ (roto, no detectado por Ola 2) | **✅ (build/migración/seed verificados; arranque+login verificados por separado — ver §2, nota de transparencia)** |
+| Tests | 19 suites / 105 | 33 suites / 183 | 36 suites / 215 | **38 suites / 259** |
+| Test de arquitectura de roles | — | solo POST/PUT/PATCH/DELETE | igual, evadible por colisión de nombre | **también GET; identidad por referencia de clase, no por string** |
+| Autorización en lectura (`activities`, `content`) | — | sin verificar | sin verificar (P0-R1/P0-R2 en reauditoría) | **cerrada, mismo patrón `AuthorizationService` que mutaciones** |
+| Saneamiento XSS al renderizar (capa 2, ADR 07) | — | — | existía, código muerto (P1-R4) | **alcanzable vía `?format=html`, ver `docs/CONTRATO_CONTENT_RENDERING.md`** |
+| Cortafuegos del sandbox | — | escape `node:vm` (P0-01) | bloquea salida, DNS incluido | **también bloquea sockets de escucha (P2-R1)** |
+| Veredicto | NO APTO | NO APTO | NO APTO (regresión) | **sin veredicto propio — ver Nota** |
 
-> **Nota — por qué no hay una calificación de la Ola 2:** el 5.1/10 de la Ola 1 lo puso una reauditoría independiente, no el autor de los cambios. Este documento reporta qué se cerró y con qué evidencia (commits, tests, verificación end-to-end con `curl`), pero **no se autoasigna una nota** — eso le corresponde a la próxima reauditoría, con el mismo prompt y la misma vara que las anteriores.
+> **Nota:** ninguna ola se autoasigna una nota — eso le corresponde a la próxima reauditoría independiente, con el mismo prompt y la misma vara que las tres anteriores.
 
-**Lo que funciona hoy, verificado end-to-end contra la base de datos real:** un estudiante entrega código JavaScript, se ejecuta de verdad en un sandbox aislado, y recibe nota real (100 con solución correcta, 0 con incorrecta, `execution_results` persistido). Sin Docker, sin Redis. **Nuevo en Ola 2:** el sistema completo se levanta desde una base de datos vacía con `npm ci → migration:run → db:seed:demo → npm run build → npm start`, y un docente + 3 estudiantes de demo (`docente.demo@stire.local` / `Demo1234!`, ver README) pueden iniciar sesión y ver datos reales de inmediato.
-
----
-
-## 2. Decisiones de arquitectura vigentes
-
-**ADR 06 — Sandbox por proceso hijo endurecido.** `HardenedProcessSandboxAdapter` es el único adaptador real. Aísla con proceso hijo del SO: `--permission` (deniega fs, child_process, worker_threads, `process.binding`), `--disallow-code-generation-from-strings`, entorno mínimo (en Windows hay que declarar las variables que libuv inyecta a la fuerza), cortafuegos de red en preludio (**Ola 2:** extendido a `dns.promises` y `dns.Resolver`, que evadían el cortafuegos original), `--max-old-space-size=128` y watchdog con `SIGKILL`. `SANDBOX_TYPE=hardened` por defecto; `docker` y `vm` **abortan el arranque** con excepción, nunca degradan a mock.
-
-**ADR 07 — Sanitización con dos perfiles. Estado: implementado en Ola 2.** `RICH` para autoría docente (`content.body`, `activity.description`, `activity_question.question` — lista blanca generosa: tablas, imágenes, código, `iframe` solo de hosts permitidos) y `PLAIN` para texto de estudiante y de la IA (`submission_answer.feedback`, `tutor_conversation.content` — sin HTML). Saneamiento al escribir conservando Markdown, más saneamiento al renderizar. Suite sin mocks: `content-rendering.service.no-mock.spec.ts`. P1-04 cerrado.
-
-**ADR 08 — Redis opcional.** Puerto `JudgeQueue` con `InlineJudgeQueueAdapter` (por defecto, `setImmediate`, sin Redis) y `BullJudgeQueueAdapter`. `BullModule` se registra condicionalmente. El ciclo de instancias entre `SubmissionsService` y `JudgeExecutionService` se rompió con eventos de dominio (`judge.answer-graded` / `judge.answer-failed`, con `emitAsync`), no con `forwardRef`.
-
-**Línea base de migraciones (Ola 2, sin ADR propio — es infraestructura, no una decisión de diseño).** Las 5 migraciones incrementales anteriores (ninguna con los `CREATE TABLE` base — 25 de 26 tablas solo existían porque alguna vez se corrió con `synchronize: true`) quedan squasheadas en `src/migrations/1779000000000-InitialSchema.ts`: 26 tablas, todas las FK e índices, generada contra una base de datos vacía real y verificada con `migration:run` de punta a punta.
+**Lo que funciona hoy:** `rm -rf node_modules dist → npm ci → migration:run → db:seed:demo → npm run build` se verificó de punta a punta contra una base de datos MySQL vacía real con `npm run verify:clean` (exit code distinto de cero si cualquier paso falla). El paso final de esa misma cadena — arranque → login real (docente de demo) → `GET /enrollment/my` con el token → apagado — se verificó correcto y rápido (8-13s) en corridas aisladas dentro de la misma sesión, pero la cadena automatizada completa en un solo comando no se pudo confirmar de forma limpia al cierre de esta ola por presión de memoria del entorno de esa sesión, no por un defecto de código — ver la nota de transparencia en `docs/RELEASE_NOTES.md` v0.5.0 y el diagnóstico completo en `CLAUDE.md`.
 
 ---
 
-## 3. Cerrado y verificado
+## 2. `npm run verify:clean` — regla de proceso, no solo herramienta
 
-**Ola 1** (por reauditoría independiente): P1-01 build · P0-01 escape de sandbox · P0-02 escalada de privilegios · P0-03 fuga de respuestas correctas · P0-04 CRUD de actividades · P0-05 juez mock · P1-03 rate limiting · P1-06 escalada horizontal entre docentes · P1-10 a P1-12 (módulo de usuarios) · P1-02 parcial (cobertura de auth).
+**Por qué existe:** la Ola 2 declaró la secuencia de arranque "verificada de punta a punta" en su Punto 5, y volvió a tocar `package-lock.json` en su Punto 7 (`npm audit fix`) sin repetir la verificación. La reauditoría de Ola 2 reprodujo la secuencia literal contra un `npm ci` real y el build falló de inmediato — la causa exacta no fue el audit fix (se descartó con evidencia, ver `docs/RELEASE_NOTES.md` v0.5.0 Punto 1), pero el patrón de fondo es el mismo: una verificación que se corrió una vez, contra un `node_modules` que ya existía, y nunca se repitió tras un cambio posterior.
 
-**Ola 2** (por el propio autor del cambio — pendiente de reauditoría, ver §1): propagación de `AuthorizationService` a `topic`/`learning-unit`/`content`/`activity-questions`/`activities.create()` · bug de ownership en `topic.service.ts` que nunca podía fallar · exfiltración por DNS en el sandbox (`dns.promises`/`dns.Resolver`) · P1-09 línea base de migraciones · P1-04 XSS (ADR 07) · P1-05 parcial (`npm audit fix`, 39→7 vulnerabilidades) · test de arquitectura que impide que el patrón de `@Roles`/`@Public` se vuelva a olvidar · dos bugs de reproducibilidad en `tsconfig.json` que rompían `npm start` en un checkout limpio.
-
-Detalle completo, con commits, en `docs/RELEASE_NOTES.md` (v0.4.0).
+**La regla, documentada también en `CLAUDE.md`:** `npm run verify:clean` se corre una sola vez por ola, al **final**, después de que todos los puntos estén commiteados. Si algo después modifica `package-lock.json`, `tsconfig.json`, `nest-cli.json` o cualquier script de arranque/migración/seed, hay que volver a correrlo antes de declarar la ola cerrada.
 
 ---
 
-## 4. Abierto
+## 3. Decisiones de arquitectura vigentes
 
-1. **P1-07** — condición de carrera en el límite de intentos (`startSubmission`, sin `UNIQUE` constraint).
-2. **P1-08** — eventos `submission.graded` sin garantía de entrega si el proceso de negocio falla.
-3. `easeFactor` de SM-2 no persistido · integración del `ActivityLog` en el Tutor — sin tocar, heredado de antes de Ola 1.
+**ADR 06 — Sandbox por proceso hijo endurecido.** `HardenedProcessSandboxAdapter` es el único adaptador real. Aísla con proceso hijo del SO: `--permission`, `--disallow-code-generation-from-strings`, entorno mínimo, cortafuegos de red en preludio (Ola 2: extendido a `dns.promises`/`dns.Resolver`; **Ola 3: extendido a sockets de escucha** — `net`/`http`/`https`/`http2` `createServer` — que permitían aceptar conexiones entrantes sin que el cortafuegos, pensado solo para conexiones salientes, lo notara), `--max-old-space-size=128` y watchdog con `SIGKILL`. `SANDBOX_TYPE=hardened` por defecto; `docker` y `vm` abortan el arranque con excepción.
 
-### Riesgos aceptados (decisión explícita del dueño del proyecto, cierre de Ola 2)
+**ADR 07 — Sanitización con dos perfiles.** `RICH` (autoría docente) y `PLAIN` (estudiante/IA), saneamiento al escribir. **Ola 3:** la capa de saneamiento al *renderizar* (`renderMarkdownToHtml`, la única que neutraliza sintaxis Markdown como `[x](javascript:...)`) ahora es alcanzable de verdad vía `GET /content/:id?format=html` — antes existía pero ningún endpoint la invocaba. Contrato completo: `docs/CONTRATO_CONTENT_RENDERING.md`.
 
-Estos dos ítems **no están pendientes** — se revisaron y se decidió conscientemente no actuar sobre ellos, o cambiar la regla en vez del código. No deben reabrirse como hallazgos en la próxima reauditoría sin que cambie el hecho que los sostiene.
+**ADR 08 — Redis opcional.** Sin cambios en Ola 3.
 
-1. **P1-05 (parcial) — 7 vulnerabilidades npm restantes** (2 low, 4 high, 1 critical), todas en el árbol de `sqlite3`. **Riesgo aceptado:** `sqlite3` es una devDependency usada únicamente para bases de datos en memoria en tests (`src/test-data-source.ts`) — nunca corre en producción ni en el proceso servido a usuarios. El único fix disponible exige un bump mayor de `sqlite3` (`--force`), que puede romper la API de tests o requerir binarios prebuilt distintos. Sin impacto en ejecución real: no se hace el bump.
-2. **Regla de inyección de repositorios** (`docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1) — la regla original ("terminantemente prohibido" inyectar `Repository<Entity>` directo) no describía el código real desde la Ola 1 (`AuthorizationService`) y menos aún tras la Ola 2. **Decisión: se cambió la regla, no el código.** Repositorio Personalizado obligatorio solo con complejidad real de consulta (`QueryBuilder`, agregaciones, índices); `Repository<Entity>` directo permitido en CRUD simple. Una regla que el proyecto entero incumple no protege nada — hace mentir a la documentación.
+**Línea base de migraciones.** Sin cambios en Ola 3 — re-verificada de punta a punta en cada corrida de `verify:clean`.
 
----
-
-## 5. Ola 2 — instrucción ejecutada
-
-La instrucción completa (8 puntos) que produjo el estado descrito en §1–§4 queda registrada tal cual se recibió, en `docs/RELEASE_NOTES.md` v0.4.0 junto con los commits de cada punto. No se repite aquí para no duplicar la fuente de verdad — este documento resume el resultado; RELEASE_NOTES.md tiene el detalle punto por punto.
+**Patrón de autorización en lectura (Ola 3, sin ADR propio).** El mismo `AuthorizationService` (`assertTeacherOwnsClass`/`assertEnrolledInClass`) que ya protegía las mutaciones desde Ola 1/2 ahora también protege las lecturas de `activities`/`content`, y un método nuevo (`assertTeacherSharesClassWithStudent`) cierra el patrón de un docente viendo datos de un estudiante sin relación pedagógica (`analytics`, `learning-progress`). El test de arquitectura (`route-role-metadata.spec.ts`) ahora cubre también rutas GET, y compara excepciones por **referencia de clase**, no por nombre en string — cierra la evasión por colisión de nombres encontrada en la reauditoría de Ola 2.
 
 ---
 
-## 6. Reglas de trabajo de este proyecto
+## 4. Cerrado y verificado
 
-- **Todo hallazgo que emita el CTO se trata como HIPÓTESIS hasta verificarlo contra el árbol de trabajo.** Dos hallazgos suyos ya cayeron con evidencia (el `env` en Windows, causa real libuv; y P1-13, que resultó ser código muerto). Cuestionarlos con código es el comportamiento esperado, no una excepción.
-- **Regla de Oro:** `npm run build` + `npm test` tras cada bloque. Contador de errores estrictamente decreciente. Si algo rompe, parar y reportar.
-- **Prohibido** `as any`, `@ts-ignore`, relajar `tsconfig` o desactivar reglas para hacer pasar un build.
-- **Sin test, un fix no está terminado.** El test prueba la propiedad, no la intención.
-- **Sin commit sin mensaje aprobado. Sin push sin confirmación.**
-- **`npm run lint` incluye `--fix` y muta el árbol de trabajo.** Para auditar formato, usar `eslint` directamente sin `--fix`.
-- **Documentos con detalle de vulnerabilidades abiertas van en `.gitignore`**, nunca al repo (que es público por decisión del dueño). El código corregido sí se publica.
-- **El repositorio es público por decisión explícita.** No volver a proponer hacerlo privado. Historial verificado limpio: sin secretos, `.env` nunca trackeado. La única condición: si se despliega en un servidor accesible, cerrar antes los hallazgos de autorización abiertos.
+**Ola 1** (por reauditoría independiente): P1-01 build · P0-01 a P0-05 · P1-03, P1-06, P1-10 a P1-12 · P1-02 parcial.
+
+**Ola 2** (declarado por el autor, la reauditoría de Ola 2 confirmó la mayoría y encontró 2 P0 nuevos — ver Ola 3): propagación de `AuthorizationService` a mutaciones · DNS del sandbox · P1-09 migraciones · P1-04 XSS escritura · P1-05 parcial · test de arquitectura (solo mutaciones) · reproducibilidad de `tsconfig.json`.
+
+**Ola 3** (por el propio autor del cambio — pendiente de reauditoría): build roto en checkout limpio (causa raíz identificada, no solo el síntoma) · eliminación de `dockerode`/`SandboxWatchdogService` (código muerto, ~20s de arranque) · `npm run verify:clean` · test de arquitectura extendido a GET · P0-R1 (`GET /activities`) · P0-R2 (lecturas de `content`) · P1-R2 (`activity-questions.findByActivity`) · P1-R5 (`analytics`/`learning-progress`, señalado desde el cierre de Ola 1 y nunca cerrado) · P1-R3 (colisión de nombres en el test de arquitectura) · P1-R4 (capa de renderizado XSS alcanzable) · P2-R1 (sockets de escucha en el sandbox).
+
+Detalle completo, con commits, en `docs/RELEASE_NOTES.md` (v0.5.0).
 
 ---
 
-## 7. Para la defensa del proyecto
+## 5. Abierto
 
-El material más fuerte no es el sistema, es el proceso: **3.05/10 → 5.1/10 medido con la misma vara y el mismo método**, con reauditoría independiente que además encontró cuatro cosas que la primera pasada no vio, seguida de una Ola 2 que las cerró y — por su cuenta — encontró y corrigió dos bugs de reproducibilidad más (`tsconfig.json`) que ni la auditoría original ni la reauditoría habían tocado. Muy pocos trabajos académicos presentan una auditoría adversarial de su propio sistema, un plan de remediación ejecutado con evidencia por commit, y una segunda pasada que refuta parte del trabajo propio.
+1. **P1-07** — condición de carrera en el límite de intentos (`startSubmission`, sin `UNIQUE` constraint). Sin tocar desde la auditoría original.
+2. **P1-08** — eventos `submission.graded` sin garantía de entrega si el proceso de negocio falla. Sin tocar.
+3. **P2-R2** — `data:image/svg+xml` sin verificación de MIME en el perfil RICH de saneamiento (impacto acotado: origen opaco, requiere navegación explícita del usuario a la URI).
+4. **P2-R3** — `POST /submissions/start` sin verificación de matrícula ni de estado de publicación (oráculo lateral vía `totalScore`).
+5. **P2-R4** — self-XSS en el chat del tutor (frontend, `dangerouslySetInnerHTML` sin escapar el eco local del propio mensaje).
+6. `easeFactor` de SM-2 no persistido · integración del `ActivityLog` en el Tutor — sin tocar, heredado de antes de Ola 1.
 
-Guardar para la presentación: la prueba end-to-end con `stdout: "6"` capturado de ejecución real, la tabla de los 10 vectores de ataque bloqueados por el sandbox, esta tabla de antes/después, y el log literal de la verificación `npm ci → migration:run → db:seed:demo → build → start` sobre una base de datos vacía (Ola 2) — falló dos veces antes de pasar limpia, lo cual es evidencia más fuerte que si hubiera pasado a la primera.
+### Riesgos aceptados (sin cambios desde el cierre de Ola 2)
+
+1. **P1-05 (parcial) — 7 vulnerabilidades npm restantes**, todas en el árbol de `sqlite3` (devDependency, solo tests en memoria). Sin impacto en ejecución real: no se hace el bump mayor.
+2. **Regla de inyección de repositorios** (`docs/04_ESTANDARES_Y_SEGURIDAD.md` §1.1) — Repositorio Personalizado obligatorio solo con complejidad real de consulta; `Repository<Entity>` directo permitido en CRUD simple.
+
+---
+
+## 6. Ola 3 — instrucción ejecutada
+
+La instrucción completa (7 puntos) que produjo el estado descrito en §1-§5 queda registrada en `docs/RELEASE_NOTES.md` v0.5.0 junto con los commits de cada punto (algunos puntos se combinaron en un mismo commit cuando estaban acoplados en el mismo archivo — ver la nota de cada commit). No se repite aquí para no duplicar la fuente de verdad.
+
+---
+
+## 7. Reglas de trabajo de este proyecto
+
+Ver `CLAUDE.md` — es ahora la fuente de verdad de las reglas de ingeniería (incluida la regla nueva de `npm run verify:clean` como último paso de cada ola). Este documento sigue siendo el de traspaso de estado.
+
+---
+
+## 8. Para la defensa del proyecto
+
+El material más fuerte sigue siendo el proceso, no el sistema — y esta ola lo demuestra con más fuerza que las anteriores porque **incluye una regresión real, medida y explicada**, no solo mejoras: 3.05/10 → 5.1/10 → 4.4/10 → pendiente. Muy pocos trabajos académicos se someten a una reauditoría que les baja la nota y la publican de todos modos junto con la corrección punto por punto. La causa raíz del build roto (un cast de tipo innecesario, verificado con un `git worktree` histórico que refutó la hipótesis inicial del propio dueño del proyecto) y el PoC de colisión de nombres reproducido y cerrado en el test de arquitectura son evidencia de un proceso de ingeniería que se audita a sí mismo con rigor, no de un sistema perfecto.
+
+Guardar para la presentación: la tabla de cuatro columnas de calificación (§1), la comparación antes/después del PoC de colisión de nombres (verde con el bug, rojo sin él), y — como ejemplo de honestidad de proceso, no solo de resultado — la nota de transparencia en `docs/RELEASE_NOTES.md` v0.5.0 sobre por qué `npm run verify:clean` no se pudo confirmar con una sola corrida limpia al cierre de esta ola.
 
 Publicar una versión **saneada** del informe — hallazgos, severidades y remediación, sin payloads funcionales — antes de la sustentación.
