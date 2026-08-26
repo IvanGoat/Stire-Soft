@@ -1,7 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ActivityQuestionsRepository } from './activity-questions.repository';
 import { ActivityQuestion } from './entities/activity-question.entity';
+import { Activity } from '../activities/entities/activity.entity';
 import { QuestionType } from '../common/enums/question-type.enum';
+import { AuthorizationService } from '../common/authorization/authorization.service';
+import { User } from '../user/entities/user.entity';
 
 import { IsInt, IsEnum, IsString, IsNumber, IsOptional, IsObject } from 'class-validator';
 
@@ -29,10 +34,24 @@ export class CreateActivityQuestionDto {
 
 @Injectable()
 export class ActivityQuestionsService {
-  constructor(private readonly questionsRepo: ActivityQuestionsRepository) {}
+  constructor(
+    private readonly questionsRepo: ActivityQuestionsRepository,
+    @InjectRepository(Activity)
+    private readonly activitiesRepository: Repository<Activity>,
+    private readonly authorizationService: AuthorizationService,
+  ) {}
 
-  async create(dto: CreateActivityQuestionDto): Promise<ActivityQuestion> {
+  /**
+   * Crear una pregunta. Solo el docente dueño de la clase de la actividad
+   * destino (o admin) — sin esto, cualquier docente podía inyectar
+   * preguntas, con su respuesta correcta, en actividades ajenas.
+   */
+  async create(dto: CreateActivityQuestionDto, user: User): Promise<ActivityQuestion> {
     this.validateConfig(dto.type, dto.config);
+    await this.authorizationService.assertTeacherOwnsClass(
+      user,
+      await this.resolveClassId(dto.activityId),
+    );
 
     const question = this.questionsRepo.create({
       activityId: dto.activityId,
@@ -67,5 +86,24 @@ export class ActivityQuestionsService {
           'para que el estudiante sepa qué formato de entrada/salida se espera.',
       );
     }
+  }
+
+  /**
+   * ActivityQuestion (aún no creada) -> Activity -> LearningUnit -> Topic ->
+   * Section -> classId. Mismo patrón de "falla cerrado" que
+   * `ActivitiesService.resolveClassId`.
+   */
+  private async resolveClassId(activityId: number): Promise<number> {
+    const activity = await this.activitiesRepository.findOne({
+      where: { id: activityId },
+      relations: ['learningUnit', 'learningUnit.topic', 'learningUnit.topic.section'],
+    });
+    const classId = activity?.learningUnit?.topic?.section?.classId;
+    if (!classId) {
+      throw new NotFoundException(
+        `No se pudo resolver la clase de la actividad ${activityId} (actividad inexistente o sin unidad/topic/sección asociado).`,
+      );
+    }
+    return classId;
   }
 }

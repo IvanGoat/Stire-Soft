@@ -1,9 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ActivitiesRepository } from './activities.repository';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { Activity } from './entities/activity.entity';
+import { LearningUnit } from '../learning-unit/entities/learning-unit.entity';
 import { PublicationStatus } from '../common/enums/status.enum';
 import { AuthorizationService } from '../common/authorization/authorization.service';
 import { User, UserRole } from '../user/entities/user.entity';
@@ -13,12 +16,25 @@ export class ActivitiesService {
   constructor(
     private readonly activitiesRepo: ActivitiesRepository,
     private readonly authorizationService: AuthorizationService,
+    @InjectRepository(LearningUnit)
+    private readonly learningUnitRepository: Repository<LearningUnit>,
   ) {}
 
-  async create(createActivityDto: CreateActivityDto, userId: number): Promise<Activity> {
+  /**
+   * OLA 2 P2: `create` era el único de los cinco métodos hermanos
+   * (update/publish/archive/remove sí lo hacían) sin verificar que el
+   * docente fuera dueño de la clase de la unidad de aprendizaje destino —
+   * cualquier docente podía crear actividades en unidades de otro.
+   */
+  async create(createActivityDto: CreateActivityDto, user: User): Promise<Activity> {
+    await this.authorizationService.assertTeacherOwnsClass(
+      user,
+      await this.resolveClassIdFromUnitId(createActivityDto.learningUnitId),
+    );
+
     const activity = this.activitiesRepo.create({
       ...createActivityDto,
-      createdBy: userId,
+      createdBy: user.id,
       status: PublicationStatus.DRAFT,
     });
     return this.activitiesRepo.save(activity);
@@ -125,6 +141,25 @@ export class ActivitiesService {
     if (!classId) {
       throw new NotFoundException(
         'No se pudo resolver la clase de esta actividad (unidad de aprendizaje sin tema/sección asociado).',
+      );
+    }
+    return classId;
+  }
+
+  /**
+   * Misma cadena que `resolveClassId`, pero partiendo de un `learningUnitId`
+   * en vez de una `Activity` ya cargada — usado en `create`, donde la
+   * actividad todavía no existe.
+   */
+  private async resolveClassIdFromUnitId(learningUnitId: number): Promise<number> {
+    const unit = await this.learningUnitRepository.findOne({
+      where: { id: learningUnitId },
+      relations: ['topic', 'topic.section'],
+    });
+    const classId = unit?.topic?.section?.classId;
+    if (!classId) {
+      throw new NotFoundException(
+        `No se pudo resolver la clase de la unidad de aprendizaje ${learningUnitId} (sin topic/sección asociado).`,
       );
     }
     return classId;

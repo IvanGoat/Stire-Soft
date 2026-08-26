@@ -23,7 +23,7 @@ export class ActivitiesController {
   @ApiOperation({ summary: 'Crear una nueva actividad' })
   @ApiResponse({ status: 201, description: 'La actividad ha sido creada exitosamente.' })
   create(@Body() createActivityDto: CreateActivityDto, @GetUser() user: User) {
-    return this.activitiesService.create(createActivityDto, user.id);
+    return this.activitiesService.create(createActivityDto, user);
   }
 
   @Get()

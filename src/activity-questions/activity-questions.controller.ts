@@ -23,8 +23,8 @@ export class ActivityQuestionsController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Crear pregunta para una actividad (incluye respuesta correcta en config)' })
-  create(@Body() dto: CreateActivityQuestionDto) {
-    return this.questionsService.create(dto);
+  create(@Body() dto: CreateActivityQuestionDto, @GetUser() user: User) {
+    return this.questionsService.create(dto, user);
   }
 
   /**

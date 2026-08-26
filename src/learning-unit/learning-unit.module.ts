@@ -3,16 +3,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LearningUnitService } from './learning-unit.service';
 import { LearningUnitController } from './learning-unit.controller';
 import { LearningUnit } from './entities/learning-unit.entity';
+import { Topic } from '../topic/entities/topic.entity';
+import { Section } from '../section/entities/section.entity';
 import { AuthModule } from '../auth/auth.module';
 import { PrerequisitesModule } from '../prerequisites/prerequisites.module';
 import { LearningProgressModule } from '../learning-progress/learning-progress.module';
+import { AuthorizationModule } from '../common/authorization/authorization.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LearningUnit]),
+    TypeOrmModule.forFeature([LearningUnit, Topic, Section]),
     AuthModule,
     PrerequisitesModule,
     LearningProgressModule,
+    AuthorizationModule,
   ],
   controllers: [LearningUnitController],
   providers: [LearningUnitService],

@@ -13,6 +13,7 @@ describe('ActivitiesService — P0-04', () => {
   let service: ActivitiesService;
   let authService: AuthorizationService;
   const mockActivitiesRepo = {
+    create: jest.fn((dto) => dto),
     findOne: jest.fn(),
     merge: jest.fn((a, dto) => Object.assign(a, dto)),
     save: jest.fn((a) => Promise.resolve(a)),
@@ -21,6 +22,7 @@ describe('ActivitiesService — P0-04', () => {
   };
   const mockClassRepo = { findOne: jest.fn() };
   const mockEnrollmentRepo = { findOne: jest.fn() };
+  const mockLearningUnitRepo = { findOne: jest.fn() };
 
   // Actividad publicada de la clase 5 (dictada por el docente id=10),
   // encadenada learningUnit -> topic -> section -> class.
@@ -40,7 +42,7 @@ describe('ActivitiesService — P0-04', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     authService = new AuthorizationService(mockClassRepo as any, mockEnrollmentRepo as any);
-    service = new ActivitiesService(mockActivitiesRepo as any, authService);
+    service = new ActivitiesService(mockActivitiesRepo as any, authService, mockLearningUnitRepo as any);
   });
 
   it('docente A (id=99) NO puede eliminar una actividad de la clase de docente B (id=10) → 403', async () => {
@@ -115,5 +117,41 @@ describe('ActivitiesService — P0-04', () => {
     const estudiante = { id: 20, role: UserRole.ESTUDIANTE } as any;
 
     await expect(service.findOneForRequester(1, estudiante)).resolves.toBe(publishedActivityClass5);
+  });
+
+  // OLA 2 P2: create() era el único de los cinco métodos hermanos sin
+  // verificación de ownership — cualquier docente podía crear actividades
+  // en unidades de aprendizaje de otro.
+  describe('create — P2', () => {
+    const createDto = { learningUnitId: 8, activityTypeId: 1, title: 'Nueva actividad' } as any;
+
+    it('docente ajeno (id=99) NO puede crear una actividad en una unidad de la clase de docente B (id=10) → 403', async () => {
+      mockLearningUnitRepo.findOne.mockResolvedValue({ id: 8, topic: { section: { classId: 5 } } });
+      mockClassRepo.findOne.mockResolvedValue({ id: 5, teacherId: 10 });
+
+      const docenteA = { id: 99, role: UserRole.DOCENTE } as any;
+
+      await expect(service.create(createDto, docenteA)).rejects.toThrow(ForbiddenException);
+      expect(mockActivitiesRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('el docente dueño de la clase SÍ puede crear la actividad', async () => {
+      mockLearningUnitRepo.findOne.mockResolvedValue({ id: 8, topic: { section: { classId: 5 } } });
+      mockClassRepo.findOne.mockResolvedValue({ id: 5, teacherId: 10 });
+
+      const docenteDueño = { id: 10, role: UserRole.DOCENTE } as any;
+
+      await expect(service.create(createDto, docenteDueño)).resolves.toBeDefined();
+      expect(mockActivitiesRepo.save).toHaveBeenCalled();
+    });
+
+    it('unidad de aprendizaje sin topic/sección (cadena rota) → falla cerrado, no crea', async () => {
+      mockLearningUnitRepo.findOne.mockResolvedValue({ id: 8, topic: null });
+
+      const docente = { id: 10, role: UserRole.DOCENTE } as any;
+
+      await expect(service.create(createDto, docente)).rejects.toThrow(NotFoundException);
+      expect(mockActivitiesRepo.save).not.toHaveBeenCalled();
+    });
   });
 });

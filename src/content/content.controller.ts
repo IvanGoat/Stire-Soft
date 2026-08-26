@@ -29,8 +29,8 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Crear un bloque de contenido en una Learning Unit' })
-  create(@Body() dto: CreateContentDto) {
-    return this.contentService.create(dto);
+  create(@Body() dto: CreateContentDto, @GetUser() user: User) {
+    return this.contentService.create(dto, user);
   }
 
   /**
@@ -103,8 +103,8 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Actualizar un bloque de contenido' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateContentDto) {
-    return this.contentService.update(id, dto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateContentDto, @GetUser() user: User) {
+    return this.contentService.update(id, dto, user);
   }
 
   /** PATCH /content/:id/visibility — Toggle de visibilidad */
@@ -113,8 +113,8 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Alternar visibilidad de un bloque de contenido' })
-  toggleVisibility(@Param('id', ParseIntPipe) id: number) {
-    return this.contentService.toggleVisibility(id);
+  toggleVisibility(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.contentService.toggleVisibility(id, user);
   }
 
   /** POST /content/reorder — Reordenar bloques */
@@ -123,8 +123,8 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Reordenar bloques de contenido enviando [{ id, order }]' })
-  reorder(@Body() items: { id: number; order: number }[]) {
-    return this.contentService.reorder(items);
+  reorder(@Body() items: { id: number; order: number }[], @GetUser() user: User) {
+    return this.contentService.reorder(items, user);
   }
 
   /** DELETE /content/:id — Eliminar un bloque de contenido */
@@ -133,7 +133,7 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Eliminar un bloque de contenido' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.contentService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    return this.contentService.remove(id, user);
   }
 }

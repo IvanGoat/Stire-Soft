@@ -15,6 +15,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PrerequisitesGuard } from '../common/guards/prerequisites.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../user/entities/user.entity';
 
 @Controller('learning-unit')
 @UseGuards(JwtAuthGuard)
@@ -27,8 +29,8 @@ export class LearningUnitController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
-  create(@Body() createDto: CreateLearningUnitDto) {
-    return this.learningUnitService.create(createDto);
+  create(@Body() createDto: CreateLearningUnitDto, @GetUser() user: User) {
+    return this.learningUnitService.create(createDto, user);
   }
 
   /**
@@ -64,8 +66,8 @@ export class LearningUnitController {
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
-  update(@Param('id') id: string, @Body() updateDto: UpdateLearningUnitDto) {
-    return this.learningUnitService.update(+id, updateDto);
+  update(@Param('id') id: string, @Body() updateDto: UpdateLearningUnitDto, @GetUser() user: User) {
+    return this.learningUnitService.update(+id, updateDto, user);
   }
 
   /**
@@ -74,7 +76,7 @@ export class LearningUnitController {
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('admin')
-  remove(@Param('id') id: string) {
-    return this.learningUnitService.remove(+id);
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.learningUnitService.remove(+id, user);
   }
 }
