@@ -27,6 +27,7 @@
     "db:seed-v3": "npx tsx stire-seeder-v3.ts",
     "db:seed-destructivo": "npx tsx stire-seeder-destructivo.ts",
     "db:seed-qa": "npx tsx src/seeds/qa-destructivo.seeder.ts",
+    "db:seed:demo": "ts-node -r tsconfig-paths/register stire-seeder-demo.ts",
     "test:qa": "npx tsx stire-qa-tester.ts",
     "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/data-source.ts",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts",

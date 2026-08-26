@@ -57,25 +57,52 @@ El equipo trabaja con **Sprint Semanal y Kanban en Trello**. Hay solo dos docume
 
 ---
 
-## 🚀 Inicio Rápido
+## 🚀 Inicio Rápido (de cero, verificado)
+
+Esta secuencia exacta se probó de punta a punta contra una base de datos **vacía** (Ola 2, Punto 5):
+`npm ci` → `migration:run` → `db:seed:demo` → `npm run build` → `npm start`.
 
 ```bash
-# 1. Instalar dependencias
-npm install
+# 1. Instalar dependencias (usa package-lock.json tal cual — reproducible)
+npm ci
 
 # 2. Configurar variables de entorno
 cp .env.example .env
-# Editar .env: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, JWT_SECRET
+# Editar .env: DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE, JWT_SECRET
 
-# 3. Levantar base de datos (Docker opcional)
+# 3. Levantar MySQL (Docker opcional) — la base de datos debe existir y estar VACÍA
 docker-compose up -d
 
-# 4. Ejecutar en modo desarrollo
-npm run start:dev
+# 4. Crear el esquema completo desde cero (26 tablas, línea base congelada)
+npm run migration:run
+
+# 5. Sembrar datos de demo (idempotente: se puede correr más de una vez sin duplicar nada)
+npm run db:seed:demo
+
+# 6. Compilar y arrancar
+npm run build
+npm start
 ```
 
 La API estará disponible en `http://localhost:3001`.  
 Documentación Swagger: `http://localhost:3001/docs`.
+
+**Credenciales de demo** (creadas por `npm run db:seed:demo`, ver `stire-seeder-demo.ts`):
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| Docente | `docente.demo@stire.local` | `Demo1234!` |
+| Estudiante | `estudiante1.demo@stire.local` | `Demo1234!` |
+| Estudiante | `estudiante2.demo@stire.local` | `Demo1234!` |
+| Estudiante | `estudiante3.demo@stire.local` | `Demo1234!` |
+
+La clase de demo (`DEMO-STIRE-01`) trae 2 unidades de aprendizaje con un prerrequisito entre ellas,
+contenido teórico y 3 actividades publicadas (MCQ, CODING en JavaScript con testCase público, y
+FILL_CODE) — suficiente para probar el flujo completo estudiante → docente sin capturas ni datos
+inventados a mano.
+
+> Para desarrollo con recarga en caliente, usar `npm run start:dev` en el paso 6 en vez de
+> `build` + `start`.
 
 ---
 
