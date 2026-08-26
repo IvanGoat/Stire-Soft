@@ -2,15 +2,21 @@ import { TutorService } from './tutor.service';
 import { TutorConversationsRepository } from './tutor-conversations.repository';
 import { TutorContextService } from './tutor-context.service';
 import { ConfigService } from '@nestjs/config';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 describe('TutorService OpenAI integration', () => {
   let service: TutorService;
   let convRepo: Partial<TutorConversationsRepository>;
   let contextService: Partial<TutorContextService>;
   let configService: Partial<ConfigService>;
+  let contentRenderingService: Partial<ContentRenderingService>;
   let createSpy: jest.Mock;
 
   beforeEach(() => {
+    contentRenderingService = {
+      escapePlainText: jest.fn((s: string) => s),
+    } as any;
+
     convRepo = {
       save: jest.fn().mockResolvedValue(undefined),
       getRecentContext: jest.fn().mockResolvedValue([
@@ -27,7 +33,12 @@ describe('TutorService OpenAI integration', () => {
       get: jest.fn().mockImplementation((key: string) => (key === 'OPENAI_API_KEY' ? 'fake-key' : undefined)),
     } as any;
 
-    service = new TutorService(convRepo as any, contextService as any, configService as any);
+    service = new TutorService(
+      convRepo as any,
+      contextService as any,
+      configService as any,
+      contentRenderingService as any,
+    );
 
     createSpy = jest.fn().mockResolvedValue({
       choices: [{ message: { content: 'Respuesta IA' } }],
@@ -58,7 +69,12 @@ describe('TutorService OpenAI integration', () => {
 
   it('should fallback to mock inference when OPENAI_API_KEY is not configured', async () => {
     (configService as any).get = jest.fn().mockReturnValue(undefined);
-    const serviceWithoutKey = new TutorService(convRepo as any, contextService as any, configService as any);
+    const serviceWithoutKey = new TutorService(
+      convRepo as any,
+      contextService as any,
+      configService as any,
+      contentRenderingService as any,
+    );
     const response = await serviceWithoutKey.sendMessage(1, '¿Cómo lo resuelvo?');
 
     expect(response).toContain('Entiendo tu duda');

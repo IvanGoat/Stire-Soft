@@ -8,6 +8,7 @@ import { ContentController } from './content.controller';
 import { AuthModule } from '../auth/auth.module';
 import { ActivityLogModule } from '../activity-log/activity-log.module';
 import { AuthorizationModule } from '../common/authorization/authorization.module';
+import { ContentRenderingModule } from '../content-rendering/content-rendering.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthorizationModule } from '../common/authorization/authorization.modul
     AuthModule,
     ActivityLogModule,
     AuthorizationModule,
+    ContentRenderingModule,
   ],
   controllers: [ContentController],
   providers: [ContentRepository, ContentService],

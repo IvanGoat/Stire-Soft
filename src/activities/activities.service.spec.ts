@@ -42,7 +42,13 @@ describe('ActivitiesService — P0-04', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     authService = new AuthorizationService(mockClassRepo as any, mockEnrollmentRepo as any);
-    service = new ActivitiesService(mockActivitiesRepo as any, authService, mockLearningUnitRepo as any);
+    const mockContentRenderingService = { sanitizeRichText: jest.fn((s: string) => s) };
+    service = new ActivitiesService(
+      mockActivitiesRepo as any,
+      authService,
+      mockLearningUnitRepo as any,
+      mockContentRenderingService as any,
+    );
   });
 
   it('docente A (id=99) NO puede eliminar una actividad de la clase de docente B (id=10) → 403', async () => {

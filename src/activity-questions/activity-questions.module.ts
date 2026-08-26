@@ -6,9 +6,14 @@ import { ActivityQuestionsRepository } from './activity-questions.repository';
 import { ActivityQuestionsService } from './activity-questions.service';
 import { ActivityQuestionsController } from './activity-questions.controller';
 import { AuthorizationModule } from '../common/authorization/authorization.module';
+import { ContentRenderingModule } from '../content-rendering/content-rendering.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ActivityQuestion, Activity]), AuthorizationModule],
+  imports: [
+    TypeOrmModule.forFeature([ActivityQuestion, Activity]),
+    AuthorizationModule,
+    ContentRenderingModule,
+  ],
   controllers: [ActivityQuestionsController],
   providers: [ActivityQuestionsRepository, ActivityQuestionsService],
   exports: [ActivityQuestionsRepository, ActivityQuestionsService],

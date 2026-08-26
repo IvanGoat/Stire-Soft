@@ -10,6 +10,7 @@ import { ActivityQuestionsModule } from '../activity-questions/activity-question
 import { EvaluationEngineModule } from '../evaluation-engine/evaluation-engine.module';
 import { JudgeEngineModule } from '../judge-engine/judge-engine.module';
 import { JudgeGradedListener } from './listeners/judge-graded.listener';
+import { ContentRenderingModule } from '../content-rendering/content-rendering.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { JudgeGradedListener } from './listeners/judge-graded.listener';
     // (ver la nota de diseño en judge-engine.module.ts), así que no hay
     // ciclo que resolver con forwardRef.
     JudgeEngineModule,
+    ContentRenderingModule,
   ],
   controllers: [SubmissionsController],
   providers: [SubmissionsService, SubmissionsRepository, JudgeGradedListener],

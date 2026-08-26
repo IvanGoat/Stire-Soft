@@ -13,6 +13,7 @@ import { SubmissionStatus } from '../common/enums/submission-status.enum';
 import { SubmissionGradedEvent } from '../common/events/submission-graded.event';
 import { JUDGE_QUEUE } from '../judge-engine/judge-queue.interface';
 import type { JudgeQueue } from '../judge-engine/judge-queue.interface';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 @Injectable()
 export class SubmissionsService {
@@ -27,6 +28,7 @@ export class SubmissionsService {
     // Puerto, no BullMQ directo (ADR 08): antes @InjectQueue('judge')
     // acoplaba este servicio a Redis incluso para poder arrancar.
     @Inject(JUDGE_QUEUE) private readonly judgeQueue: JudgeQueue,
+    private readonly contentRenderingService: ContentRenderingService,
   ) {}
 
   async startSubmission(dto: StartSubmissionDto, studentId: number): Promise<Submission> {
@@ -97,7 +99,10 @@ export class SubmissionsService {
           answer: answerDto.answer,
           isCorrect: evalResult.needsAsyncJudge ? null : evalResult.isCorrect,
           score: evalResult.score,
-          feedback: evalResult.feedback,
+          // ADR 07, perfil PLAIN.
+          feedback: evalResult.feedback
+            ? this.contentRenderingService.escapePlainText(evalResult.feedback)
+            : evalResult.feedback,
         });
 
         totalScore += evalResult.score;
@@ -203,7 +208,9 @@ export class SubmissionsService {
 
     answer.isCorrect = isCorrect;
     answer.score = score;
-    if (feedback) answer.feedback = feedback;
+    // ADR 07, perfil PLAIN: el feedback puede venir del Judge Engine (que
+    // puede reflejar stdout/stderr del código del estudiante) — sin HTML.
+    if (feedback) answer.feedback = this.contentRenderingService.escapePlainText(feedback);
 
     return this.answersRepo.save(answer);
   }
@@ -247,7 +254,12 @@ export class SubmissionsService {
     // 1. Calificar la respuesta como incorrecta para evitar deadlock de consolidación
     answer.isCorrect = false;
     answer.score = 0;
-    answer.feedback = `Fallo crítico de evaluación en sandbox: ${errorMessage}`;
+    // ADR 07, perfil PLAIN: errorMessage sale del sandbox saneado, pero
+    // puede seguir conteniendo texto no confiable — nunca se le da por
+    // sentado que es seguro solo porque no viene directamente del usuario.
+    answer.feedback = this.contentRenderingService.escapePlainText(
+      `Fallo crítico de evaluación en sandbox: ${errorMessage}`,
+    );
     await this.answersRepo.save(answer);
 
     // 2. Ejecutar la consolidación del intento para actualizar el score total y emitir el evento correspondiente

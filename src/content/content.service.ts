@@ -8,6 +8,7 @@ import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { AuthorizationService } from '../common/authorization/authorization.service';
 import { User } from '../user/entities/user.entity';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 @Injectable()
 export class ContentService {
@@ -16,6 +17,7 @@ export class ContentService {
     @InjectRepository(LearningUnit)
     private readonly learningUnitRepository: Repository<LearningUnit>,
     private readonly authorizationService: AuthorizationService,
+    private readonly contentRenderingService: ContentRenderingService,
   ) {}
 
   /**
@@ -30,6 +32,10 @@ export class ContentService {
 
     const content = this.contentRepo.create({
       ...dto,
+      // ADR 07, perfil RICH: content.body es autoría docente. Se sanea al
+      // escribir conservando el Markdown, además del saneamiento al
+      // renderizar en la capa de lectura.
+      body: dto.body ? this.contentRenderingService.sanitizeRichText(dto.body) : dto.body,
       order: dto.order ?? 0,
       isVisible: dto.isVisible ?? true,
     });
@@ -62,6 +68,9 @@ export class ContentService {
       await this.resolveClassIdFromUnitId(content.learningUnitId),
     );
     Object.assign(content, dto);
+    if (dto.body) {
+      content.body = this.contentRenderingService.sanitizeRichText(dto.body);
+    }
     return this.contentRepo.save(content);
   }
 

@@ -2,9 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ContentRenderingService } from '../content-rendering.service';
 
 // Mock de DOMPurify y JSDOM para evitar problemas de ESM en el entorno de pruebas de Jest
+// Nota (Ola 2, Punto 6): este mock deliberadamente simplista NO prueba la
+// sanitización real — ver content-rendering.service.no-mock.spec.ts para la
+// suite que sí usa DOMPurify real. Este archivo se conserva como test de
+// integración superficial (¿el service llama a marked + purify.sanitize en
+// el orden correcto?), no como prueba de seguridad.
 jest.mock('dompurify', () => {
   return jest.fn().mockImplementation(() => {
     return {
+      addHook: jest.fn(),
       sanitize: jest.fn().mockImplementation((html: string) => {
         if (typeof html !== 'string') return '';
         // Mock simple de sanitización para pasar las aserciones de XSS del test

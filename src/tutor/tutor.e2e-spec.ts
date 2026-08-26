@@ -59,7 +59,8 @@ describe('TutorService E2E', () => {
       }),
     };
 
-    service = new TutorService(convRepo as any, contextService, configService as any);
+    const contentRenderingService = { escapePlainText: jest.fn((s: string) => s) };
+    service = new TutorService(convRepo as any, contextService, configService as any, contentRenderingService as any);
 
     openaiCreateSpy = jest
       .fn()

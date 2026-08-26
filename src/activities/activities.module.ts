@@ -6,9 +6,10 @@ import { Activity } from './entities/activity.entity';
 import { LearningUnit } from '../learning-unit/entities/learning-unit.entity';
 import { ActivitiesRepository } from './activities.repository';
 import { AuthorizationModule } from '../common/authorization/authorization.module';
+import { ContentRenderingModule } from '../content-rendering/content-rendering.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Activity, LearningUnit]), AuthorizationModule],
+  imports: [TypeOrmModule.forFeature([Activity, LearningUnit]), AuthorizationModule, ContentRenderingModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService, ActivitiesRepository],
   exports: [ActivitiesService, ActivitiesRepository],

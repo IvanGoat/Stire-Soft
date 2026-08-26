@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { TutorConversationsRepository } from './tutor-conversations.repository';
 import { TutorContextService } from './tutor-context.service';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 @Injectable()
 export class TutorService {
@@ -18,6 +19,7 @@ export class TutorService {
     private readonly convRepo: TutorConversationsRepository,
     private readonly contextService: TutorContextService,
     private readonly configService: ConfigService,
+    private readonly contentRenderingService: ContentRenderingService,
   ) {
     const rawApiKey = this.configService.get<string>('OPENAI_API_KEY');
     this.apiKey = rawApiKey ? rawApiKey.trim() : '';
@@ -42,10 +44,11 @@ export class TutorService {
   }
 
   async sendMessage(studentId: number, message: string): Promise<string> {
+    // ADR 07, perfil PLAIN: texto de estudiante, sin HTML.
     await this.convRepo.save({
       studentId,
       role: 'user',
-      content: message,
+      content: this.contentRenderingService.escapePlainText(message),
     });
 
     const systemPrompt = await this.contextService.buildSystemPrompt(studentId);
@@ -107,13 +110,16 @@ export class TutorService {
       aiResponseContent = this.mockLlmInference(message);
     }
 
+    // ADR 07, perfil PLAIN: la salida del LLM no es HTML de confianza aunque
+    // no venga de un usuario humano — se guarda saneada.
+    const sanitizedAiResponse = this.contentRenderingService.escapePlainText(aiResponseContent);
     await this.convRepo.save({
       studentId,
       role: 'assistant',
-      content: aiResponseContent,
+      content: sanitizedAiResponse,
     });
 
-    return aiResponseContent;
+    return sanitizedAiResponse;
   }
 
   private async callGeminiApi(

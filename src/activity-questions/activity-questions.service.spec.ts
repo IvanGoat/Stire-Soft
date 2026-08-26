@@ -35,10 +35,12 @@ describe('ActivityQuestionsService.create', () => {
       learningUnit: { topic: { section: { classId: 42 } } },
     });
     mockAuthorizationService.assertTeacherOwnsClass.mockResolvedValue(undefined);
+    const mockContentRenderingService = { sanitizeRichText: jest.fn((s: string) => s) };
     service = new ActivityQuestionsService(
       mockRepo as any,
       mockActivitiesRepository as any,
       mockAuthorizationService as any,
+      mockContentRenderingService as any,
     );
   });
 

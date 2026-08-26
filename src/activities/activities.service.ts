@@ -10,6 +10,7 @@ import { LearningUnit } from '../learning-unit/entities/learning-unit.entity';
 import { PublicationStatus } from '../common/enums/status.enum';
 import { AuthorizationService } from '../common/authorization/authorization.service';
 import { User, UserRole } from '../user/entities/user.entity';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 @Injectable()
 export class ActivitiesService {
@@ -18,6 +19,7 @@ export class ActivitiesService {
     private readonly authorizationService: AuthorizationService,
     @InjectRepository(LearningUnit)
     private readonly learningUnitRepository: Repository<LearningUnit>,
+    private readonly contentRenderingService: ContentRenderingService,
   ) {}
 
   /**
@@ -34,6 +36,10 @@ export class ActivitiesService {
 
     const activity = this.activitiesRepo.create({
       ...createActivityDto,
+      // ADR 07, perfil RICH: activity.description es autoría docente.
+      description: createActivityDto.description
+        ? this.contentRenderingService.sanitizeRichText(createActivityDto.description)
+        : createActivityDto.description,
       createdBy: user.id,
       status: PublicationStatus.DRAFT,
     });
@@ -108,6 +114,9 @@ export class ActivitiesService {
     }
 
     this.activitiesRepo.merge(activity, updateActivityDto);
+    if (updateActivityDto.description) {
+      activity.description = this.contentRenderingService.sanitizeRichText(updateActivityDto.description);
+    }
     return this.activitiesRepo.save(activity);
   }
 

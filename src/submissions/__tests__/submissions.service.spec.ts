@@ -101,6 +101,10 @@ describe('SubmissionsService', () => {
       enqueue: jest.fn().mockResolvedValue(undefined),
     };
 
+    const contentRenderingService = {
+      escapePlainText: jest.fn((s: string) => s),
+    };
+
     service = new SubmissionsService(
       dataSource,
       submissionsRepo,
@@ -110,6 +114,7 @@ describe('SubmissionsService', () => {
       evalEngine,
       eventEmitter,
       judgeQueue,
+      contentRenderingService as any,
     );
   });
 

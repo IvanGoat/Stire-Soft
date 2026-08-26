@@ -6,11 +6,13 @@ import { TutorContextService } from './tutor-context.service';
 import { TutorService } from './tutor.service';
 import { TutorController } from './tutor.controller';
 import { LearningProgressModule } from '../learning-progress/learning-progress.module';
+import { ContentRenderingModule } from '../content-rendering/content-rendering.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TutorConversation]),
     LearningProgressModule,
+    ContentRenderingModule,
   ],
   controllers: [TutorController],
   providers: [TutorConversationsRepository, TutorContextService, TutorService],

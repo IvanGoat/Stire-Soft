@@ -7,6 +7,7 @@ import { Activity } from '../activities/entities/activity.entity';
 import { QuestionType } from '../common/enums/question-type.enum';
 import { AuthorizationService } from '../common/authorization/authorization.service';
 import { User } from '../user/entities/user.entity';
+import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 import { IsInt, IsEnum, IsString, IsNumber, IsOptional, IsObject } from 'class-validator';
 
@@ -39,6 +40,7 @@ export class ActivityQuestionsService {
     @InjectRepository(Activity)
     private readonly activitiesRepository: Repository<Activity>,
     private readonly authorizationService: AuthorizationService,
+    private readonly contentRenderingService: ContentRenderingService,
   ) {}
 
   /**
@@ -56,7 +58,8 @@ export class ActivityQuestionsService {
     const question = this.questionsRepo.create({
       activityId: dto.activityId,
       type: dto.type,
-      question: dto.question,
+      // ADR 07, perfil RICH: activity_question.question es autoría docente.
+      question: this.contentRenderingService.sanitizeRichText(dto.question),
       points: dto.points ?? 50,
       order: dto.order ?? 0,
       config: dto.config,
