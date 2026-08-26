@@ -46,9 +46,35 @@ export class ActivitiesService {
     return this.activitiesRepo.save(activity);
   }
 
-  async findAll(paginationQuery: PaginationQueryDto, learningUnitId?: number) {
+  /**
+   * OLA 3 - PUNTO 3 (P0-R1): sin `user`, este método no tenía forma de
+   * distinguir un estudiante de un docente ni de saber de quién. Cuando se
+   * pide un `learningUnitId` puntual, se verifica propiedad/matrícula ANTES
+   * de consultar (404/403 explícito, igual que `findOneForRequester`); el
+   * acotamiento por rol en sí (qué filas puede ver cada rol) vive en
+   * `ActivitiesRepository.findWithPagination`, para que aplique también al
+   * listado global sin `learningUnitId` y para que la paginación cuente
+   * sobre el conjunto ya filtrado, no sobre todo antes de recortar.
+   */
+  async findAll(paginationQuery: PaginationQueryDto, user: User, learningUnitId?: number) {
     const { skip, limit, search } = paginationQuery;
-    const [items, total] = await this.activitiesRepo.findWithPagination(skip || 0, limit || 10, search, learningUnitId);
+
+    if (learningUnitId) {
+      const classId = await this.resolveClassIdFromUnitId(learningUnitId);
+      if (user.role === UserRole.DOCENTE) {
+        await this.authorizationService.assertTeacherOwnsClass(user, classId);
+      } else if (user.role === UserRole.ESTUDIANTE) {
+        await this.authorizationService.assertEnrolledInClass(user, classId);
+      }
+    }
+
+    const [items, total] = await this.activitiesRepo.findWithPagination(
+      skip || 0,
+      limit || 10,
+      search,
+      learningUnitId,
+      user,
+    );
     return {
       data: items,
       meta: {

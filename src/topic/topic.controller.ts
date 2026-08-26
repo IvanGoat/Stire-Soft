@@ -42,7 +42,11 @@ export class TopicController {
    * GET /topic/section/:sectionId
    * Obtener todos los topics activos de una sección.
    */
+  // OLA 3 - PUNTO 2: catálogo de estructura, sin dato sensible propio —
+  // abierto a cualquier rol autenticado de forma deliberada.
   @Get('section/:sectionId')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Listar topics de una sección' })
   findBySection(@Param('sectionId', ParseIntPipe) sectionId: number) {
     return this.topicService.findBySection(sectionId);
@@ -53,6 +57,8 @@ export class TopicController {
    * Obtener un topic con sus unidades de aprendizaje.
    */
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Obtener un topic por ID (con sus learning units)' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.topicService.findOne(id);

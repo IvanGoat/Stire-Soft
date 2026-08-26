@@ -19,6 +19,7 @@ describe('ActivitiesService — P0-04', () => {
     save: jest.fn((a) => Promise.resolve(a)),
     softRemove: jest.fn().mockResolvedValue(undefined),
     updateStatus: jest.fn().mockResolvedValue(undefined),
+    findWithPagination: jest.fn().mockResolvedValue([[], 0]),
   };
   const mockClassRepo = { findOne: jest.fn() };
   const mockEnrollmentRepo = { findOne: jest.fn() };
@@ -158,6 +159,81 @@ describe('ActivitiesService — P0-04', () => {
 
       await expect(service.create(createDto, docente)).rejects.toThrow(NotFoundException);
       expect(mockActivitiesRepo.save).not.toHaveBeenCalled();
+    });
+  });
+
+  // OLA 3 - PUNTO 3 (P0-R1, docs/REAUDITORIA_OLA2.md): findAll() no
+  // verificaba nada — cualquier usuario, estudiante incluido, veía
+  // actividades DRAFT de cualquier clase pidiendo su learningUnitId. Los
+  // cuatro casos exigidos: admin pasa, docente dueño ve draft, docente
+  // ajeno 403, estudiante matriculado (solo vería publicadas — el filtro
+  // real de estado vive en ActivitiesRepository.findWithPagination, ver
+  // integración sin mocks en activities.repository.spec.ts).
+  describe('findAll — P0-R1 (Ola 3)', () => {
+    const pagination = { skip: 0, limit: 10 } as any;
+    const learningUnitId = 8;
+
+    beforeEach(() => {
+      mockLearningUnitRepo.findOne.mockResolvedValue({ id: 8, topic: { section: { classId: 5 } } });
+      mockClassRepo.findOne.mockResolvedValue({ id: 5, teacherId: 10 });
+    });
+
+    it('admin: no se verifica propiedad, la consulta se delega directo al repo', async () => {
+      const admin = { id: 1, role: UserRole.ADMIN } as any;
+
+      await service.findAll(pagination, admin, learningUnitId);
+
+      expect(mockClassRepo.findOne).not.toHaveBeenCalled();
+      expect(mockActivitiesRepo.findWithPagination).toHaveBeenCalledWith(0, 10, undefined, learningUnitId, admin);
+    });
+
+    it('docente dueño (id=10): pasa la verificación de propiedad y llega al repo', async () => {
+      const docenteDueño = { id: 10, role: UserRole.DOCENTE } as any;
+
+      await service.findAll(pagination, docenteDueño, learningUnitId);
+
+      expect(mockActivitiesRepo.findWithPagination).toHaveBeenCalledWith(
+        0, 10, undefined, learningUnitId, docenteDueño,
+      );
+    });
+
+    it('docente ajeno (id=99) pide el learningUnitId de la clase de docente B (id=10) → 403, nunca llega al repo', async () => {
+      const docenteAjeno = { id: 99, role: UserRole.DOCENTE } as any;
+
+      await expect(service.findAll(pagination, docenteAjeno, learningUnitId)).rejects.toThrow(ForbiddenException);
+      expect(mockActivitiesRepo.findWithPagination).not.toHaveBeenCalled();
+    });
+
+    it('estudiante no matriculado en la clase de la unidad pedida → 403, nunca llega al repo', async () => {
+      mockEnrollmentRepo.findOne.mockResolvedValue(null);
+      const estudiante = { id: 20, role: UserRole.ESTUDIANTE } as any;
+
+      await expect(service.findAll(pagination, estudiante, learningUnitId)).rejects.toThrow(ForbiddenException);
+      expect(mockActivitiesRepo.findWithPagination).not.toHaveBeenCalled();
+    });
+
+    it('estudiante matriculado: pasa la verificación y llega al repo (el repo filtra a solo PUBLISHED)', async () => {
+      mockEnrollmentRepo.findOne.mockResolvedValue({
+        classId: 5,
+        studentId: 20,
+        status: EnrollmentStatus.ACTIVE,
+      });
+      const estudiante = { id: 20, role: UserRole.ESTUDIANTE } as any;
+
+      await service.findAll(pagination, estudiante, learningUnitId);
+
+      expect(mockActivitiesRepo.findWithPagination).toHaveBeenCalledWith(
+        0, 10, undefined, learningUnitId, estudiante,
+      );
+    });
+
+    it('listado global sin learningUnitId: no verifica propiedad de nada puntual, el acotamiento vive en el repo', async () => {
+      const docente = { id: 10, role: UserRole.DOCENTE } as any;
+
+      await service.findAll(pagination, docente, undefined);
+
+      expect(mockClassRepo.findOne).not.toHaveBeenCalled();
+      expect(mockActivitiesRepo.findWithPagination).toHaveBeenCalledWith(0, 10, undefined, undefined, docente);
     });
   });
 });

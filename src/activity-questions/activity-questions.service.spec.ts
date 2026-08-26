@@ -129,4 +129,37 @@ describe('ActivityQuestionsService.create', () => {
       expect(mockRepo.save).not.toHaveBeenCalled();
     });
   });
+
+  // OLA 3 - PUNTO 2/3 (P1-R2, docs/REAUDITORIA_OLA2.md): create() ya
+  // verificaba ownership, pero la lectura (findByActivity) no — cualquier
+  // cuenta con rol docente podía leer el `config` crudo (respuesta correcta)
+  // de actividades de OTRO docente.
+  describe('findByActivity — P1-R2 (Ola 3)', () => {
+    it('docente ajeno → 403, nunca llega al repo de preguntas', async () => {
+      (mockRepo as any).findByActivityId = jest.fn();
+      const docenteAjeno = { id: 99, role: UserRole.DOCENTE } as any;
+      mockAuthorizationService.assertTeacherOwnsClass.mockRejectedValueOnce(
+        new ForbiddenException('No dictas esta clase'),
+      );
+
+      await expect(service.findByActivity(1, docenteAjeno)).rejects.toThrow(ForbiddenException);
+      expect((mockRepo as any).findByActivityId).not.toHaveBeenCalled();
+    });
+
+    it('docente dueño → llega al repo y recibe las preguntas', async () => {
+      (mockRepo as any).findByActivityId = jest.fn().mockResolvedValue([{ id: 1 }]);
+      const docenteDueño = { id: 9, role: UserRole.DOCENTE } as any;
+
+      await expect(service.findByActivity(1, docenteDueño)).resolves.toEqual([{ id: 1 }]);
+      expect(mockAuthorizationService.assertTeacherOwnsClass).toHaveBeenCalledWith(docenteDueño, 42);
+    });
+
+    it('estudiante: no se verifica ownership de docente (el controller ya redacta la respuesta)', async () => {
+      (mockRepo as any).findByActivityId = jest.fn().mockResolvedValue([{ id: 1 }]);
+      const estudiante = { id: 20, role: UserRole.ESTUDIANTE } as any;
+
+      await service.findByActivity(1, estudiante);
+      expect(mockAuthorizationService.assertTeacherOwnsClass).not.toHaveBeenCalled();
+    });
+  });
 });

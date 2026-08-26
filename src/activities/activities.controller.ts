@@ -34,9 +34,10 @@ export class ActivitiesController {
   @ApiQuery({ name: 'learningUnitId', required: false, type: Number })
   findAll(
     @Query() paginationQuery: PaginationQueryDto,
+    @GetUser() user: User,
     @Query('learningUnitId') learningUnitId?: number,
   ) {
-    return this.activitiesService.findAll(paginationQuery, learningUnitId ? +learningUnitId : undefined);
+    return this.activitiesService.findAll(paginationQuery, user, learningUnitId ? +learningUnitId : undefined);
   }
 
   @Get(':id')

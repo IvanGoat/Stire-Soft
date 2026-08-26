@@ -8,6 +8,7 @@ import { SubmissionGradedListener } from './listeners/submission-graded.listener
 import { SubmissionsModule } from '../submissions/submissions.module';
 import { ActivitiesModule } from '../activities/activities.module';
 import { ReviewSchedulesModule } from '../review-schedules/review-schedules.module';
+import { AuthorizationModule } from '../common/authorization/authorization.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ReviewSchedulesModule } from '../review-schedules/review-schedules.modu
     SubmissionsModule,
     ActivitiesModule,
     ReviewSchedulesModule,
+    AuthorizationModule,
   ],
   controllers: [LearningProgressController],
   providers: [LearningProgressRepository, LearningProgressService, SubmissionGradedListener],

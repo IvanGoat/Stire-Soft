@@ -28,7 +28,13 @@ export class ActivityTypesController {
     return this.activityTypesService.create(createActivityTypeDto);
   }
 
+  // OLA 3 - PUNTO 2: catálogo de referencia sin concepto de dueño — abierto
+  // a cualquier rol autenticado de forma deliberada (@Roles explícito, no
+  // ausencia de metadata), mismo criterio que activity-types create/update
+  // documenta arriba para las mutaciones.
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Obtener lista paginada de tipos de actividad' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -38,6 +44,8 @@ export class ActivityTypesController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Obtener un tipo de actividad por ID' })
   @ApiResponse({ status: 200, description: 'Retorna el tipo de actividad.' })
   @ApiResponse({ status: 404, description: 'Tipo de actividad no encontrado.' })

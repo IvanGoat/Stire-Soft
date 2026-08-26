@@ -40,7 +40,7 @@ export class ActivityQuestionsController {
     @Param('activityId', ParseIntPipe) activityId: number,
     @GetUser() requester: User,
   ) {
-    const questions = await this.questionsService.findByActivity(activityId);
+    const questions = await this.questionsService.findByActivity(activityId, requester);
 
     if (requester.role === UserRole.DOCENTE || requester.role === UserRole.ADMIN) {
       return questions;

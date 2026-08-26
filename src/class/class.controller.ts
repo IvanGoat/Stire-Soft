@@ -31,7 +31,12 @@ export class ClassController {
     return this.classService.create(createClassDto, user.id);
   }
 
+  // OLA 3 - PUNTO 2: catálogo de clases disponibles — abierto a cualquier
+  // rol autenticado de forma deliberada (ver `findMyClasses` más abajo,
+  // que ya trataba esto como catálogo público para estudiantes).
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   findAll() {
     return this.classService.findAll();
   }
@@ -47,6 +52,8 @@ export class ClassController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   findOne(@Param('id') id: string) {
     return this.classService.findOne(+id);
   }

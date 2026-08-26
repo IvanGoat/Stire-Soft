@@ -36,7 +36,11 @@ export class LearningUnitController {
   /**
    * Obtener todas las unidades activas (para estudiantes)
    */
+  // OLA 3 - PUNTO 2: catálogo de unidades activas — abierto a cualquier rol
+  // autenticado de forma deliberada.
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   findAll() {
     return this.learningUnitService.findAll();
   }
@@ -56,6 +60,7 @@ export class LearningUnitController {
    */
   @Get(':id')
   @UseGuards(PrerequisitesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   findOne(@Param('id') id: string) {
     return this.learningUnitService.findOne(+id);
   }

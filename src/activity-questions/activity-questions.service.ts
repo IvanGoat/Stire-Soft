@@ -6,7 +6,7 @@ import { ActivityQuestion } from './entities/activity-question.entity';
 import { Activity } from '../activities/entities/activity.entity';
 import { QuestionType } from '../common/enums/question-type.enum';
 import { AuthorizationService } from '../common/authorization/authorization.service';
-import { User } from '../user/entities/user.entity';
+import { User, UserRole } from '../user/entities/user.entity';
 import { ContentRenderingService } from '../content-rendering/content-rendering.service';
 
 import { IsInt, IsEnum, IsString, IsNumber, IsOptional, IsObject } from 'class-validator';
@@ -67,7 +67,18 @@ export class ActivityQuestionsService {
     return this.questionsRepo.save(question);
   }
 
-  async findByActivity(activityId: number): Promise<ActivityQuestion[]> {
+  /**
+   * OLA 3 - PUNTO 2/3 (P1-R2, docs/REAUDITORIA_OLA2.md): `create()` ya
+   * verificaba propiedad de la clase, pero esta lectura no — cualquier
+   * cuenta con rol docente podía leer el `config` crudo (ground truth) de
+   * actividades de OTRO docente. Un docente ajeno ahora recibe 403; un
+   * estudiante sigue recibiendo la versión redactada (StudentQuestionDto,
+   * en el controller) sin cambios — no forma parte de este hallazgo.
+   */
+  async findByActivity(activityId: number, user: User): Promise<ActivityQuestion[]> {
+    if (user.role === UserRole.DOCENTE) {
+      await this.authorizationService.assertTeacherOwnsClass(user, await this.resolveClassId(activityId));
+    }
     return this.questionsRepo.findByActivityId(activityId);
   }
 

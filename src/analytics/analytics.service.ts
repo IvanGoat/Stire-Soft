@@ -5,16 +5,27 @@ import { Submission } from '../submissions/entities/submission.entity';
 import { ReviewSchedule } from '../review-schedules/entities/review-schedule.entity';
 import { Class } from '../class/entities/class.entity';
 import { Enrollment } from '../enrollment/entities/enrollment.entity';
+import { AuthorizationService } from '../common/authorization/authorization.service';
 
 @Injectable()
 export class AnalyticsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly authorizationService: AuthorizationService,
+  ) {}
 
+  /**
+   * OLA 3 - PUNTO 2/3 (P1-R5, docs/REAUDITORIA_OLA2.md): faltaba exactamente
+   * la verificación que `getClassMetrics` sí hace en este mismo archivo
+   * (línea ~104) — un docente veía el dashboard de CUALQUIER estudiante de
+   * la institución, no solo los de sus propias clases.
+   */
   async getStudentDashboard(studentId: number, requestingUser: any) {
     // 0. Control de Acceso
     if (requestingUser.role === 'estudiante' && requestingUser.id !== studentId) {
       throw new ForbiddenException('No tienes acceso a las métricas de otro estudiante.');
     }
+    await this.authorizationService.assertTeacherSharesClassWithStudent(requestingUser, studentId);
 
     const progressRepo = this.dataSource.getRepository(LearningProgress);
     const submissionRepo = this.dataSource.getRepository(Submission);

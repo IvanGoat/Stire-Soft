@@ -1,7 +1,7 @@
 import {
   Controller, Get, Post, Patch, Delete,
   Body, Param, ParseIntPipe, UseGuards,
-  HttpCode, HttpStatus,
+  HttpCode, HttpStatus, Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ContentService } from './content.service';
@@ -44,7 +44,7 @@ export class ContentController {
     @Param('unitId', ParseIntPipe) unitId: number,
     @GetUser() user: User,
   ) {
-    const contents = await this.contentService.findByUnit(unitId);
+    const contents = await this.contentService.findByUnit(unitId, user);
 
     // Fire-and-forget: registrar que el estudiante accedió a esta unidad
     this.activityLogService.log({
@@ -66,22 +66,26 @@ export class ContentController {
   @UseGuards(RolesGuard)
   @Roles('docente', 'admin')
   @ApiOperation({ summary: 'Listar todo el contenido de una unidad (incluyendo ocultos)' })
-  findByUnitAll(@Param('unitId', ParseIntPipe) unitId: number) {
-    return this.contentService.findByUnitAll(unitId);
+  findByUnitAll(@Param('unitId', ParseIntPipe) unitId: number, @GetUser() user: User) {
+    return this.contentService.findByUnitAll(unitId, user);
   }
 
   /**
-   * GET /content/:id
-   * Ver un bloque de contenido específico.
+   * GET /content/:id?format=html
+   * Ver un bloque de contenido específico. `format=html` devuelve `body`
+   * convertido a HTML y saneado (capa 2, ADR 07); sin `format` (o
+   * `format=markdown`), se devuelve el Markdown saneado en escritura de
+   * siempre. Contrato completo: docs/CONTRATO_CONTENT_RENDERING.md.
    * 🔑 REGISTRA un log de "content_read" por bloque individual.
    */
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener un bloque de contenido por ID (registra log)' })
+  @ApiOperation({ summary: 'Obtener un bloque de contenido por ID (registra log). ?format=html para HTML saneado.' })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: User,
+    @Query('format') format?: 'markdown' | 'html',
   ) {
-    const content = await this.contentService.findOne(id);
+    const content = await this.contentService.findOne(id, user, format);
 
     // Fire-and-forget log
     this.activityLogService.log({

@@ -44,7 +44,12 @@ export class SectionController {
    * GET /sections/class/:classId
    * Lista todas las secciones de una clase (con sus topics y unidades).
    */
+  // OLA 3 - PUNTO 2: catálogo de estructura de una clase, sin dato sensible
+  // propio (solo títulos/orden) — abierto a cualquier rol autenticado de
+  // forma deliberada.
   @Get('class/:classId')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Listar secciones de una clase con su contenido' })
   findByClass(@Param('classId', ParseIntPipe) classId: number) {
     return this.sectionService.findByClass(classId);
@@ -55,6 +60,8 @@ export class SectionController {
    * Obtener el detalle de una sección.
    */
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles('estudiante', 'docente', 'admin')
   @ApiOperation({ summary: 'Obtener una sección por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.sectionService.findOne(id);

@@ -7,8 +7,8 @@ import { LearningUnit } from '../learning-unit/entities/learning-unit.entity';
 import { CreateContentDto } from './dto/create-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { AuthorizationService } from '../common/authorization/authorization.service';
-import { User } from '../user/entities/user.entity';
-import { ContentRenderingService } from '../content-rendering/content-rendering.service';
+import { User, UserRole } from '../user/entities/user.entity';
+import { ContentRenderingService, SanitizationProfile } from '../content-rendering/content-rendering.service';
 
 @Injectable()
 export class ContentService {
@@ -42,17 +42,49 @@ export class ContentService {
     return this.contentRepo.save(content);
   }
 
-  /** Listar bloques visibles de una unidad (para estudiantes) */
-  async findByUnit(learningUnitId: number): Promise<Content[]> {
+  /**
+   * OLA 3 - PUNTO 3 (P0-R2, docs/REAUDITORIA_OLA2.md): las tres rutas de
+   * lectura de este servicio no verificaban NADA — cualquier usuario
+   * autenticado, estudiante incluido, leía material docente y bloques
+   * ocultos (isVisible:false) de clases ajenas. Mismo patrón de las cuatro
+   * cadenas en `ActivitiesService`: admin pasa siempre; docente solo su
+   * propia clase (403 si es ajena); estudiante solo si está matriculado
+   * (403 si no), y además solo ve contenido visible (404 si pide uno oculto
+   * directamente por ID — mismo criterio que un draft para un estudiante en
+   * `ActivitiesService.findOneForRequester`).
+   */
+  private async assertCanReadClass(user: User, classId: number): Promise<void> {
+    if (user.role === UserRole.DOCENTE) {
+      await this.authorizationService.assertTeacherOwnsClass(user, classId);
+    } else if (user.role === UserRole.ESTUDIANTE) {
+      await this.authorizationService.assertEnrolledInClass(user, classId);
+    }
+    // admin: pasa siempre.
+  }
+
+  /** Listar bloques visibles de una unidad (para estudiantes matriculados o el docente dueño). */
+  async findByUnit(learningUnitId: number, user: User): Promise<Content[]> {
+    const classId = await this.resolveClassIdFromUnitId(learningUnitId);
+    await this.assertCanReadClass(user, classId);
     return this.contentRepo.findByUnit(learningUnitId);
   }
 
-  /** Listar TODOS los bloques de una unidad, incluyendo ocultos (para docentes) */
-  async findByUnitAll(learningUnitId: number): Promise<Content[]> {
+  /** Listar TODOS los bloques de una unidad, incluyendo ocultos (solo el docente dueño o admin). */
+  async findByUnitAll(learningUnitId: number, user: User): Promise<Content[]> {
+    const classId = await this.resolveClassIdFromUnitId(learningUnitId);
+    if (user.role !== UserRole.ADMIN) {
+      await this.authorizationService.assertTeacherOwnsClass(user, classId);
+    }
     return this.contentRepo.findByUnitAll(learningUnitId);
   }
 
-  async findOne(id: number): Promise<Content> {
+  /**
+   * Fetch interno SIN autorización — lo usan `update`/`toggleVisibility`/
+   * `remove`/`reorder`, que ya hacen su propia verificación de propiedad
+   * inmediatamente después. `findOne` (público, más abajo) es la versión
+   * CON autorización, para la ruta de lectura.
+   */
+  private async findOneRaw(id: number): Promise<Content> {
     const content = await this.contentRepo.findOne({ where: { id } });
     if (!content) {
       throw new NotFoundException(`Bloque de contenido con ID ${id} no encontrado`);
@@ -60,9 +92,40 @@ export class ContentService {
     return content;
   }
 
+  /**
+   * Ver un bloque específico: docente dueño, estudiante matriculado (solo
+   * si visible), o admin.
+   *
+   * OLA 3 - PUNTO 5 (docs/REAUDITORIA_OLA2.md, hallazgo P1-R4): `?format=html`
+   * es ahora el único camino real hacia `renderMarkdownToHtml` — antes esa
+   * función (la única que neutraliza sintaxis Markdown peligrosa como
+   * `[x](javascript:...)`) existía pero ningún endpoint la invocaba, así que
+   * la "capa 2" del saneamiento de ADR 07 era código muerto. Sin `format`
+   * (o con `format=markdown`), se devuelve el Markdown saneado en escritura
+   * de siempre — comportamiento sin cambios, ver
+   * `docs/CONTRATO_CONTENT_RENDERING.md` para el contrato completo.
+   */
+  async findOne(id: number, user: User, format?: 'markdown' | 'html'): Promise<Content> {
+    const content = await this.findOneRaw(id);
+    const classId = await this.resolveClassIdFromUnitId(content.learningUnitId);
+    await this.assertCanReadClass(user, classId);
+
+    if (user.role === UserRole.ESTUDIANTE && !content.isVisible) {
+      // Igual que un draft para un estudiante en ActivitiesService: no
+      // existe todavía desde su perspectiva, no es "prohibido".
+      throw new NotFoundException(`Bloque de contenido con ID ${id} no encontrado`);
+    }
+
+    if (format === 'html' && content.body) {
+      return { ...content, body: await this.contentRenderingService.renderMarkdownToHtml(content.body, SanitizationProfile.RICH) };
+    }
+
+    return content;
+  }
+
   /** Solo el docente dueño de la clase del bloque (o admin). */
   async update(id: number, dto: UpdateContentDto, user: User): Promise<Content> {
-    const content = await this.findOne(id);
+    const content = await this.findOneRaw(id);
     await this.authorizationService.assertTeacherOwnsClass(
       user,
       await this.resolveClassIdFromUnitId(content.learningUnitId),
@@ -76,7 +139,7 @@ export class ContentService {
 
   /** Solo el docente dueño de la clase del bloque (o admin). */
   async toggleVisibility(id: number, user: User): Promise<Content> {
-    const content = await this.findOne(id);
+    const content = await this.findOneRaw(id);
     await this.authorizationService.assertTeacherOwnsClass(
       user,
       await this.resolveClassIdFromUnitId(content.learningUnitId),
@@ -87,7 +150,7 @@ export class ContentService {
 
   /** Solo el docente dueño de la clase del bloque (o admin). */
   async remove(id: number, user: User): Promise<void> {
-    const content = await this.findOne(id);
+    const content = await this.findOneRaw(id);
     await this.authorizationService.assertTeacherOwnsClass(
       user,
       await this.resolveClassIdFromUnitId(content.learningUnitId),
@@ -103,7 +166,7 @@ export class ContentService {
    */
   async reorder(items: { id: number; order: number }[], user: User): Promise<void> {
     for (const { id } of items) {
-      const content = await this.findOne(id);
+      const content = await this.findOneRaw(id);
       await this.authorizationService.assertTeacherOwnsClass(
         user,
         await this.resolveClassIdFromUnitId(content.learningUnitId),
