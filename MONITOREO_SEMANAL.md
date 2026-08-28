@@ -18,7 +18,7 @@ dominio.*
 | Jorge Cervantes | Calidad y Tablero Kanban | *[por completar]* | @*[por completar]* |
 | José López | Diseñador UI/UX & Ventana Estándar | *[por completar]* | @*[por completar]* |
 | Julio Galvis | Diseñador Instruccional & Navegación | *[por completar]* | @*[por completar]* |
-| Pedro Romero | Documentación, Bitácora y Pitch | *[por completar]* | @*[por completar]* |
+| Pedro Romero | Documentación, Bitácora y Pitch | *[por completar]* | @pedrorm20 |
 
 **Reunión de equipo:** viernes 8:00 – 8:40 p.m., videollamada, con los cinco integrantes.
 **Reportes escritos:** martes y jueves, 8:00 p.m., en el grupo del equipo.
