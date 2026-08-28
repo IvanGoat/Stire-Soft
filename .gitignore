@@ -61,7 +61,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # docs/ localmente para el equipo, NUNCA en control de versiones mientras
 # el repositorio sea publico y los hallazgos sigan abiertos.
 docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md
-docs/ADR-06-07_SANDBOX_SIN_DOCKER_Y_CONTENIDO.md
 docs/PLAN_OLA1_BLOQUE1_BUILD.md
 docs/DECISIONES_BLOQUE2_Y_ADDENDA.md
 docs/REVISION_2.1_Y_AMPLIACION_2.2.md
