@@ -3,7 +3,7 @@
 **Para qué sirve este archivo:** nadie empieza en hoja en blanco. Se copia la plantilla que le toca a
 su archivo propio y se rellena. **No se edita este archivo** — es la plantilla maestra.
 
-| § | Pieza | Dueño | Archivo destino |
+| § | Pieza | Autor | Archivo destino |
 |---|---|---|---|
 | 3.1 | Diagrama de Contenidos | Julio | `docs/modesec/contenidos/3.1_DIAGRAMA_CONTENIDOS.md` |
 | 3.3 | Ventana Estándar | José | `docs/modesec/ventanas/3.3_VENTANA_ESTANDAR.md` |
@@ -94,7 +94,7 @@ carga cognitiva.
 | 6 | **Animación** | Transiciones, animación de estados, refuerzo visual del progreso |
 | 7 | **Acciones del estudiante** | Qué puede hacer aquí y qué ocurre en el sistema con cada acción |
 
-**Ventanas mínimas sugeridas para STIRE:** V-01 Inicio / Panel del estudiante · V-02 Resolución de
+**Ventanas sugeridas inicialmente (SUPERADO — el inventario definitivo son 6 ventanas, V-01 a V-06; ver `3.3.1_FICHAS_VENTANAS.md`):** V-01 Inicio / Panel del estudiante · V-02 Resolución de
 ejercicio · V-03 Retroalimentación del tutor · V-04 Repaso espaciado (SM-2) · V-05 Progreso y dominio.
 
 **Enlace con la ingeniería (verifica Jeider):** cada acción de la categoría 7 debe corresponder a una

@@ -12,11 +12,11 @@
 | **Versión** | v1.0 — borrador maestro para revisión de equipo |
 | **Fecha** | 2026-08-25 |
 | **Piezas cubiertas** | §3.1 · §3.3 · §3.3.1 · §3.3.2 |
-| **Pieza pendiente** | §3.3.3 Mapa de Navegación (dueño: Julio) y §3.2 Guión técnico multimedial |
+| **Pieza pendiente** | §3.3.3 Mapa de Navegación (Julio) y §3.2 Guión técnico multimedial |
 
-> **Nota de proceso:** este documento es el borrador maestro consolidado. Cada dueño declarado en
+> **Nota de proceso:** este documento es el borrador maestro consolidado. Cada quien, según el reparto de
 > `docs/modesec/PLANTILLAS_MODESEC_FASE2.md` debe trasladar su sección a su archivo asignado y
-> mantenerla allí. Este archivo no sustituye la estructura de archivos por dueño: la alimenta.
+> mantenerla allí. Este archivo no sustituye los archivos individuales: los alimenta.
 
 ---
 
@@ -323,7 +323,7 @@ repaso espaciado, que en un taller real no es castigo sino **mantenimiento del h
 
 ## 5. Supuestos, pendientes y riesgos declarados
 
-| # | Ítem | Estado | Responsable |
+| # | Ítem | Estado | Autor |
 |---|---|---|---|
 | 1 | Endpoints citados en la categoría 7 de las fichas | **Verificado ruta por ruta contra el código el 2026-08-25** (ver tabla §5.1). De las 7 rutas citadas: **1 existe tal cual, 2 existen con otra forma y 4 no existen** — quedan como contrato propuesto para Fase III. | Jeider (Líder Técnico) |
 | 2 | §3.3.3 Mapa de Navegación | Pendiente — plantilla disponible | Julio |
@@ -331,7 +331,7 @@ repaso espaciado, que en un taller real no es castigo sino **mantenimiento del h
 | 4 | Video de la unidad (V-02, categoría 5) | **Alcance declarado, producción no iniciada.** Si no se produce, la unidad queda funcional solo con texto y animación de trazado. Debe reflejarse en `CHANGELOG.md`. | Por asignar |
 | 5 | Animación de trazado de escritorio (V-02, categoría 6) | Pieza de mayor valor pedagógico y mayor esfuerzo de implementación. Riesgo de recorte por tiempo: si se recorta, se sustituye por trazado estático tabulado, **no** se elimina. | Por asignar |
 | 6 | Umbrales 70 % / 85 % / 60 % | Propuesta de diseño. Requiere validación con el docente titular de la asignatura. | Julio |
-| 7 | Accesibilidad WCAG 2.1 AA | Declarada en el diseño; **sin auditoría ejecutada**. No debe reportarse como cumplida hasta verificarla con herramienta. | QA |
+| 7 | Accesibilidad WCAG 2.1 AA | Declarada en el diseño; **sin auditoría ejecutada**. No debe reportarse como cumplida hasta verificarla con herramienta. | Jorge Cervantes (Calidad) |
 
 ### 5.1 Verificación de endpoints (categoría 7, fichas V-01 a V-06)
 

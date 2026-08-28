@@ -1,6 +1,6 @@
 # Pitch Reto 01 — English Script (60s)
 
-**Responsable:** Pedro Romero
+**Autor:** Pedro Romero
 **Estado:** Vigente
 
 ---

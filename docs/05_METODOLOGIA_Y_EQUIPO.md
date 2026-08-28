@@ -131,12 +131,12 @@ Título:      §3.3.1 Fichas de ventana — las 7 categorías
 Miembro:     José
 Fecha:       jueves 27 de agosto
 Etiqueta:    MODESEC  ·  🟢 verde = va bien / 🟡 amarilla = en riesgo / 🔴 roja = trabada
-Descripción: Terminada cuando las 3 fichas están subidas a docs/modesec/ventanas/
+Descripción: Terminada cuando las 6 fichas están subidas a docs/modesec/ventanas/
              y Jorge las revisó.
 ```
 
-**Lo único que no se negocia:** cada tarjeta tiene **un responsable** y **una fecha**. Una tarjeta sin
-dueño no la hace nadie, y una sin fecha se hace el día antes de entregar.
+**Lo único que no se negocia:** cada tarjeta tiene **un nombre** y **una fecha**. Una tarjeta sin
+nombre no la hace nadie, y una sin fecha se hace el día antes de entregar.
 
 ### Cómo queda documentado para el docente
 Trello es la herramienta de trabajo; la **bitácora es la evidencia**. Cada viernes, en el Cierre,
@@ -151,9 +151,9 @@ el docente ve el resultado en el repositorio sin tener que entrar a otra aplicac
 |---|---|---|
 | **Jeider Gómez** | Líder Técnico | Backend de STIRE, pruebas, arquitectura, subir al repo lo que le pasen los compañeros |
 | **Jorge Cervantes** | Calidad y Tablero | Mantener Trello al día y **revisar cada entregable contra la rúbrica antes de publicarlo** |
-| **José López** | Diseño de Interfaz | MODESEC §3.3 Ventana Estándar y las fichas de las 7 categorías |
-| **Julio Galvis** | Diseño Instruccional | MODESEC §3.1 Contenidos · §3.3.2 Metáforas · §3.3.3 Mapa de Navegación |
-| **Pedro Romero** | Documentación y Pitch | Bitácora semanal, evidencia de prompts ROCAS y guión del pitch en inglés |
+| **José López** | Diseño UI/UX — Ventana Estándar | MODESEC §3.3 Ventana Estándar y las fichas de las 7 categorías |
+| **Julio Galvis** | Diseño Instruccional — Contenidos y Navegación | MODESEC §3.1 Contenidos · §3.3.2 Metáforas · §3.3.3 Mapa de Navegación |
+| **Pedro Romero** | Documentación, Bitácora y Pitch | Bitácora semanal, evidencia de prompts ROCAS y guión del pitch en inglés |
 
 **El pitch en inglés lo escribe Pedro siempre, pero la voz rota:** Reto 1 Pedro · Reto 2 José ·
 Reto 3 Julio · Reto 4 Jorge · Reto 5 Jeider. Si el docente pide que sustenten los cinco, el guión se
@@ -166,28 +166,37 @@ parte en sus cuatro bloques y se reparte.
 Sustentación: **martes 8 de septiembre**. Congelamos el **viernes 4 de septiembre a las 8:00 pm** —
 después de esa hora solo se corrige redacción y formato, no se agrega contenido nuevo.
 
-| # | Entregable | Responsable | Está bien cuando… |
+| # | Entregable | Quién lo hace | Está bien cuando… |
 |---|---|---|---|
-| **1** | **Bitácora de Monitoreo** — `MONITOREO_SEMANAL.md` en la raíz del repo | Pedro | Tiene el equipo con roles y horarios, los entregables cumplidos, al menos un prompt ROCAS **con sus iteraciones** y los cuellos de botella diligenciados |
+| **1** | **Bitácora de Monitoreo** — `MONITOREO_SEMANAL.md` en la raíz del repo; las semanas cerradas se archivan numeradas en `docs/seguimiento/` | Pedro | Tiene el equipo con roles y horarios, los entregables cumplidos, al menos un prompt ROCAS **con sus iteraciones** y los cuellos de botella diligenciados |
 | **2** | **MODESEC Fase II** — Diagrama de Contenidos, Ventana Estándar, Guía de Metáforas y Mapa de Navegación | José y Julio | §3.1 tiene 3 módulos con resultados de aprendizaje observables · §3.3 explica la ventana **sección por sección** con su función pedagógica · las fichas cubren **las 7 categorías sin dejar ninguna en blanco** (si no aplica, se justifica) · el mapa no tiene ventanas sin salida |
 | **3** | **Pitch en inglés de 60 s** — sustentación + prompt ROCAS + guión | Pedro | 130–140 palabras en 4 bloques (Hook · Problem · Solution · Tech Stack + CTA), ensayado con cronómetro, con tabla fonética, y **el prompt ROCAS con sus iteraciones documentado — eso solo vale el 20 % de la nota** |
 
 **Documentos del Entregable 2:**
-- [`modesec/FASE_II_DISENO_MULTIMEDIAL.md`](./modesec/FASE_II_DISENO_MULTIMEDIAL.md) — **borrador maestro consolidado.** Cubre §3.1, §3.3, §3.3.1 y §3.3.2. Falta §3.3.3 (Julio) y §3.2 (sprint siguiente).
-- [`modesec/PLANTILLAS_MODESEC_FASE2.md`](./modesec/PLANTILLAS_MODESEC_FASE2.md) — plantillas por sección con el dueño de cada una.
+- [`modesec/FASE_II_DISENO_MULTIMEDIAL.md`](./modesec/FASE_II_DISENO_MULTIMEDIAL.md) — **borrador maestro consolidado**, con la verificación de endpoints en §5.1.
+- **Estado: 4 de las 6 piezas cerradas.** §3.1, §3.3, §3.3.1 y §3.3.2 están listas y trasladadas a sus archivos por autor. §3.3.3 Mapa de Navegación está iniciada (nodos definidos, falta la tabla de transiciones). §3.2 Guión Técnico Multimedial no ha empezado.
+- [`modesec/PLANTILLAS_MODESEC_FASE2.md`](./modesec/PLANTILLAS_MODESEC_FASE2.md) — plantillas de cada sección, con quién la escribe.
 
-> **Cómo se usa el borrador maestro:** no sustituye los archivos por dueño, los alimenta. Cada dueño
+> **Cómo se usa el borrador maestro:** no sustituye los archivos individuales, los alimenta. Cada quien
 > traslada su sección a su archivo (`modesec/contenidos/` para Julio, `modesec/ventanas/` para José) y
 > la mantiene ahí de aquí en adelante.
 
 ---
 
-## 7. Una sola regla sobre la bitácora
+## 7. Dos reglas sobre la bitácora
 
 **La bitácora dice lo que de verdad se hizo.** Si algo no se alcanzó, se escribe en *Cuellos de
 Botella* con el motivo — un bloqueo explicado demuestra que el equipo se está gestionando y suma;
 uno escondido es un riesgo que no compensa, porque el docente revisa el repositorio y el trabajo
 o está ahí o no está.
+
+**`MONITOREO_SEMANAL.md` la escribe Pedro, y solo Pedro.** Él la edita, y a veces lo hace directamente
+desde la web de GitHub. Nadie más la reescribe entera — ni una persona ni una herramienta. Lo que se
+añada se añade **después de un `git pull`**, y solo la sección que corresponda.
+
+> *Por qué esta regla:* es el archivo que califica el docente y el único que dos manos tocan a la vez.
+> Si alguien lo reescribe sin bajarse antes lo que Pedro subió, se pierde trabajo real y el
+> entregable llega incompleto.
 
 ---
 
