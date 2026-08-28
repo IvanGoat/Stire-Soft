@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # REPORTE FINAL DE ESTABILIDAD — STIRE Platform
 **Fecha:** 2026-05-21  
 **Versión:** 2.0 — Production-Ready Hardening  

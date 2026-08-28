@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # 🗓️ REPORTES Y CEREMONIAS — Formatos oficiales del equipo
 **Curso DDSE3 2026-2 · Proyecto STIRE-Soft** · Mantiene: Jorge Cervantes (QA)
 

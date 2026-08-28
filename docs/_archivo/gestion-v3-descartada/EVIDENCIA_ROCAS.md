@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # 🧠 EVIDENCIA_ROCAS — Registro de Ingeniería de Prompts
 **Curso DDSE3 2026-2 · Proyecto STIRE-Soft**
 **Consolida:** Pedro Romero · **Aportan:** los 5 integrantes

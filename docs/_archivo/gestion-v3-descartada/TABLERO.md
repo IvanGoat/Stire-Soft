@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # 🗂️ TABLERO KANBAN — STIRE-Soft
 **Sprint 2 · 22–28 de agosto de 2026** · Cierra **viernes 28, 8:00 pm**
 **Meta del sprint:** cerrar MODESEC Fase II completo y dejar los tres entregables listos para congelar.

@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # 🕐 DISPONIBILIDAD DEL EQUIPO
 **Curso DDSE3 2026-2 · Proyecto STIRE-Soft**
 **Cada quien mantiene su propia sección.** Nadie edita la de otro.

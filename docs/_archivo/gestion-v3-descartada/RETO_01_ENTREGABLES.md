@@ -1,3 +1,6 @@
+> **DOCUMENTO HISTORICO — no vigente.** Conservado como evidencia del proceso de ingenieria.
+> Estado actual: `docs/ESTADO_STIRE_HANDOFF.md`. Archivado el 2026-08-26.
+
 # 🎯 RETO 1 — Entregables, formato y criterio de aceptación
 **Curso:** DDSE3 2026-2 · **Docente:** Dr. Raúl Emiro Toscano Miranda
 **Fuente normativa:** `Guia_Estudiante_Clase_02.docx` §5 y presentación `DDS3-01.pdf`
