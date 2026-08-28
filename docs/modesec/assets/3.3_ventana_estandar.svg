@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<title>Ventana estándar (modelo de todas las interfaces)</title>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#7A716A"/></marker>
+<marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#C87B1E"/></marker>
+</defs>
+<rect width="1280" height="780" fill="#FFFFFF"/>
+<text x="24" y="34" font-size="17" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">3.3 · Ventana estándar (modelo de todas las interfaces)</text>
+<text x="24" y="56" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Módulo 2 › Ciclos › while</text>
+<rect x="24" y="76" width="1232" height="620" rx="10" fill="#FFFFFF" stroke="#2B2622" stroke-width="1.8"/>
+<rect x="24" y="76" width="1232" height="64" rx="10" fill="#F6F3EF" stroke="#C9C1B8" stroke-width="1"/>
+<rect x="40" y="92" width="86" height="32" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="83" y="113" font-size="13" fill="#C87B1E" text-anchor="middle" font-weight="700" opacity="1">STIRE</text>
+<text x="144" y="106" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Módulo 2 › Ciclos › while</text>
+<text x="144" y="126" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Dominio de la unidad</text>
+<rect x="274" y="117" width="180" height="10" rx="5" fill="#EDE8E1" stroke="#C9C1B8" stroke-width="1"/>
+<rect x="274" y="117" width="129.6" height="10" rx="5" fill="#C87B1E" stroke="#C87B1E" stroke-width="1"/>
+<text x="464" y="126" font-size="11" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">72 %</text>
+<rect x="1046" y="92" width="194" height="32" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="1060" y="113" font-size="12" fill="#2B2622" text-anchor="start" font-weight="400" opacity="1">⟳ Repasos: 3      ⬤ Perfil</text>
+<line x1="274" y1="140" x2="274" y2="640" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="24" y1="140" x2="1256" y2="140" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="46" y="172" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Mi banco de trabajo</text>
+<text x="46" y="202" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">M1 Fundamentos</text>
+<text x="250" y="202" font-size="12" fill="#7A716A" text-anchor="end" font-weight="400" opacity="1">✔</text>
+<text x="46" y="232" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">M2 Control de flujo</text>
+<text x="250" y="232" font-size="12" fill="#7A716A" text-anchor="end" font-weight="400" opacity="1">◐</text>
+<rect x="34" y="246" width="228" height="26" rx="5" fill="#EDE8E1" stroke="#C87B1E" stroke-width="1.4"/>
+<text x="46" y="262" font-size="12" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">   2.3 Ciclos</text>
+<text x="250" y="262" font-size="12" fill="#7A716A" text-anchor="end" font-weight="400" opacity="1">◐</text>
+<text x="46" y="292" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">   2.4 Acumulación</text>
+<text x="250" y="292" font-size="12" fill="#7A716A" text-anchor="end" font-weight="400" opacity="1">○</text>
+<text x="46" y="322" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">M3 Datos y modularidad</text>
+<text x="250" y="322" font-size="12" fill="#7A716A" text-anchor="end" font-weight="400" opacity="1">🔒</text>
+<text x="46" y="366" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Repaso de hoy  (3)</text>
+<text x="46" y="396" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Mi progreso</text>
+<text x="46" y="426" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Ayuda</text>
+<rect x="292" y="158" width="946" height="300" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<rect x="292" y="158" width="946" height="36" rx="8" fill="#F6F3EF" stroke="#C9C1B8" stroke-width="1"/>
+<text x="306" y="181" font-size="13" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">Zona de contenido — varía según la ventana</text>
+<text x="306" y="218" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">Título de la unidad o del ejercicio</text>
+<text x="306" y="244" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Aquí vive el trabajo real: teoría, enunciado + editor,</text>
+<text x="306" y="270" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">diálogo con el tutor o tablero de repasos.</text>
+<rect x="306" y="282" width="918" height="26" rx="4" fill="#EDE8E1" stroke="#C9C1B8" stroke-width="1"/>
+<text x="316" y="300" font-size="11.5" fill="#2B2622" text-anchor="start" font-weight="500" opacity="1" font-family="'Consolas','DejaVu Sans Mono',monospace">  1  para i = 1 hasta n hacer</text>
+<rect x="306" y="308" width="918" height="26" rx="4" fill="#EDE8E1" stroke="#C9C1B8" stroke-width="1"/>
+<text x="316" y="326" font-size="11.5" fill="#2B2622" text-anchor="start" font-weight="500" opacity="1" font-family="'Consolas','DejaVu Sans Mono',monospace">  2      suma = suma + i</text>
+<rect x="306" y="334" width="918" height="26" rx="4" fill="#EDE8E1" stroke="#C9C1B8" stroke-width="1"/>
+<text x="316" y="352" font-size="11.5" fill="#2B2622" text-anchor="start" font-weight="500" opacity="1" font-family="'Consolas','DejaVu Sans Mono',monospace">  3  fin_para</text>
+<text x="306" y="374" font-size="12" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">El resto de la ventana no cambia nunca de posición.</text>
+<rect x="292" y="476" width="946" height="152" rx="8" fill="#F6F3EF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="306" y="500" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">Panel auxiliar contextual (casos de prueba / tutor)</text>
+<text x="306" y="526" font-size="11.5" fill="#2F7D4F" text-anchor="start" font-weight="400" opacity="1"> Caso 1 · entrada 5 → salida 15   PASA</text>
+<text x="306" y="548" font-size="11.5" fill="#B3261E" text-anchor="start" font-weight="400" opacity="1"> Caso 2 · entrada 0 → salida 0    FALLA</text>
+<text x="306" y="570" font-size="11.5" fill="#2B5D8A" text-anchor="start" font-weight="400" opacity="1"> Maestro de taller: ¿qué valor tiene suma antes del ciclo?</text>
+<line x1="24" y1="640" x2="1256" y2="640" stroke="#C9C1B8" stroke-width="1.2"/>
+<rect x="42" y="652" width="114" height="32" rx="6" fill="#C87B1E" stroke="#C87B1E" stroke-width="1"/>
+<text x="99.0" y="673" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">▶ Ejecutar</text>
+<rect x="168" y="652" width="114" height="32" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="225.0" y="673" font-size="12" fill="#2B2622" text-anchor="middle" font-weight="400" opacity="1">✔ Entregar</text>
+<rect x="294" y="652" width="138" height="32" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="363.0" y="673" font-size="12" fill="#2B2622" text-anchor="middle" font-weight="400" opacity="1">⚑ Pedir pista</text>
+<rect x="444" y="652" width="122" height="32" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="505.0" y="673" font-size="12" fill="#2B2622" text-anchor="middle" font-weight="400" opacity="1">⟲ Reiniciar</text>
+<rect x="24" y="696" width="1232" height="0" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="24" y1="640" x2="1256" y2="640" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="42" y="688" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1"></text>
+<rect x="24" y="696" width="1232" height="0" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="24" y="718" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">STIRE v0.2  ·  Autoguardado 12:04  ·  Accesibilidad  ·  Créditos</text>
+<circle cx="1242" cy="106" r="12" fill="#C87B1E"/>
+<text x="1242" y="110" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">A</text>
+<circle cx="260" cy="186" r="12" fill="#C87B1E"/>
+<text x="260" y="190" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">B</text>
+<circle cx="1242" cy="306" r="12" fill="#C87B1E"/>
+<text x="1242" y="310" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">C</text>
+<circle cx="1242" cy="668" r="12" fill="#C87B1E"/>
+<text x="1242" y="672" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">D</text>
+<circle cx="1242" cy="714" r="12" fill="#C87B1E"/>
+<text x="1242" y="718" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" opacity="1">E</text>
+<text x="24" y="744" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">A Header · B Menú · C Contenido · D Acciones · E Footer — las secciones A, B, D y E son invariantes; solo cambia C.</text>
+<text x="24" y="762" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Rejilla de 12 columnas · canal 24 px · ancho mínimo 1024 px · en &lt;768 px el menú colapsa y las acciones se anclan abajo.</text>
+</svg>

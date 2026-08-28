@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="790" viewBox="0 0 1500 790" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<title>Diagrama de contenidos - STIRE</title>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#7A716A"/></marker>
+<marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#C87B1E"/></marker>
+</defs>
+<rect width="1500" height="790" fill="#FFFFFF"/>
+<text x="750.0" y="44" font-size="19" fill="#2B2622" text-anchor="middle" font-weight="700" opacity="1">3.1 · DIAGRAMA DE CONTENIDOS — STIRE · Fundamentos de Algoritmia</text>
+<text x="750.0" y="68" font-size="12" fill="#7A716A" text-anchor="middle" font-weight="400" opacity="1">Mapa mental de contenidos (MODESEC §3.1.1.3) · 3 módulos · 13 temas · 38 unidades de aprendizaje</text>
+<rect x="600.0" y="100" width="300" height="66" rx="10" fill="#EDE8E1" stroke="#C87B1E" stroke-width="2"/>
+<text x="750.0" y="127" font-size="12" fill="#C87B1E" text-anchor="middle" font-weight="700" opacity="1">COMPETENCIA RECTORA</text>
+<text x="750.0" y="148" font-size="13" fill="#2B2622" text-anchor="middle" font-weight="600" opacity="1">Resolver problemas con algoritmos</text>
+<line x1="750.0" y1="166" x2="260.0" y2="200" stroke="#C9C1B8" stroke-width="1.4" marker-end="url(#ar)"/>
+<rect x="30.0" y="210" width="460" height="58" rx="8" fill="#F6F3EF" stroke="#2B5D8A" stroke-width="2"/>
+<text x="46.0" y="234" font-size="12" fill="#2B5D8A" text-anchor="start" font-weight="700" opacity="1">MÓDULO 1</text>
+<text x="46.0" y="253" font-size="14" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Fundamentos y representación</text>
+<text x="474.0" y="234" font-size="11" fill="#7A716A" text-anchor="end" font-weight="600" opacity="1">Básico</text>
+<rect x="30.0" y="286" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="30.0" y1="292" x2="30.0" y2="348" stroke="#2B5D8A" stroke-width="3"/>
+<text x="46.0" y="308" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">1.1 Algoritmo y pensamiento computacional</text>
+<text x="56.0" y="326" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Noción de algoritmo</text>
+<text x="56.0" y="343" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Entrada–proceso–salida</text>
+<rect x="30.0" y="366" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="30.0" y1="372" x2="30.0" y2="428" stroke="#2B5D8A" stroke-width="3"/>
+<text x="46.0" y="388" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">1.2 Variables y tipos de datos</text>
+<text x="56.0" y="406" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Declaración y asignación</text>
+<text x="56.0" y="423" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Numéricos · Cadenas · Booleanos</text>
+<rect x="30.0" y="446" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="30.0" y1="452" x2="30.0" y2="508" stroke="#2B5D8A" stroke-width="3"/>
+<text x="46.0" y="468" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">1.3 Operadores y expresiones</text>
+<text x="56.0" y="486" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Aritméticos · Precedencia</text>
+<text x="56.0" y="503" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Expresiones mixtas</text>
+<rect x="30.0" y="526" width="460" height="85" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="30.0" y1="532" x2="30.0" y2="605" stroke="#2B5D8A" stroke-width="3"/>
+<text x="46.0" y="548" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">1.4 Representación algorítmica</text>
+<text x="56.0" y="566" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Pseudocódigo</text>
+<text x="56.0" y="583" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Diagrama de flujo</text>
+<text x="56.0" y="600" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Prueba de escritorio</text>
+<line x1="750.0" y1="166" x2="750.0" y2="200" stroke="#C9C1B8" stroke-width="1.4" marker-end="url(#ar)"/>
+<rect x="520.0" y="210" width="460" height="58" rx="8" fill="#F6F3EF" stroke="#C87B1E" stroke-width="2"/>
+<text x="536.0" y="234" font-size="12" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">MÓDULO 2</text>
+<text x="536.0" y="253" font-size="14" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Control de flujo</text>
+<text x="964.0" y="234" font-size="11" fill="#7A716A" text-anchor="end" font-weight="600" opacity="1">Intermedio</text>
+<rect x="520.0" y="286" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="520.0" y1="292" x2="520.0" y2="348" stroke="#C87B1E" stroke-width="3"/>
+<text x="536.0" y="308" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">2.1 Decisión simple y compuesta</text>
+<text x="546.0" y="326" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· if / if-else</text>
+<text x="546.0" y="343" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Relacionales y lógicos</text>
+<rect x="520.0" y="366" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="520.0" y1="372" x2="520.0" y2="428" stroke="#C87B1E" stroke-width="3"/>
+<text x="536.0" y="388" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">2.2 Selección múltiple</text>
+<text x="546.0" y="406" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· if anidado</text>
+<text x="546.0" y="423" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· switch / según-sea</text>
+<rect x="520.0" y="446" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="520.0" y1="452" x2="520.0" y2="508" stroke="#C87B1E" stroke-width="3"/>
+<text x="536.0" y="468" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">2.3 Ciclos</text>
+<text x="546.0" y="486" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· while (indefinido)</text>
+<text x="546.0" y="503" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· for (definido) · do-while</text>
+<rect x="520.0" y="526" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="520.0" y1="532" x2="520.0" y2="588" stroke="#C87B1E" stroke-width="3"/>
+<text x="536.0" y="548" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">2.4 Acumulación y control</text>
+<text x="546.0" y="566" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Contadores · Acumuladores</text>
+<text x="546.0" y="583" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Banderas (flags)</text>
+<rect x="520.0" y="606" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="520.0" y1="612" x2="520.0" y2="668" stroke="#C87B1E" stroke-width="3"/>
+<text x="536.0" y="628" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">2.5 Ciclos anidados</text>
+<text x="546.0" y="646" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Series y tablas</text>
+<text x="546.0" y="663" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Condición de corte</text>
+<line x1="750.0" y1="166" x2="1240.0" y2="200" stroke="#C9C1B8" stroke-width="1.4" marker-end="url(#ar)"/>
+<rect x="1010.0" y="210" width="460" height="58" rx="8" fill="#F6F3EF" stroke="#2F7D4F" stroke-width="2"/>
+<text x="1026.0" y="234" font-size="12" fill="#2F7D4F" text-anchor="start" font-weight="700" opacity="1">MÓDULO 3</text>
+<text x="1026.0" y="253" font-size="14" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Datos elementales y modularidad</text>
+<text x="1454.0" y="234" font-size="11" fill="#7A716A" text-anchor="end" font-weight="600" opacity="1">Avanzado</text>
+<rect x="1010.0" y="286" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="1010.0" y1="292" x2="1010.0" y2="348" stroke="#2F7D4F" stroke-width="3"/>
+<text x="1026.0" y="308" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">3.1 Arreglos unidimensionales</text>
+<text x="1036.0" y="326" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Declaración e indexación</text>
+<text x="1036.0" y="343" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Carga y despliegue</text>
+<rect x="1010.0" y="366" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="1010.0" y1="372" x2="1010.0" y2="428" stroke="#2F7D4F" stroke-width="3"/>
+<text x="1026.0" y="388" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">3.2 Recorridos clásicos</text>
+<text x="1036.0" y="406" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Búsqueda secuencial</text>
+<text x="1036.0" y="423" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Máx/mín/promedio · Orden. selección</text>
+<rect x="1010.0" y="446" width="460" height="68" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="1010.0" y1="452" x2="1010.0" y2="508" stroke="#2F7D4F" stroke-width="3"/>
+<text x="1026.0" y="468" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">3.3 Cadenas y arreglos 2D</text>
+<text x="1036.0" y="486" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Recorrido de cadenas</text>
+<text x="1036.0" y="503" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Matriz: filas y columnas</text>
+<rect x="1010.0" y="526" width="460" height="85" rx="6" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.2"/>
+<line x1="1010.0" y1="532" x2="1010.0" y2="605" stroke="#2F7D4F" stroke-width="3"/>
+<text x="1026.0" y="548" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">3.4 Modularidad</text>
+<text x="1036.0" y="566" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Función y procedimiento</text>
+<text x="1036.0" y="583" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Parámetros y retorno</text>
+<text x="1036.0" y="600" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">· Descomposición</text>
+<text x="30.0" y="770" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">Módulo = Sección/Corte · Tema = Tema · Unidad = Unidad de Aprendizaje (gránulo con mastery y repaso SM-2)</text>
+</svg>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<title>Mapa de navegación — STIRE</title>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#7A716A"/></marker>
+<marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+  <path d="M0,0 L10,5 L0,10 z" fill="#C87B1E"/></marker>
+</defs>
+<rect width="1400" height="900" fill="#FFFFFF"/>
+<text x="700.0" y="42" font-size="19" fill="#2B2622" text-anchor="middle" font-weight="700" opacity="1">3.3.3 · MAPA DE NAVEGACIÓN — STIRE</text>
+<text x="700.0" y="66" font-size="12" fill="#7A716A" text-anchor="middle" font-weight="400" opacity="1">Gráfico 2 (MODESEC §3.3.3) · toda ventana tiene ruta de entrada y de salida</text>
+<rect x="40" y="300" width="210" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="54" y="322" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-00</text>
+<text x="54" y="343" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Autenticación</text>
+<text x="54" y="362" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">registro / ingreso</text>
+<rect x="300" y="290" width="250" height="100" rx="8" fill="#F6F3EF" stroke="#C87B1E" stroke-width="1.8"/>
+<text x="314" y="312" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-01</text>
+<text x="314" y="333" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Mi banco de trabajo</text>
+<text x="314" y="352" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">panel del estudiante · HUB</text>
+<rect x="700" y="110" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="714" y="132" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-02</text>
+<text x="714" y="153" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Unidad de aprendizaje</text>
+<text x="714" y="172" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">contenido teórico</text>
+<rect x="700" y="300" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="714" y="322" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-03</text>
+<text x="714" y="343" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Resolución de ejercicio</text>
+<text x="714" y="362" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">editor + juez</text>
+<rect x="700" y="500" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="714" y="522" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-05</text>
+<text x="714" y="543" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Mantenimiento</text>
+<text x="714" y="562" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">repaso espaciado SM-2</text>
+<rect x="700" y="640" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="714" y="662" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-06</text>
+<text x="714" y="683" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Mi bitácora</text>
+<text x="714" y="702" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">progreso y dominio</text>
+<rect x="1060" y="140" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="1074" y="162" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-04</text>
+<text x="1074" y="183" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Maestro de taller</text>
+<text x="1074" y="202" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">tutor socrático (modal)</text>
+<rect x="1060" y="340" width="230" height="80" rx="8" fill="#FFFFFF" stroke="#C9C1B8" stroke-width="1.8"/>
+<text x="1074" y="362" font-size="11" fill="#C87B1E" text-anchor="start" font-weight="700" opacity="1">V-07</text>
+<text x="1074" y="383" font-size="13.5" fill="#2B2622" text-anchor="start" font-weight="600" opacity="1">Resultado de la entrega</text>
+<text x="1074" y="402" font-size="11" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">calificación + mastery</text>
+<line x1="250" y1="340" x2="300" y2="340" stroke="#C87B1E" stroke-width="1.5" marker-end="url(#ara)"/>
+<text x="275.0" y="332" font-size="10.5" fill="#C87B1E" text-anchor="middle" font-weight="600" opacity="1">ingreso válido</text>
+<path d="M550,315 H600 V150 H700" fill="none" stroke="#7A716A" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="608" y="250" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">abre unidad</text>
+<line x1="550" y1="340" x2="700" y2="340" stroke="#C87B1E" stroke-width="1.5" marker-end="url(#ara)"/>
+<text x="625.0" y="332" font-size="10.5" fill="#C87B1E" text-anchor="middle" font-weight="600" opacity="1">continúa ejercicio</text>
+<path d="M550,360 H620 V540 H700" fill="none" stroke="#7A716A" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="628" y="470" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">repasos del día</text>
+<path d="M550,378 H640 V680 H700" fill="none" stroke="#7A716A" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="648" y="620" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">ver progreso</text>
+<line x1="815.0" y1="190" x2="815.0" y2="300" stroke="#7A716A" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="823.0" y="250" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">ir al ejercicio</text>
+<line x1="930" y1="320" x2="1060" y2="190" stroke="#7A716A" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="942" y="236" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">pedir pista</text>
+<path d="M1060,215 L930,350" fill="none" stroke="#7A716A" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<text x="910" y="306" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">volver · borrador intacto</text>
+<line x1="930" y1="360" x2="1060" y2="375" stroke="#C87B1E" stroke-width="1.5" marker-end="url(#ara)"/>
+<text x="995.0" y="357" font-size="10.5" fill="#C87B1E" text-anchor="middle" font-weight="700" opacity="1">entregar</text>
+<path d="M1175.0,420 V462 H845.0 V380" fill="none" stroke="#7A716A" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<text x="1070" y="478" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">reintenta (mastery &lt; 70 %)</text>
+<path d="M1060,400 H1020 V540 H930" fill="none" stroke="#7A716A" stroke-width="1.4" marker-end="url(#ar)"/>
+<text x="946" y="532" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">domina → SM-2 programa el repaso</text>
+<path d="M930,560 H970 V420 H885.0 V380" fill="none" stroke="#7A716A" stroke-width="1.4" marker-end="url(#ar)"/>
+<text x="946" y="576" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">resuelve el ejercicio de repaso</text>
+<path d="M660,760 H425 V390" fill="none" stroke="#7A716A" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+<path d="M700,150 H660 V760" fill="none" stroke="#7A716A" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="440" y="780" font-size="10.5" fill="#7A716A" text-anchor="start" font-weight="600" opacity="1">retorno al panel en 1 clic — disponible desde toda ventana</text>
+<rect x="40" y="800" width="1320" height="84" rx="8" fill="#F6F3EF" stroke="#C9C1B8" stroke-width="1.2"/>
+<text x="60" y="824" font-size="12.5" fill="#2B2622" text-anchor="start" font-weight="700" opacity="1">Reglas verificadas (criterio de calidad MODESEC §3.3.3)</text>
+<text x="60" y="846" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">1. Ninguna ventana sin ruta de entrada (V-00 es el único origen) · 2. Ninguna ventana huérfana: todas retornan a V-01 en un clic.</text>
+<text x="60" y="863" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">3. Condiciones explícitas: 'entregar' consume intento; 'volver' conserva el borrador; el repaso lo programa SM-2, no el estudiante.</text>
+<text x="60" y="880" font-size="11.5" fill="#7A716A" text-anchor="start" font-weight="400" opacity="1">4. V-04 (tutor) es modal sobre el contexto: nunca es destino final, siempre devuelve al origen.</text>
+</svg>
