@@ -328,7 +328,7 @@ repaso espaciado, que en un taller real no es castigo sino **mantenimiento del h
 | 1 | Endpoints citados en la categoría 7 de las fichas | **Verificado ruta por ruta contra el código el 2026-08-25** (ver tabla §5.1). De las 7 rutas citadas: **1 existe tal cual, 2 existen con otra forma y 4 no existen** — quedan como contrato propuesto para Fase III. | Jeider (Líder Técnico) |
 | 2 | §3.3.3 Mapa de Navegación | Pendiente — plantilla disponible | Julio |
 | 3 | §3.2 Guión técnico multimedial (formatos 10 y 11 de la guía) | Pendiente — requiere las fichas de este documento como insumo | Por asignar |
-| 4 | Video de la unidad (V-02, categoría 5) | **Alcance declarado, producción no iniciada.** Si no se produce, la unidad queda funcional solo con texto y animación de trazado. Debe reflejarse en `RELEASE_NOTES.md`. | Por asignar |
+| 4 | Video de la unidad (V-02, categoría 5) | **Alcance declarado, producción no iniciada.** Si no se produce, la unidad queda funcional solo con texto y animación de trazado. Debe reflejarse en `CHANGELOG.md`. | Por asignar |
 | 5 | Animación de trazado de escritorio (V-02, categoría 6) | Pieza de mayor valor pedagógico y mayor esfuerzo de implementación. Riesgo de recorte por tiempo: si se recorta, se sustituye por trazado estático tabulado, **no** se elimina. | Por asignar |
 | 6 | Umbrales 70 % / 85 % / 60 % | Propuesta de diseño. Requiere validación con el docente titular de la asignatura. | Julio |
 | 7 | Accesibilidad WCAG 2.1 AA | Declarada en el diseño; **sin auditoría ejecutada**. No debe reportarse como cumplida hasta verificarla con herramienta. | QA |
@@ -361,4 +361,4 @@ pero el equipo de backend sabe exactamente qué falta por construir antes de int
 - Caro, M., Toscano, R., Hernández, F. y David, M. (2009). *MODESEC: Modelo para el desarrollo de software educativo basado en competencias.* Nuevas Ideas en Informática Educativa, 5, 188–200.
 - *Modelo pedagógico Educación virtual — MOCAVI* (2023).
 - Giraldo, J. C. (2004). *Metodología SEMLI: Software Educativo, Multimedia, Lúdico e Interactivo.* Montería.
-- Documentación interna STIRE: `docs/STIRE_FUNCTIONAL_VISION.md`, documento maestro de requisitos (RF-01 a RF-27), `docs/modesec/PLANTILLAS_MODESEC_FASE2.md`.
+- Documentación interna STIRE: `docs/00_VISION_FUNCIONAL.md`, documento maestro de requisitos (RF-01 a RF-27), `docs/modesec/PLANTILLAS_MODESEC_FASE2.md`.

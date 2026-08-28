@@ -41,7 +41,7 @@ hallazgo más importante.
 - Si algo **después** de correrlo modifica `package-lock.json`, `tsconfig.json`, `nest-cli.json`
   o cualquier script de arranque/migración/seed, hay que volver a correrlo antes de declarar la
   ola cerrada. No hay excepción de "es un cambio chico".
-- El resultado literal (salida completa, no un resumen) se pega en `docs/RELEASE_NOTES.md` como
+- El resultado literal (salida completa, no un resumen) se pega en `CHANGELOG.md` como
   evidencia de cierre de la ola — igual que ya se hacía con los logs de `npm ci`/`build`/`start`
   desde la Ola 2, ahora automatizado en un solo comando.
 - Ningún hallazgo de build/arranque se declara cerrado sin la salida de este comando. "Corrió en
@@ -109,7 +109,7 @@ código.
 ## Dónde está cada cosa
 
 - `docs/ESTADO_STIRE_HANDOFF.md` — estado del proyecto, qué se cerró, qué queda abierto.
-- `docs/RELEASE_NOTES.md` — historial de olas de remediación, punto por punto, con commits.
+- `CHANGELOG.md` — historial de olas de remediación, punto por punto, con commits.
 - `docs/REAUDITORIA_OLA2.md` (gitignorado) — última reauditoría independiente, hallazgos con
   severidad y evidencia.
 - `docs/04_ESTANDARES_Y_SEGURIDAD.md` — estándares de código y seguridad vigentes.

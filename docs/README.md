@@ -11,7 +11,7 @@
 
 | # | Archivo | Responde a | Audiencia |
 |---|---------|-----------|-----------|
-| 0 | [STIRE_FUNCTIONAL_VISION.md](./STIRE_FUNCTIONAL_VISION.md) | **¿Por qué existe STIRE?** Problema pedagógico, propuesta de valor, actores, ciclo cognitivo del estudiante y roadmap. | Todos |
+| 0 | [00_VISION_FUNCIONAL.md](./00_VISION_FUNCIONAL.md) | **¿Por qué existe STIRE?** Problema pedagógico, propuesta de valor, actores, ciclo cognitivo del estudiante y roadmap. | Todos |
 | 1 | [01_ARQUITECTURA_Y_DISENO.md](./01_ARQUITECTURA_Y_DISENO.md) | **¿Qué es STIRE técnicamente?** Arquitectura DDD, decisiones ADR, esquema relacional completo, módulos activos. | Backend devs, Arquitectos |
 | 2 | [02_FLUJOS_Y_OPERACIONES.md](./02_FLUJOS_Y_OPERACIONES.md) | **¿Cómo funciona STIRE?** Happy path del estudiante, del docente, smoke test E2E y trazabilidad de logs. | Todos los devs |
 | 3 | [03_MOTOR_Y_TUTOR.md](./03_MOTOR_Y_TUTOR.md) | **¿Cuál es el cerebro de STIRE?** Motor de evaluación (Strategy), Judge Engine (Docker Sandbox), Mastery, SM-2 y Tutor IA. | Backend devs, Investigadores |
@@ -27,7 +27,7 @@
 | [`../MONITOREO_SEMANAL.md`](../MONITOREO_SEMANAL.md) | Bitácora oficial del curso (vive en la raíz del repositorio). |
 | [modesec/](./modesec/) | Diseño multimedial MODESEC Fase II: plantillas y documentos de trabajo. |
 | [pitch/](./pitch/) | Guiones del pitch en inglés por reto. |
-| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | Historial de versiones y cambios principales por sprint. |
+| [CHANGELOG.md](../CHANGELOG.md) | Historial de versiones y cambios principales por sprint. |
 | `archive/` | Documentos históricos o deprecados. No forman parte de la documentación activa. |
 | `testing/` | Guías y artefactos relacionados con la estrategia de pruebas. |
 
@@ -37,7 +37,7 @@
 
 Si eres una IA analizando este repositorio, te recomendamos leer en este orden:
 
-1. **`STIRE_FUNCTIONAL_VISION.md`** → Entiende el problema y la solución pedagógica.
+1. **`00_VISION_FUNCIONAL.md`** → Entiende el problema y la solución pedagógica.
 2. **`01_ARQUITECTURA_Y_DISENO.md`** → Comprende la estructura de módulos y la base de datos.
 3. **`02_FLUJOS_Y_OPERACIONES.md`** → Visualiza los flujos de usuario con diagramas Mermaid.
 4. **`03_MOTOR_Y_TUTOR.md`** → Profundiza en los algoritmos: Mastery, SM-2, Judge Engine y Tutor IA.

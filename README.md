@@ -10,7 +10,7 @@
 
 Construida con **NestJS + TypeORM + MariaDB**, la arquitectura sigue principios **DDD (Domain-Driven Design)** y un modelo **event-driven** que garantiza respuestas instantáneas al estudiante mientras los motores cognitivos operan en segundo plano.
 
-**Estado actual:** Ola 2 de remediación cerrada · 36/36 suites · 215/215 tests en verde · sistema reproducible desde cero (`npm ci → migration:run → db:seed:demo → build → start`, verificado). Sin veredicto de aptitud autoasignado — ver `docs/ESTADO_STIRE_HANDOFF.md` y `docs/RELEASE_NOTES.md`.
+**Estado actual:** Ola 2 de remediación cerrada · 36/36 suites · 215/215 tests en verde · sistema reproducible desde cero (`npm ci → migration:run → db:seed:demo → build → start`, verificado). Sin veredicto de aptitud autoasignado — ver `docs/ESTADO_STIRE_HANDOFF.md` y `CHANGELOG.md`.
 
 ---
 
@@ -20,7 +20,7 @@ Construida con **NestJS + TypeORM + MariaDB**, la arquitectura sigue principios 
 
 | Pregunta | Documento |
 |----------|-----------|
-| **¿Por qué existe STIRE?** Visión pedagógica, problema, propuesta de valor, actores y roadmap. | 📘 [STIRE\_FUNCTIONAL\_VISION.md](./docs/STIRE_FUNCTIONAL_VISION.md) |
+| **¿Por qué existe STIRE?** Visión pedagógica, problema, propuesta de valor, actores y roadmap. | 📘 [00\_VISION\_FUNCIONAL.md](./docs/00_VISION_FUNCIONAL.md) |
 | **¿Qué es técnicamente?** Arquitectura DDD, decisiones ADR, esquema relacional completo y módulos. | 🏗️ [01\_ARQUITECTURA\_Y\_DISENO.md](./docs/01_ARQUITECTURA_Y_DISENO.md) |
 | **¿Cómo funciona?** Flujos del estudiante y docente, happy path E2E y trazabilidad de logs. | 🔄 [02\_FLUJOS\_Y\_OPERACIONES.md](./docs/02_FLUJOS_Y_OPERACIONES.md) |
 | **¿Cuál es el cerebro?** Motor de evaluación, Judge Engine (Docker), Mastery, SM-2 y Tutor IA. | 🧠 [03\_MOTOR\_Y\_TUTOR.md](./docs/03_MOTOR_Y_TUTOR.md) |
@@ -147,13 +147,25 @@ stire/
 │   └── gamification/             # [EN PAUSA] Logros y recompensas
 ├── docs/                         # 📚 Documentación técnica completa
 │   ├── README.md                 # Índice de navegación
-│   ├── STIRE_FUNCTIONAL_VISION.md
+│   ├── 00_VISION_FUNCIONAL.md
 │   ├── 01_ARQUITECTURA_Y_DISENO.md
 │   ├── 02_FLUJOS_Y_OPERACIONES.md
 │   ├── 03_MOTOR_Y_TUTOR.md
-│   └── 04_ESTANDARES_Y_SEGURIDAD.md
+│   ├── 04_ESTANDARES_Y_SEGURIDAD.md
+│   ├── 05_METODOLOGIA_Y_EQUIPO.md
+│   ├── ADR_DECISIONES_ARQUITECTURA.md   # ADR 06/07/08
+│   ├── CONTRATO_CONTENT_RENDERING.md
+│   ├── ESTADO_STIRE_HANDOFF.md   # Estado del proyecto (traspaso)
+│   ├── modesec/                  # Diseño multimedial MODESEC Fase II
+│   ├── pitch/                    # Guión de pitch vigente + guía fonética
+│   ├── testing/                  # Artefactos de estrategia de pruebas
+│   └── _archivo/                 # Documentos históricos, no vigentes
+├── scripts/                       # verify-clean.js y verify-clean-server-check.js
 ├── docker-compose.yml            # Entorno local completo
 ├── .env.example                  # Plantilla de variables de entorno
+├── CHANGELOG.md                   # Historial de versiones y olas de remediación
+├── MONITOREO_SEMANAL.md          # Bitácora oficial del curso
+├── CLAUDE.md                      # Reglas de ingeniería del proyecto
 └── README.md                     # ← Estás aquí
 ```
 

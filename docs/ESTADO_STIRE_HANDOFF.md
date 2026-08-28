@@ -35,13 +35,13 @@ Auditoría forense adversarial (`c7aac0e`) → Ola 1 de remediación → reaudit
 
 > **Nota:** ninguna ola se autoasigna una nota — eso le corresponde a la próxima reauditoría independiente, con el mismo prompt y la misma vara que las tres anteriores.
 
-**Lo que funciona hoy:** `rm -rf node_modules dist → npm ci → migration:run → db:seed:demo → npm run build` se verificó de punta a punta contra una base de datos MySQL vacía real con `npm run verify:clean` (exit code distinto de cero si cualquier paso falla). El paso final de esa misma cadena — arranque → login real (docente de demo) → `GET /enrollment/my` con el token → apagado — se verificó correcto y rápido (8-13s) en corridas aisladas dentro de la misma sesión, pero la cadena automatizada completa en un solo comando no se pudo confirmar de forma limpia al cierre de esta ola por presión de memoria del entorno de esa sesión, no por un defecto de código — ver la nota de transparencia en `docs/RELEASE_NOTES.md` v0.5.0 y el diagnóstico completo en `CLAUDE.md`.
+**Lo que funciona hoy:** `rm -rf node_modules dist → npm ci → migration:run → db:seed:demo → npm run build` se verificó de punta a punta contra una base de datos MySQL vacía real con `npm run verify:clean` (exit code distinto de cero si cualquier paso falla). El paso final de esa misma cadena — arranque → login real (docente de demo) → `GET /enrollment/my` con el token → apagado — se verificó correcto y rápido (8-13s) en corridas aisladas dentro de la misma sesión, pero la cadena automatizada completa en un solo comando no se pudo confirmar de forma limpia al cierre de esta ola por presión de memoria del entorno de esa sesión, no por un defecto de código — ver la nota de transparencia en `CHANGELOG.md` v0.5.0 y el diagnóstico completo en `CLAUDE.md`.
 
 ---
 
 ## 2. `npm run verify:clean` — regla de proceso, no solo herramienta
 
-**Por qué existe:** la Ola 2 declaró la secuencia de arranque "verificada de punta a punta" en su Punto 5, y volvió a tocar `package-lock.json` en su Punto 7 (`npm audit fix`) sin repetir la verificación. La reauditoría de Ola 2 reprodujo la secuencia literal contra un `npm ci` real y el build falló de inmediato — la causa exacta no fue el audit fix (se descartó con evidencia, ver `docs/RELEASE_NOTES.md` v0.5.0 Punto 1), pero el patrón de fondo es el mismo: una verificación que se corrió una vez, contra un `node_modules` que ya existía, y nunca se repitió tras un cambio posterior.
+**Por qué existe:** la Ola 2 declaró la secuencia de arranque "verificada de punta a punta" en su Punto 5, y volvió a tocar `package-lock.json` en su Punto 7 (`npm audit fix`) sin repetir la verificación. La reauditoría de Ola 2 reprodujo la secuencia literal contra un `npm ci` real y el build falló de inmediato — la causa exacta no fue el audit fix (se descartó con evidencia, ver `CHANGELOG.md` v0.5.0 Punto 1), pero el patrón de fondo es el mismo: una verificación que se corrió una vez, contra un `node_modules` que ya existía, y nunca se repitió tras un cambio posterior.
 
 **La regla, documentada también en `CLAUDE.md`:** `npm run verify:clean` se corre una sola vez por ola, al **final**, después de que todos los puntos estén commiteados. Si algo después modifica `package-lock.json`, `tsconfig.json`, `nest-cli.json` o cualquier script de arranque/migración/seed, hay que volver a correrlo antes de declarar la ola cerrada.
 
@@ -69,7 +69,7 @@ Auditoría forense adversarial (`c7aac0e`) → Ola 1 de remediación → reaudit
 
 **Ola 3** (por el propio autor del cambio — pendiente de reauditoría): build roto en checkout limpio (causa raíz identificada, no solo el síntoma) · eliminación de `dockerode`/`SandboxWatchdogService` (código muerto, ~20s de arranque) · `npm run verify:clean` · test de arquitectura extendido a GET · P0-R1 (`GET /activities`) · P0-R2 (lecturas de `content`) · P1-R2 (`activity-questions.findByActivity`) · P1-R5 (`analytics`/`learning-progress`, señalado desde el cierre de Ola 1 y nunca cerrado) · P1-R3 (colisión de nombres en el test de arquitectura) · P1-R4 (capa de renderizado XSS alcanzable) · P2-R1 (sockets de escucha en el sandbox).
 
-Detalle completo, con commits, en `docs/RELEASE_NOTES.md` (v0.5.0).
+Detalle completo, con commits, en `CHANGELOG.md` (v0.5.0).
 
 ---
 
@@ -92,7 +92,7 @@ Detalle completo, con commits, en `docs/RELEASE_NOTES.md` (v0.5.0).
 
 ## 6. Ola 3 — instrucción ejecutada
 
-La instrucción completa (7 puntos) que produjo el estado descrito en §1-§5 queda registrada en `docs/RELEASE_NOTES.md` v0.5.0 junto con los commits de cada punto (algunos puntos se combinaron en un mismo commit cuando estaban acoplados en el mismo archivo — ver la nota de cada commit). No se repite aquí para no duplicar la fuente de verdad.
+La instrucción completa (7 puntos) que produjo el estado descrito en §1-§5 queda registrada en `CHANGELOG.md` v0.5.0 junto con los commits de cada punto (algunos puntos se combinaron en un mismo commit cuando estaban acoplados en el mismo archivo — ver la nota de cada commit). No se repite aquí para no duplicar la fuente de verdad.
 
 ---
 
@@ -106,6 +106,6 @@ Ver `CLAUDE.md` — es ahora la fuente de verdad de las reglas de ingeniería (i
 
 El material más fuerte sigue siendo el proceso, no el sistema — y esta ola lo demuestra con más fuerza que las anteriores porque **incluye una regresión real, medida y explicada**, no solo mejoras: 3.05/10 → 5.1/10 → 4.4/10 → pendiente. Muy pocos trabajos académicos se someten a una reauditoría que les baja la nota y la publican de todos modos junto con la corrección punto por punto. La causa raíz del build roto (un cast de tipo innecesario, verificado con un `git worktree` histórico que refutó la hipótesis inicial del propio dueño del proyecto) y el PoC de colisión de nombres reproducido y cerrado en el test de arquitectura son evidencia de un proceso de ingeniería que se audita a sí mismo con rigor, no de un sistema perfecto.
 
-Guardar para la presentación: la tabla de cuatro columnas de calificación (§1), la comparación antes/después del PoC de colisión de nombres (verde con el bug, rojo sin él), y — como ejemplo de honestidad de proceso, no solo de resultado — la nota de transparencia en `docs/RELEASE_NOTES.md` v0.5.0 sobre por qué `npm run verify:clean` no se pudo confirmar con una sola corrida limpia al cierre de esta ola.
+Guardar para la presentación: la tabla de cuatro columnas de calificación (§1), la comparación antes/después del PoC de colisión de nombres (verde con el bug, rojo sin él), y — como ejemplo de honestidad de proceso, no solo de resultado — la nota de transparencia en `CHANGELOG.md` v0.5.0 sobre por qué `npm run verify:clean` no se pudo confirmar con una sola corrida limpia al cierre de esta ola.
 
 Publicar una versión **saneada** del informe — hallazgos, severidades y remediación, sin payloads funcionales — antes de la sustentación.

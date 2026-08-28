@@ -174,7 +174,7 @@ Reauditoria independiente con el mismo prompt de alta intensidad de `docs/AUDITO
 ## v0.2.1 — Ola 1 · Bloque 1: Reparacion del Build · 25 de Agosto de 2026
 
 Base: `docs/AUDITORIA_TECNICA_ALTA_INTENSIDAD.md` (hallazgo P1-01), commit `c7aac0e`.
-Alcance exclusivo de este bloque: dejar `npm run build` en 0 errores, sin tocar seguridad ni logica de negocio. Ejecutado siguiendo `docs/PLAN_OLA1_BLOQUE1_BUILD.md`.
+Alcance exclusivo de este bloque: dejar `npm run build` en 0 errores, sin tocar seguridad ni logica de negocio. Ejecutado siguiendo `docs/_archivo/PLAN_OLA1_BLOQUE1_BUILD.md`.
 
 ### Correcciones aplicadas (contador de errores estrictamente decreciente: 6 -> 0)
 
