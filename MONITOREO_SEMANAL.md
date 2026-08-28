@@ -1,7 +1,8 @@
-# 🚀 Bitácora de Monitoreo y Control — Proyecto: STIRE-Soft
+# 🚀 Bitácora de Monitoreo y Control N.º 2 — Proyecto: STIRE-Soft
 **Curso:** DDSE3 — 2026-2 | **Grupo:** [G1 / G2]
 **Repositorio GitHub:** https://github.com/Jeider-Gomez/Stire-Soft
-**Semana reportada:** 17 – 21 de agosto de 2026 | **Cierre:** viernes 21 de agosto, 8:00 p.m.
+**Semana reportada:** 24 – 28 de agosto de 2026 | **Cierre:** hoy viernes 28 de agosto, 8:00 p.m.
+**Estado del Reto 1:** MODESEC Fase II con **4 de 6 piezas cerradas** · bitácora al día · guión del pitch listo
 **Tablero Kanban (Trello):** `[pegar aquí el enlace del tablero]`
 
 *STIRE-Soft es un Sistema Tutor Inteligente para la Resolución de Ejercicios: el estudiante entrega
@@ -14,10 +15,10 @@ dominio.*
 
 | Integrante | Rol Principal | Horario de Reunión Individual | GitHub User |
 | :--- | :--- | :--- | :--- |
-| Jeider Gómez | Líder Técnico / Arquitecto | *[por completar]* | @Jeider-Gomez |
-| Jorge Cervantes | Calidad y Tablero Kanban | *[por completar]* | @*[por completar]* |
-| José López | Diseñador UI/UX & Ventana Estándar | *[por completar]* | @*[por completar]* |
-| Julio Galvis | Diseñador Instruccional & Navegación | *[por completar]* | @*[por completar]* |
+| Jeider Gómez | Líder Técnico | *[por completar]* | @Jeider-Gomez |
+| Jorge Cervantes | Calidad y Tablero | *[por completar]* | @*[por completar]* |
+| José López | Diseño UI/UX — Ventana Estándar | *[por completar]* | @*[por completar]* |
+| Julio Galvis | Diseño Instruccional — Contenidos y Navegación | *[por completar]* | @*[por completar]* |
 | Pedro Romero | Documentación, Bitácora y Pitch | *[por completar]* | @*[por completar]* |
 
 **Reunión de equipo:** viernes 8:00 – 8:40 p.m., videollamada, con los cinco integrantes.
@@ -30,52 +31,80 @@ dominio.*
 
 ### 2.1 Entregables Cumplidos
 
-- [x] **[Líder — Jeider Gómez]: Definición de la metodología de trabajo del equipo.** Se compararon
-  Scrum completo, Kanban, Shape Up y XP frente a nuestras restricciones reales (5 integrantes,
-  horarios distintos, semanas alternas A/B y alcance fijado por la rúbrica). Se adoptó **Sprint
-  Semanal con tablero Kanban en Trello**, con reunión única los viernes a las 8:00 p.m. y reportes
-  escritos los martes y jueves. Documentado en `docs/05_METODOLOGIA_Y_EQUIPO.md`.
+#### 🔧 Jeider Gómez · Líder Técnico
 
-- [x] **[Líder — Jeider Gómez]: Pruebas y aseguramiento de calidad del backend de STIRE.** Se ejecutó
-  una auditoría técnica del sistema, un plan de corrección en cuatro bloques y una segunda auditoría
-  independiente sobre el resultado. Resultados verificados:
+- [x] **Ola 2 de remediación del backend, cerrada.** Suite completa en verde: **36/36 suites ·
+  215/215 pruebas**. Cobertura de sentencias del **26.88 % al 55.66 %**. El sistema es reproducible
+  desde cero y verificado (`npm ci → migration:run → db:seed:demo → build → start`).
+- [x] **Verificación ruta por ruta de los endpoints citados en las fichas de ventana.** Se leyeron
+  los `@Controller` y decoradores en `src/`, no la documentación. De las 7 rutas citadas en la
+  categoría 7 de las fichas V-01 a V-06: **1 existe tal cual, 2 existen con otra forma y 4 no
+  existen**. Documentado con archivo y línea en `docs/modesec/FASE_II_DISENO_MULTIMEDIAL.md` §5.1.
+  **No se modificó ninguna ficha de diseño para que encajara con el código:** el diseño manda, y las
+  rutas faltantes quedan declaradas como contrato de la Fase III.
+- [x] **Consolidación del borrador maestro de MODESEC Fase II**
+  (`docs/modesec/FASE_II_DISENO_MULTIMEDIAL.md`), tomando como norma la guía `DDS3-01.pdf` §3.
+- [x] **Reorganización documental del repositorio** (5 commits, `2b2dc16` → `27c224a`): se fusionaron
+  `CHANGELOG.md` y `RELEASE_NOTES.md`; se renombraron `00_VISION_FUNCIONAL.md` y
+  `ADR_DECISIONES_ARQUITECTURA.md` (al que se le añadió el ADR-08 de la cola en línea, publicado sin
+  payloads de exploit); se creó `docs/_archivo/` con los planes ya consumidos; se eliminaron 3
+  scripts obsoletos.
+- [x] **Auditoría de veracidad documental.** Se encontraron **12 afirmaciones falsas sobre Docker**
+  repartidas por `README.md`, `01_ARQUITECTURA`, `02_FLUJOS`, `04_ESTANDARES`, `00_VISION_FUNCIONAL`
+  y `docs/README.md`; **un log de ejemplo fabricado** en `02_FLUJOS_Y_OPERACIONES.md:245-246`; y un
+  bloque de resultados de pruebas desactualizado en `README.md:120-124`. **Hallazgo registrado, aún
+  no corregido** — pasa a la semana siguiente como prioridad máxima (ver §3).
+- [x] **Confirmado que el proyecto tiene frontend:** `frontend/` con Next 16.2.3 y React 19.2.4. Su
+  estado funcional todavía no está diagnosticado.
 
-  | Aspecto evaluado | Antes | Después |
-  |---|---|---|
-  | Compilación del proyecto | 6 errores de TypeScript | ✅ compila sin errores |
-  | Pruebas automatizadas | 19 suites / 105 pruebas | **33 suites / 183 pruebas** |
-  | Cobertura del módulo de autenticación | 0 % | **79 % del servicio · 100 % del controlador** |
-  | Arranque del sistema sin Docker ni Redis | el proceso se caía | ✅ arranca y responde |
-  | Calificación interna de calidad | 3.05 / 10 | **≈ 5.1 / 10** (mismo método de medición) |
+#### ✅ Jorge Cervantes · Calidad y Tablero
 
-  Además se **endureció el entorno de ejecución de código del estudiante** (sandbox): el código que
-  el estudiante envía corre aislado del sistema operativo, sin acceso a archivos, a red ni a
-  procesos. Se probaron y bloquearon 10 vectores de ataque distintos. Se validó el flujo completo
-  contra la base de datos real: **el estudiante entrega código JavaScript, se ejecuta de verdad y
-  recibe calificación real** (100 con la solución correcta, 0 con una incorrecta).
+> Las tres tareas de esta semana cierran hoy viernes; se confirman en la reunión de la noche.
 
-- [x] **[Documentación — Pedro Romero]: Bitácora de Monitoreo publicada** en la raíz del repositorio
-  con la plantilla oficial del curso. `commit: docs: actualiza bitacora semana 1`
+- [⚙️] **Tablero Kanban en Trello** con las cuatro listas (Backlog · Esta semana · En curso · Hecho)
+  y las tarjetas de la semana repartidas.
+- [⚙️] **Revisión de las 6 fichas de ventana contra las 7 categorías MODESEC.** Lo que se verifica:
+  que ninguna categoría quedó en blanco y que los "No aplica" llevan su justificación pedagógica
+  escrita, que es el criterio bloqueante de la guía.
+- [⚙️] **Checklist de verificación de los tres entregables** contra la rúbrica del docente, aplicado
+  antes de dar por buena cada pieza. Parte de este trabajo viene de la semana anterior, cuando
+  extrajo de la guía los criterios de aceptación de cada entregable.
 
-- [x] **[Documentación — Pedro Romero]: Pitch en inglés de 1 minuto.** Guión completo de 138 palabras
-  en los cuatro bloques exigidos (Hook · Problem · Solution & Value Prop · Tech Stack & CTA), con
-  tabla de pronunciación fonética de los términos técnicos. `docs/pitch/PITCH_RETO_01_EN.md`
+#### 🎨 José López · Diseño UI/UX — Ventana Estándar
 
-- [x] **[Documentación — Pedro Romero]: Evidencia del prompt ROCAS** del pitch, con las iteraciones
-  realizadas hasta llegar al guión final (ver punto 2.2).
+- [x] **§3.3 Ventana Estándar.** Maqueta con las cinco secciones funcionales (Header, Menú,
+  Contenido, Acciones, Footer) y la tabla donde **cada sección justifica su función pedagógica**, no
+  su apariencia. → `docs/modesec/ventanas/3.3_VENTANA_ESTANDAR.md`
+- [x] **§3.3.1 Fichas de Descripción de Ventana.** **Seis fichas (V-01 a V-06)** con las 7 categorías
+  MODESEC completas: Imagen · Nombre · Texto · Audio · Video · Animación · Acciones del estudiante.
+  → `docs/modesec/ventanas/3.3.1_FICHAS_VENTANAS.md`
 
-- [x] **[Diseño Instruccional — Julio Galvis]: Avance MODESEC Fase II.** Borrador del **Diagrama de
-  Contenidos (§3.1)** con la estructura de tres módulos y sus temas.
+#### 📐 Julio Galvis · Diseño Instruccional — Contenidos y Navegación
 
-- [x] **[Diseño UI/UX — José López]: Avance MODESEC Fase II.** Primera maqueta de la **Ventana
-  Estándar (§3.3)** dividida por secciones funcionales (Header, Menú, Contenido, Acciones, Footer).
+- [x] **§3.1 Diagrama de Contenidos.** Tres módulos (Fundamentos y representación → Control de flujo
+  → Datos elementales y modularidad), **13 temas**, cada uno con su resultado de aprendizaje en verbo
+  observable — ninguno empieza por "conocer" o "entender". Incluye las reglas de progresión
+  enlazadas con el motor de dominio: desbloqueo al 70 %, dominio al 85 %, tutoría proactiva por
+  debajo del 60 %. → `docs/modesec/contenidos/3.1_DIAGRAMA_CONTENIDOS.md`
+- [x] **§3.3.2 Guía de Metáforas.** Metáfora rectora única — **"el taller del algoritmista"** — con
+  tabla de equivalencias y las consecuencias visuales que se derivan de ella.
+  → `docs/modesec/contenidos/3.3.2_GUIA_METAFORAS.md`
+- [⚙️] **§3.3.3 Mapa de Navegación — iniciado.** El archivo existe con las 6 ventanas ya declaradas
+  como nodos; **falta la tabla de transiciones** (origen, destino, disparador, reversibilidad).
+  → `docs/modesec/contenidos/3.3.3_MAPA_NAVEGACION.md`
 
-- [x] **[Equipo]: Plantillas de trabajo de MODESEC Fase II** creadas para que ningún integrante
-  empiece en hoja en blanco. `docs/modesec/PLANTILLAS_MODESEC_FASE2.md`
+#### 📝 Pedro Romero · Documentación, Bitácora y Pitch
+
+- [x] **Bitácora publicada en la raíz del repositorio** y mantenida por él desde GitHub —
+  `commit 78f47dc`, 27 de agosto.
+- [x] **Guión del pitch en inglés actualizado.** 138 palabras en los cuatro bloques (Hook · Problem ·
+  Solution & Value Prop · Tech Stack & CTA), con la afirmación sobre Docker corregida y la guía de
+  pronunciación fonética extraída del material del docente. → `docs/pitch/PITCH_RETO_01_EN.md`
+- [x] **Evidencia del prompt ROCAS** del pitch con sus iteraciones (ver §2.2).
 
 ### 2.2 Evidencia de Ingeniería de Prompts (ROCAS + MOCAVI / MODESEC)
 
-**Prompt 01 — Guión del Pitch en Inglés (60 segundos)**
+**Prompt 01 — Guión del Pitch en Inglés (60 segundos)** — Pedro Romero
 
 * **Prompt Utilizado:**
 ```
@@ -99,38 +128,35 @@ pautas de lenguaje corporal.
      límite duro de palabras por cada bloque.
   2. El vocabulario técnico era genérico ("learning app") → se exigió usar los términos propios del
      proyecto: *mastery learning*, *spaced repetition*, *sandboxed code execution*.
-* **Resultado Obtenido:** guión final de 138 palabras en 4 bloques + tabla fonética de 12 términos,
+  3. El guión afirmaba que el sistema usa **Docker**, y no lo usa → se corrigió a la arquitectura
+     real: sandbox propio con aislamiento de proceso del sistema operativo, sin Docker.
+* **Resultado Obtenido:** guión final de 138 palabras en 4 bloques + tabla fonética,
   en `docs/pitch/PITCH_RETO_01_EN.md`.
 
-**Prompt 02 — Ventana Estándar y Diseño Multimedial (MODESEC Fase II)**
+**Prompt 02 — Ventana Estándar y Diseño Multimedial (MODESEC Fase II)** — José López y Julio Galvis
 
 * **Prompt Utilizado:** adaptación del Prompt 02 oficial de la guía al contexto real de STIRE
-  (nivel educativo: universitario, primeros semestres de Ingeniería de Sistemas; competencia:
-  resolución de problemas mediante algoritmia y programación).
+  (nivel educativo: universitario, 3.er semestre; competencia: resolución de problemas mediante
+  algoritmia y programación).
 * **Herramienta IA:** *[indicar]*
 * **Iteraciones realizadas:**
   1. La primera Ventana Estándar describía la interfaz **visualmente** pero no explicaba para qué
      sirve pedagógicamente cada sección → se reformuló la acción del prompt para exigir, por cada
      sección, *qué función cumple en el aprendizaje*, no solo *cómo se ve*.
-* **Resultado Obtenido:** borradores del Diagrama de Contenidos y de la Ventana Estándar, en
-  consolidación durante la semana siguiente. `docs/modesec/`
+  2. Las fichas dejaban vacías las categorías de audio y video → se exigió que **ninguna categoría
+     quede en blanco**: si no aplica, se escribe "No aplica" con su justificación.
+* **Resultado Obtenido:** las cuatro piezas cerradas de la Fase II, en `docs/modesec/`.
 
-### 2.3 Avance de la Semana en Curso (24 – 28 de agosto)
+### 2.3 Estado de MODESEC Fase II — 4 de 6 piezas cerradas
 
-- [x] **[Equipo]: Borrador maestro consolidado de MODESEC Fase II.** Se redactó
-  `docs/modesec/FASE_II_DISENO_MULTIMEDIAL.md` (v1.0) tomando como norma la guía `DDS3-01.pdf`
-  (§3, páginas 3–11) y respetando el reparto de dueños ya declarado en
-  `docs/modesec/PLANTILLAS_MODESEC_FASE2.md`. Cubre cuatro de las cinco piezas exigidas:
-
-  | Pieza | Contenido | Dueño que la traslada a su archivo |
-  |---|---|---|
-  | **§3.1** Diagrama de Contenidos | 3 módulos (Fundamentos y representación → Control de flujo → Datos elementales y modularidad), **13 temas**, cada uno con su resultado de aprendizaje en verbo observable. Ningún RA empieza por "conocer" o "entender". Incluye las reglas de progresión enlazadas con el motor de dominio: desbloqueo al 70 %, dominio al 85 %, tutoría proactiva por debajo del 60 % | Julio Galvis |
-  | **§3.3** Ventana Estándar | Maqueta ASCII con las cinco secciones y sus medidas, más la tabla donde cada sección justifica su **función pedagógica**, no su apariencia | José López |
-  | **§3.3.1** Fichas de Ventana | **6 fichas (V-01 a V-06)** con las 7 categorías MODESEC completas. Donde audio o video no aplican, va la justificación — ninguna categoría en blanco | José López |
-  | **§3.3.2** Guía de Metáforas | Metáfora rectora única: **"el taller del algoritmista"**, con tabla de equivalencias y las consecuencias visuales que se derivan de ella | Julio Galvis |
-
-  **Pendientes de la Fase II:** §3.3.3 Mapa de Navegación (Julio) y §3.2 Guión Técnico Multimedial,
-  que ahora sí tiene insumo porque las fichas de ventana ya existen.
+| § | Pieza | Quién la escribe | Estado |
+|---|---|---|---|
+| 3.1 | Diagrama de Contenidos | Julio Galvis | ✅ cerrada |
+| 3.2 | Guión Técnico Multimedial | *por asignar* | ❌ no iniciada — requiere las fichas como insumo, y ya las tiene |
+| 3.3 | Ventana Estándar | José López | ✅ cerrada |
+| 3.3.1 | Fichas de Ventana (7 categorías) | José López | ✅ cerrada — 6 ventanas |
+| 3.3.2 | Guía de Metáforas | Julio Galvis | ✅ cerrada |
+| 3.3.3 | Mapa de Navegación | Julio Galvis | ⚙️ iniciada — nodos definidos, falta la tabla de transiciones |
 
 ---
 
@@ -138,36 +164,34 @@ pautas de lenguaje corporal.
 
 * **Riesgos / Bloqueos:**
 
-  1. **Fichas de Descripción de Ventana (las 7 categorías) todavía sin hacer.** No se iniciaron
-     porque primero había que cerrar el listado definitivo de ventanas del sistema; sin él, las
-     fichas habrían quedado desalineadas con el Mapa de Navegación. Quedan como prioridad de la
-     semana del 24 al 28 de agosto. *Es una decisión de orden de trabajo, no un retraso.*
+  1. **La documentación afirma que el sistema usa Docker, y no lo usa.** Son 12 afirmaciones falsas
+     repartidas por el `README.md` y los documentos núcleo, más **un log de ejemplo fabricado**
+     (`02_FLUJOS_Y_OPERACIONES.md:245-246`) que presenta como real una salida de consola que nunca
+     ocurrió: cita un servicio inexistente, un contenedor de Python y un flujo que el sistema no
+     ejecuta. **Es el riesgo más grave que tiene el proyecto ahora mismo**, y no es técnico sino de
+     credibilidad: un jurado que lea ese log y luego revise el código deja de creerle al resto de la
+     documentación, incluida la parte que sí es cierta. Corrección programada para el lunes 31.
+     *La bitácora y el pitch ya dicen "sin Docker": están correctos.*
 
-  2. **Niveles distintos de manejo de Git dentro del equipo.** Estaba frenando el trabajo de diseño.
-     **Decisión tomada:** se eliminaron las reglas estrictas de control de versiones (ramas,
-     revisiones cruzadas, convenciones de mensajes). Ahora basta con que el archivo esté subido al
-     repositorio antes del viernes, y quien no maneje Git le entrega el archivo a un compañero para
-     que lo suba. Se conserva únicamente el mensaje de commit que exige la guía del curso.
+  2. **Cuatro de los siete endpoints citados en las fichas de ventana no existen todavía.** Ya está
+     verificado y documentado con evidencia (§5.1 del documento de Fase II). No obliga a cambiar el
+     diseño — el diseño manda —, pero define el trabajo de backend de la Fase III.
 
-  3. **Los endpoints citados en las fichas de ventana son contrato propuesto, no verificado.**
-     En la categoría 7 (Acciones del estudiante) de las fichas V-01 a V-06 se citan rutas como
-     `POST /submissions`, `POST /tutor/chat` y `GET /review-schedules/due`. Están declaradas como
-     **propuesta de contrato**, no como hecho: no se han confirmado una por una contra el código.
-     Se decidió no afirmar que existen mientras no se verifiquen. **Hay que confirmarlas ruta por
-     ruta antes de dar por cerrada la Fase II**, porque un diseño multimedial que apunta a
-     endpoints inexistentes se convierte en deuda en la Fase III.
+  3. **El frontend existe pero no está diagnosticado.** Hay `frontend/` con Next 16.2.3 y React
+     19.2.4, y el pitch lo menciona. Dado que en este proyecto varias cosas documentadas resultaron
+     ser simulaciones, **hay que saber qué hay ahí de verdad antes de la sustentación, no durante**.
 
   4. **Decisión pendiente sobre la animación de trazado de escritorio (ficha V-02).** Es la pieza de
-     mayor valor pedagógico del diseño y también la de mayor esfuerzo de producción.
-     **Recomendación del equipo técnico:** si el tiempo aprieta, degradarla a un trazado estático
-     tabulado, **nunca eliminarla** — sin ella la unidad teórica queda como texto plano y se pierde
-     justamente lo que hace que el contenido sea software educativo y no un PDF.
+     mayor valor pedagógico del diseño y también la de mayor esfuerzo. **Recomendación:** si el
+     tiempo aprieta, degradarla a trazado estático tabulado, **nunca eliminarla** — sin ella la
+     unidad teórica queda en texto plano. Se decide en equipo en el cierre del viernes 28.
 
-  5. **Hallazgos de seguridad pendientes en el backend.** La segunda auditoría dejó abiertos varios
-     puntos de control de permisos entre docentes. Están documentados y planificados, y **no afectan
-     ninguno de los tres entregables académicos** — se trabajan en un carril aparte.
+  5. **La bitácora tiene dos manos escribiendo.** Pedro la edita desde la web de GitHub y el trabajo
+     técnico también la toca. **Regla adoptada:** la escribe Pedro; nadie más la
+     reescribe entera, y cualquier añadido se hace después de un `git pull`. Sin esa regla, el
+     entregable que califica el docente es justo el que se puede perder en un conflicto.
 
-* **Ayuda del Docente:**
+* **Ayuda del Docente** *(preguntas para la clase de HOY, viernes 28, 10:00 – 12:00)*:
 
   1. La **Ventana Estándar**: ¿se espera una única maqueta modelo que represente el estándar visual
      del sistema, o una maqueta por cada tipo de ventana?
@@ -179,27 +203,64 @@ pautas de lenguaje corporal.
 
 ---
 
-## 📌 4. Compromisos para la Semana Siguiente (24 – 28 de agosto)
+## 🎯 4. Acta del Cierre — hoy viernes 28 de agosto, 8:00 p.m.
 
-| Compromiso | Responsable | Fecha | Estado |
-|---|---|---|---|
-| §3.1 Diagrama de Contenidos, 3 módulos con RA observables | Julio Galvis | mié 26 ago | ✅ en el borrador maestro |
-| §3.3 Ventana Estándar por secciones funcionales | José López | mié 26 ago | ✅ en el borrador maestro |
-| §3.3.1 Fichas de Ventana — 7 categorías, 6 ventanas | José López | jue 27 ago | ✅ en el borrador maestro |
-| §3.3.2 Guía de Metáforas | Julio Galvis | jue 27 ago | ✅ en el borrador maestro |
-| Trasladar cada sección del borrador maestro al archivo de su dueño | Julio y José | jue 27 ago | ⚙️ pendiente |
-| **§3.3.3 Mapa de Navegación** | Julio Galvis | vie 28 ago | 📋 pendiente |
-| **Verificar ruta por ruta los endpoints citados en las fichas** | Jeider Gómez | jue 27 ago | 📋 pendiente |
-| Tablero de Trello creado con las 4 listas y las tarjetas repartidas | Jorge Cervantes | mar 25 ago | 📋 pendiente |
-| Revisión de los documentos MODESEC contra la rúbrica | Jorge Cervantes | vie 28 ago | 📋 pendiente |
-| Ensayo cronometrado del pitch, primera pasada | Los 5 | vie 28 ago | 📋 pendiente |
-| Bitácora actualizada y captura del tablero adjunta | Pedro Romero | vie 28 ago | 📋 pendiente |
+> Se diligencia en la reunión de esta noche, con los cinco integrantes. Este bloque se completa y
+> se sube antes de las 9:00 p.m.
 
-*§3.2 Guión Técnico Multimedial queda para el sprint del 31 de agosto al 4 de septiembre: depende de
-que las fichas de ventana estén cerradas, y ya lo están.*
+```
+Asistencia: Jeider __ · Jorge __ · José __ · Julio __ · Pedro __
 
-**Congelación del Reto 1:** viernes 4 de septiembre, 8:00 p.m. **Sustentación:** martes 8 de septiembre.
+CERRADAS ESTA SEMANA: §3.1 · §3.3 · §3.3.1 · §3.3.2 · Ola 2 del backend ·
+                      verificación de endpoints
+
+POR CONFIRMAR HOY (Jorge): tablero en Trello · revisión de las 6 fichas ·
+                      checklist contra la rúbrica
+
+NO CERRADAS: §3.3.3 Mapa de Navegación — falta la tabla de transiciones — pasa al 1 de sep
+
+DECISIÓN PENDIENTE — animación de trazado de escritorio (ficha V-02):
+   [ ] Se produce completa    [ ] Se degrada a trazado estático tabulado
+   Motivo: ______________________________________________
+
+RESPUESTAS DEL DOCENTE (clase de las 10:00 a.m.):
+   1. Ventana Estándar, ¿una maqueta modelo o una por tipo de ventana? → ______
+   2. "No aplica" justificado en las 7 categorías, ¿es válido?          → ______
+   3. Pitch de 60 s, ¿lo sustenta uno o los cinco?                      → ______
+
+ACUERDO DE LA RETRO: ______________________________________________
+```
+
+---
+
+## 📌 5. Compromisos para la Semana Siguiente (31 de agosto – 4 de septiembre · semana autónoma)
+
+| Compromiso | Quién | Fecha |
+|---|---|---|
+| Corregir las 12 afirmaciones falsas sobre Docker y **eliminar el log fabricado** de `02_FLUJOS` | Jeider Gómez | lun 31 ago |
+| Actualizar el bloque de resultados de pruebas del `README.md` a la corrida vigente (36 suites / 215 pruebas) | Jeider Gómez | lun 31 ago |
+| **§3.3.3 Mapa de Navegación:** completar la tabla de transiciones y cerrar la pieza | Julio Galvis | mar 1 sep |
+| Diagnóstico del `frontend/`: qué rutas son reales, si consume la API o usa datos simulados, si compila | Jeider Gómez | mié 2 sep |
+| **§3.2 Guión Técnico Multimedial** (formatos 10 y 11 de la guía) | José López y Julio Galvis | jue 3 sep |
+| Revisión final de las 6 piezas de MODESEC contra la rúbrica | Jorge Cervantes | jue 3 sep |
+| Captura del tablero de Trello para adjuntar a la bitácora | Jorge Cervantes | vie 4 sep |
+| Ensayo cronometrado del pitch, segunda pasada | Los 5 | vie 4 sep |
+| Bitácora de cierre del Reto 1 | Pedro Romero | vie 4 sep |
+
+**Congelación del Reto 1:** viernes 4 de septiembre, 8:00 p.m. — después solo se corrige forma.
+**Sustentación:** martes 8 de septiembre, clase presencial.
+
+---
+
+## 🗓️ 6. Bitácoras Anteriores
+
+| N.º | Semana | Documento |
+|---|---|---|
+| 1 | 17 – 21 de agosto de 2026 | [`docs/seguimiento/MONITOREO_SEMANAL_01.md`](./docs/seguimiento/MONITOREO_SEMANAL_01.md) |
+
+Los compromisos de la bitácora N.º 1 son exactamente los entregables que aparecen cumplidos en la
+sección 2 de este documento: esa continuidad es la que permite seguir el avance semana a semana.
 
 ---
 *Actualizada cada viernes a las 8:00 p.m. durante la reunión de Cierre y Arranque.*
-*Responsable: Pedro Romero · Commit: `docs: actualiza bitacora semana X`*
+*La mantiene Pedro Romero · Commit: `docs: actualiza bitacora semana X`*
