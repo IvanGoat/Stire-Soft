@@ -25,7 +25,7 @@ export class TutorController {
       throw new BadRequestException('El mensaje no puede estar vacío');
     }
 
-    const studentId = Number(user?.id) || 1;
+    const studentId = user.id;
     const response = await this.tutorService.sendMessage(studentId, rawMessage.trim());
 
     return {

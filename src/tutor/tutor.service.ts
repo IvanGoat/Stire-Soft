@@ -23,7 +23,7 @@ export class TutorService {
   ) {
     const rawApiKey = this.configService.get<string>('OPENAI_API_KEY');
     this.apiKey = rawApiKey ? rawApiKey.trim() : '';
-    this.openAiModel = this.configService.get<string>('OPENAI_MODEL', 'gemini-3.6-flash');
+    this.openAiModel = this.configService.get<string>('OPENAI_MODEL', 'gemini-2.0-flash-001');
     this.openAiRetryCount = this.configService.get<number>('OPENAI_RETRY_COUNT', 3);
     const rawBaseURL = this.configService.get<string>('OPENAI_API_URL', '');
 
@@ -127,7 +127,7 @@ export class TutorService {
     history: Array<{ role: string; content: string }>,
     userMessage: string,
   ): Promise<string> {
-    const model = this.openAiModel || 'gemini-3.6-flash';
+    const model = this.openAiModel || 'gemini-2.0-flash-001';
     const cleanModel = model.replace(/^models\//, '');
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${this.apiKey}`;
 

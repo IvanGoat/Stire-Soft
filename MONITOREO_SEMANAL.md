@@ -11,13 +11,13 @@
 
 ## 👥 1. Estructura del Equipo y Roles
 
-| Integrante | Rol Principal | Horario de Reunión Individual | GitHub User |
+| Integrante | Rol Principal y Responsabilidades del Sprint | Horario de Reunión Individual | GitHub User |
 | :--- | :--- | :--- | :--- |
-| Jeider Gómez | Líder Técnico y Backend | *[por completar]* | @Jeider-Gomez |
-| Jorge Cervantes | Calidad y Tablero | *[por completar]* | @*[por completar]* |
-| José López | Diseño UI/UX | *[por completar]* | @*[por completar]* |
-| Julio Galvis | Diseño Instruccional y Navegación | *[por completar]* | @*[por completar]* |
-| Pedro Romero | Documentación, Bitácora y Pitch | *[por completar]* | @pedrorm20 |
+| **Jeider Gómez** | **Líder Técnico & Backend:** Arquitectura, cierre backend, Tutor IA, Sandbox y setup Nuxt | *[por completar]* | @Jeider-Gomez |
+| **Jorge Cervantes** | **Gestión & Calidad:** Tablero Trello, QA de entregables e Investigación (15 artículos) | *[por completar]* | @*[por completar]* |
+| **José López** | **UI/UX & Comunicación:** Diseño visual, wireframes de vistas y Pitch de avances | *[por completar]* | @*[por completar]* |
+| **Julio Galvis** | **Diseño Instruccional:** MODESEC multi-rol, flujos pedagógicos y navegación | *[por completar]* | @*[por completar]* |
+| **Pedro Romero** | **Documentación & Bitácora:** Gestión de bitácoras, evidencias y actas de cierre | *[por completar]* | @pedrorm20 |
 
 **Reunión de equipo:** viernes 8:00 – 8:40 p.m., videollamada, con los cinco integrantes.
 **Reportes escritos:** martes y jueves, 8:00 p.m., en el grupo del equipo.
@@ -178,8 +178,7 @@ La guía de Semana 03 orienta el desarrollo frontend hacia **Nuxt (Vue 3)**, por
 ---
 
 ### 🟡 RETO 6 — Trello y control del sprint
-
-**Responsable:** Jorge.
+**Responsable:** Jorge Cervantes (Calidad y Gestión).
 
 #### Subtareas
 
@@ -197,14 +196,15 @@ La guía de Semana 03 orienta el desarrollo frontend hacia **Nuxt (Vue 3)**, por
 
 ---
 
-### 🟠 RETO 7 — Respaldo científico
+### 🟠 RETO 7 — Respaldo científico (15 artículos indexados)
+**Responsable:** Jorge Cervantes (Investigación y Calidad).
 
 La guía de Semana 03 solicita 15 artículos indexados distribuidos en tres ejes: 5 pedagógico/cognitivo, 5 arquitectura/software/frontend y 5 GUI/UX/usabilidad. fileciteturn18file1
 
 #### Subtareas
 
 - [ ] Crear `docs/investigacion/`.
-- [ ] Diseñar matriz bibliográfica.
+- [ ] Diseñar matriz bibliográfica (`MATRIZ_ARTICULOS.md`).
 - [ ] Registrar 5 artículos pedagógicos/cognitivos.
 - [ ] Registrar 5 artículos de arquitectura/software/frontend.
 - [ ] Registrar 5 artículos de GUI/UX/usabilidad.
@@ -217,6 +217,7 @@ La guía de Semana 03 solicita 15 artículos indexados distribuidos en tres ejes
 ---
 
 ### 🎤 RETO 8 — Pitch de avances
+**Responsable:** José López (Comunicación y UI/UX).
 
 **Actividad de cierre:** viernes 4 de septiembre.
 
@@ -300,69 +301,62 @@ PITCH ────────────────► cierre y evidencia del
 
 ### Lunes 31
 
-**Objetivo:** establecer la nueva base de diseño y limpiar inconsistencias.
+**Objetivo:** establecer la nueva base de diseño, organizar el tablero y limpiar inconsistencias.
 
-- Reestructuración de MODESEC por roles.
-- Inventario de vistas existentes y nuevas.
-- Corrección de documentación Docker.
-- Auditoría inicial del backend y Tutor IA.
-- Creación/actualización de Trello.
+- **Julio y Jeider:** Inicio de la reestructuración de MODESEC por roles (flujos estudiante/docente/administrador).
+- **Jeider:** Corrección de documentación Docker y verificación del Tutor IA.
+- **Jorge:** Creación y configuración del tablero Trello con las tarjetas del sprint.
+- **Pedro:** Apertura y publicación de la bitácora de la Semana 3.
 
 ### Martes 1
 
-**Objetivo:** definir las vistas de los tres roles.
+**Objetivo:** definir las vistas y la investigación bibliográfica.
 
-- Flujos estudiante/docente/administrador.
-- Mapa de navegación actualizado.
-- Inventario de ventanas.
-- Primeros wireframes/gráficos.
-- Reporte de bloqueo si alguna decisión impide continuar.
+- **Julio:** Definición de navegación y vistas de Docente y Administrador.
+- **José:** Primeros bocetos/wireframes de las nuevas vistas.
+- **Jorge:** Inicio de la búsqueda y sistematización de los 15 artículos indexados.
+- **Pedro:** Verificación de consistencia documental y registro de avances.
 
 ### Miércoles 2
 
-**Objetivo:** consolidar MODESEC y cerrar contratos técnicos.
+**Objetivo:** consolidar MODESEC, avanzar investigación y cerrar contratos técnicos.
 
-- Fichas por ventana.
-- Revisión gráfica.
-- Dependencias API por vista.
-- Auditoría profunda Tutor IA.
-- Decisión final sobre estructura Nuxt.
+- **Julio y José:** Redacción de fichas MODESEC de las nuevas ventanas y gráficos SVG/PNG.
+- **Jorge:** Consolidación de los ejes temáticos en `docs/investigacion/MATRIZ_ARTICULOS.md`.
+- **Jeider:** Diagnóstico de dependencias API por vista y preparación de la estructura base Nuxt 3.
+- **Pedro:** Seguimiento de avances y actualización de compromisos.
 
 ### Jueves 3
 
-**Objetivo:** aprobar MODESEC e iniciar implementación técnica mínima.
+**Objetivo:** aprobar MODESEC, estructurar pitch e iniciar arquitectura Nuxt.
 
-- Revisión cruzada.
-- Aprobación de vistas.
-- Crear nueva base Nuxt.
-- Configurar API/auth.
-- Avanzar integración real del Tutor IA.
-- Pruebas backend.
+- **Equipo (Julio, Jeider, Pedro, Jorge, José):** Revisión cruzada y aprobación formal de MODESEC multi-rol.
+- **Jeider:** Inicialización de `frontend-nuxt/` con layout base y cliente API autenticado.
+- **José:** Estructuración y redacción del guion del pitch de 60 segundos con los avances reales.
+- **Jorge:** Validación final de la matriz de investigación (15 papers) y QA del tablero.
 
 ### Viernes 4
 
-**Objetivo:** demostrar un incremento real y cerrar el sprint.
+**Objetivo:** consolidar evidencias, ensayar pitch y cerrar el sprint.
 
-- QA.
-- Consolidación documental.
-- Verificación Trello.
-- Recopilar evidencias.
-- Preparar y ensayar pitch.
-- Reunión de cierre 8:00 p.m.
+- **José:** Ensayo general del pitch de 60 segundos.
+- **Pedro:** Consolidación final de la bitácora, evidencias y acta de cierre.
+- **Jorge:** Revisión del estado de tarjetas en Trello (Definition of Done cumplido).
+- **Equipo:** Reunión de cierre de sprint (8:00 p.m.).
 
 ---
 
-## 👤 7. Distribución del Equipo
-
-| Integrante | Responsabilidad principal | Subtareas prioritarias |
-|---|---|---|
-| **Jeider** | Liderazgo técnico / Backend | Backend, Tutor IA, sandbox, arquitectura Nuxt, API y decisiones técnicas |
-| **Jorge** | QA / Trello | Tablero, criterios de aceptación, revisión cruzada, QA de MODESEC y frontend |
-| **José** | UI/UX | Vistas de los tres roles, gráficos, fichas visuales, sistema visual |
-| **Julio** | Diseño instruccional | Flujos de usuario, navegación, coherencia pedagógica, contenidos por rol |
-| **Pedro** | Documentación / Pitch | Bitácora, evidencias, investigación, pitch y consolidación documental |
-
-> La asignación puede ajustarse en la reunión si el equipo demuestra una carga desigual, pero ningún integrante debe iniciar una tarea cuya dependencia todavía esté bloqueada.
+## 👤 7. Distribución del Equipo y Asignación de Roles
+ 
+ | Integrante | Rol Principal | Responsabilidades y Subtareas del Sprint |
+ |---|---|---|
+ | **Jeider Gómez** | Líder Técnico & Backend | Arquitectura global, cierre y auditoría de endpoints backend, Tutor IA adaptativo (Gemini/OpenAI), Sandbox (ADR 06), setup inicial de Nuxt 3 y dirección del sprint. |
+ | **Jorge Cervantes** | Calidad, Tablero & Respaldo Científico | **Tablero Trello:** creación, listas, tarjetas y enlaces. **Investigación científica:** búsqueda y sistematización de los 15 artículos indexados (`docs/investigacion/MATRIZ_ARTICULOS.md`). QA cruzado de entregables. |
+ | **José López** | UI/UX & Comunicación | **Pitch de avances:** estructura, redacción del guion de 60s y presentación. Diseño visual, iconografía SVG y wireframes de las vistas MODESEC. |
+ | **Julio Galvis** | Diseño Instruccional & Navegación | Reestructuración de MODESEC por roles (flujos estudiante/docente/admin), diseño pedagógico de unidades, navegación multi-rol y fichas de especificación. |
+ | **Pedro Romero** | Documentación & Bitácora | Gestión y actualización de bitácoras de monitoreo (`MONITOREO_SEMANAL.md`), actas de reunión, consolidación de evidencias y apoyo documental general. |
+ 
+ > **Coordinación del trabajo:** Las actividades troncales de diseño instruccional, ingeniería backend, documentación y arquitectura están lideradas principalmente por **Jeider, Pedro y Julio**, mientras que **Jorge** lidera la gestión operativa en Trello y la investigación bibliográfica, y **José** lidera el diseño de interfaz y la preparación del pitch de avances. Ningún integrante debe iniciar una tarea cuya dependencia técnica o de diseño esté pendiente de aprobación.
 
 ---
 
@@ -380,18 +374,17 @@ Una tarea solo pasa a **HECHO** cuando:
 
 ---
 
-## 🎤 9. Pitch de Cierre
+## 🎤 9. Pitch de Cierre de Sprint
+**Responsable:** José López.
 
-El pitch debe demostrar la evolución del proyecto, no prometer funcionalidades futuras.
+El pitch debe demostrar la evolución real y verificable del proyecto, sin prometer funcionalidades futuras. Se prepara y ensaya el jueves 3 y viernes 4 con base en los entregables aprobados.
 
-Estructura propuesta:
+Estructura de 60 segundos (4 bloques):
 
-1. **Problema:** aprendizaje de programación con retroalimentación tardía/genérica.
-2. **Diseño:** MODESEC reestructurado para los tres roles.
-3. **Tecnología:** backend NestJS fortalecido + nueva arquitectura Vue 3/Nuxt.
-4. **Inteligencia:** Tutor IA funcional y adaptación mediante mastery/SM-2.
-5. **Seguridad:** sandbox aislado y decisión de infraestructura.
-6. **Cierre:** primera pieza implementada o incremento técnico realmente verificable.
+1. **Problema (0–10s):** Enseñanza de algoritmia con retroalimentación tardía y necesidad de rigor pedagógico.
+2. **Diseño MODESEC (10–25s):** Especificación completa y aprobada para los tres roles (Estudiante, Docente, Administrador) y metáforas del taller.
+3. **Tecnología y Seguridad (25–45s):** Backend NestJS con 259 pruebas, Tutor IA adaptativo y Sandbox aislado por proceso sin Docker.
+4. **Incremento Frontend y Cierre (45–60s):** Nueva arquitectura en Vue 3 + Nuxt lista para recibir las vistas aprobadas.
 
 ---
 
