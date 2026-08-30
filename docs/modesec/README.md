@@ -70,7 +70,7 @@ docs/modesec/
 | 3.2 | Guión técnico | Formato 11 | mismo archivo | Por asignar | ✅ Completo |
 | 3.2.3 | Selección y producción de recursos multimedia | — | mismo archivo | Por asignar | 🟡 Inventario hecho, producción pendiente |
 | 3.3 | Ventana estándar | Formato 12 | [`ventanas/3.3_VENTANA_ESTANDAR.md`](ventanas/3.3_VENTANA_ESTANDAR.md) | José | ✅ Completo |
-| 3.3.1 | Fichas de descripción de ventanas (7 categorías) | Formato 13 | [`ventanas/3.3.1_FICHAS_VENTANAS.md`](ventanas/3.3.1_FICHAS_VENTANAS.md) | José | ✅ Completo (6 ventanas) |
+| 3.3.1 | Fichas de descripción de ventanas (7 categorías) | Formato 13 | [`ventanas/3.3.1_FICHAS_VENTANAS.md`](ventanas/3.3.1_FICHAS_VENTANAS.md) | José / Julio / Jeider | ✅ Completo (15 ventanas multi-rol) |
 | 3.3.2 | Guía de metáforas | Formato 14 | [`contenidos/3.3.2_GUIA_METAFORAS.md`](contenidos/3.3.2_GUIA_METAFORAS.md) | Julio | ✅ Completo (12 iconos) |
 | 3.3.3 | Mapa de navegación | Gráfico 2 | [`contenidos/3.3.3_MAPA_NAVEGACION.md`](contenidos/3.3.3_MAPA_NAVEGACION.md) | Julio | ✅ Completo |
 

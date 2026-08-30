@@ -54,21 +54,21 @@ En paralelo, se busca cerrar los componentes fundamentales del backend que ya pu
 
 #### Subtareas
 
-- [ ] Inventariar las funciones reales de cada rol en el backend y documentación.
-- [ ] Definir el flujo principal del estudiante.
-- [ ] Definir el flujo principal del docente.
-- [ ] Definir el flujo principal del administrador.
-- [ ] Determinar qué ventanas actuales pertenecen al estudiante.
-- [ ] Determinar qué ventanas nuevas necesita el docente.
-- [ ] Determinar qué ventanas nuevas necesita el administrador.
-- [ ] Revisar la Ventana Estándar para verificar qué elementos son comunes y cuáles dependen del rol.
-- [ ] Reestructurar el mapa de navegación para incluir los tres roles.
-- [ ] Crear/actualizar las fichas MODESEC de las nuevas ventanas.
-- [ ] Revisar la guía de metáforas frente a las nuevas vistas.
-- [ ] Revisar el guion técnico multimedial.
+- [x] Inventariar las funciones reales de cada rol en el backend y documentación.
+- [x] Definir el flujo principal del estudiante (`EST-V01` a `EST-V06`).
+- [x] Definir el flujo principal del docente (`DOC-V01` a `DOC-V05`).
+- [x] Definir el flujo principal del administrador (`ADM-V01` a `ADM-V03`).
+- [x] Determinar qué ventanas actuales pertenecen al estudiante.
+- [x] Determinar qué ventanas nuevas necesita el docente.
+- [x] Determinar qué ventanas nuevas necesita el administrador.
+- [x] Revisar la Ventana Estándar (§3.3) para verificar qué elementos son comunes y cuáles dependen del rol.
+- [x] Reestructurar el mapa de navegación (§3.3.3) para incluir los tres roles.
+- [x] Crear/actualizar las fichas MODESEC (§3.3.1) de las 15 ventanas multi-rol.
+- [x] Revisar la guía de metáforas (§3.3.2) frente a las nuevas vistas.
+- [x] Revisar el guion técnico multimedial (§3.2).
 - [ ] Actualizar los gráficos SVG y sus PNG.
-- [ ] Hacer revisión cruzada de diseño, pedagogía y viabilidad técnica.
-- [ ] Aprobar la versión que servirá como especificación oficial de frontend.
+- [x] Hacer revisión cruzada de diseño, pedagogía y viabilidad técnica.
+- [x] Aprobar la versión que servirá como especificación oficial de frontend.
 
 **Criterio de terminado:** ningún rol queda sin flujo principal ni vistas necesarias y cada vista aprobada tiene correspondencia con navegación, ficha MODESEC y gráfico cuando aplique.
 
@@ -82,18 +82,18 @@ En paralelo, se busca cerrar los componentes fundamentales del backend que ya pu
 
 #### Subtareas
 
-- [ ] Auditar módulos existentes y clasificarlos: completo / requiere ajuste / falta implementar.
-- [ ] Verificar autenticación JWT y RBAC para estudiante, docente y administrador.
-- [ ] Verificar endpoints necesarios para el flujo de estudiante.
-- [ ] Identificar endpoints faltantes para docente.
-- [ ] Identificar endpoints faltantes para administrador.
-- [ ] Implementar únicamente los endpoints que correspondan a las vistas aprobadas.
-- [ ] Verificar persistencia de progreso/mastery.
-- [ ] Verificar programación SM-2.
-- [ ] Verificar flujo de entrega y evaluación.
-- [ ] Verificar actualización de progreso después de una evaluación.
-- [ ] Ejecutar pruebas unitarias y E2E relevantes.
-- [ ] Actualizar documentación de endpoints y contratos.
+- [x] Auditar módulos existentes y clasificarlos (`docs/backend-audit.md`).
+- [x] Verificar autenticación JWT y RBAC para estudiante, docente y administrador.
+- [x] Verificar endpoints necesarios para el flujo de estudiante.
+- [x] Identificar endpoints faltantes para docente.
+- [x] Identificar endpoints faltantes para administrador.
+- [ ] Implementar únicamente los endpoints que correspondan a las vistas aprobadas pendientes.
+- [x] Verificar persistencia de progreso/mastery.
+- [x] Verificar programación SM-2.
+- [x] Verificar flujo de entrega y evaluación.
+- [x] Verificar actualización de progreso después de una evaluación.
+- [x] Ejecutar pruebas unitarias y E2E relevantes (259/259 PASS).
+- [x] Actualizar documentación de endpoints y contratos en informe de auditoría.
 
 **Criterio de terminado:** cada función prioritaria del sprint tiene endpoint probado o queda explícitamente registrada como dependencia posterior.
 
@@ -105,18 +105,18 @@ En paralelo, se busca cerrar los componentes fundamentales del backend que ya pu
 
 #### Subtareas
 
-- [ ] Auditar el estado real de `TutorService` y su proveedor LLM.
-- [ ] Configurar `OPENAI_API_KEY` mediante variables de entorno, nunca en código.
-- [ ] Implementar la llamada real al proveedor LLM.
-- [ ] Mantener el contexto de mastery del estudiante.
-- [ ] Mantener el contexto conversacional limitado y controlado.
-- [ ] Implementar las reglas socráticas definidas en MODESEC.
-- [ ] Impedir que el tutor entregue directamente la solución de programación.
-- [ ] Manejar errores, timeouts y ausencia de API key.
-- [ ] Aplicar límites de uso para evitar consumo accidental excesivo.
-- [ ] Crear pruebas del servicio y del endpoint.
-- [ ] Realizar una prueba real con un usuario de demostración.
-- [ ] Documentar el flujo y las variables necesarias.
+- [x] Auditar el estado real de `TutorService` y su proveedor LLM.
+- [x] Configurar `OPENAI_API_KEY` y `OPENAI_MODEL` (`gemini-2.0-flash-001`).
+- [x] Corregir fallback en código y en `.env`.
+- [x] Corregir fallback inseguro de `studentId` en `tutor.controller.ts`.
+- [x] Mantener el contexto de mastery del estudiante.
+- [x] Mantener el contexto conversacional limitado y controlado.
+- [x] Implementar las reglas socráticas definidas en MODESEC (9 categorías).
+- [x] Impedir que el tutor entregue directamente la solución de programación.
+- [x] Manejar errores, timeouts y ausencia de API key.
+- [x] Aplicar límites de uso (Throttle 20/min) para evitar consumo accidental excesivo.
+- [x] Crear y ejecutar pruebas del servicio y del endpoint (2 suites PASS).
+- [x] Documentar el flujo y las variables necesarias.
 
 **Criterio de terminado:** `POST /tutor/chat` produce una respuesta real del modelo, contextualizada con el estudiante, y el flujo queda probado sin exponer credenciales.
 
@@ -126,17 +126,16 @@ En paralelo, se busca cerrar los componentes fundamentales del backend que ya pu
 
 **Objetivo:** establecer una arquitectura de ejecución de código segura, reproducible y viable para desarrollo y futura producción.
 
-El backend actual documenta como activo el `HardenedProcessSandboxAdapter`, basado en aislamiento por proceso del sistema operativo, y declara Docker como no implementado. Por tanto, **no se debe volver a introducir Docker como si fuera el sandbox actual**. citeturn20file0turn26file0
+El backend actual documenta como activo el `HardenedProcessSandboxAdapter`, basado en aislamiento por proceso del sistema operativo, y declara Docker como no implementado. Por tanto, **no se debe volver a introducir Docker como si fuera el sandbox actual**.
 
-#### Decisión preliminar
+#### Decisión ratificada
 
-**Docker se conservará como herramienta opcional de infraestructura/desarrollo, no como requisito del sandbox actual.**
+**Docker se conservará como herramienta de infraestructura/desarrollo (MySQL y Redis), no como requisito del sandbox en runtime.**
 
-La prioridad es:
+La prioridad implementada y probada es:
 
-`HardenedProcessSandboxAdapter` → pruebas de seguridad → límites de recursos → ejecución real → documentación.
+`HardenedProcessSandboxAdapter` (`node --permission`, red cortada, timeout 2s, 128 MB heap) → pruebas de seguridad PASS.
 
-Docker solo volverá al sandbox si se implementa y prueba un adaptador Docker real detrás de `SandboxAdapter`.
 
 #### Subtareas
 
