@@ -1,13 +1,11 @@
-# 🚀 Bitácora de Monitoreo y Control N.º 2 — Proyecto: STIRE-Soft
+# 🚀 Bitácora de Monitoreo y Control N.º 3 — Proyecto: STIRE-Soft
 **Curso:** DDSE3 — 2026-2 | **Grupo:** [G1 / G2]
 **Repositorio GitHub:** https://github.com/Jeider-Gomez/Stire-Soft
-**Semana reportada:** 24 – 28 de agosto de 2026 | **Cierre:** hoy viernes 28 de agosto, 8:00 p.m.
-**Estado del Reto 1:** MODESEC Fase II con **4 de 6 piezas cerradas** · bitácora al día · guión del pitch listo
+**Semana reportada:** 31 de agosto – 4 de septiembre de 2026 | **Cierre:** viernes 4 de septiembre, 8:00 p.m.
+**Estado del sprint:** Reestructuración de MODESEC por roles · decisión de Vue 3 + Nuxt · cierre progresivo del backend · definición del sandbox · nueva base frontend · Trello operativo.
 **Tablero Kanban (Trello):** `[pegar aquí el enlace del tablero]`
 
-*STIRE-Soft es un Sistema Tutor Inteligente para la Resolución de Ejercicios: el estudiante entrega
-código, el sistema lo ejecuta de verdad, lo califica y adapta los siguientes ejercicios a su nivel de
-dominio.*
+*STIRE-Soft es un Sistema Tutor Inteligente para la Resolución de Ejercicios: el estudiante entrega código, el sistema lo ejecuta de forma aislada, lo califica y adapta los siguientes ejercicios a su nivel de dominio.*
 
 ---
 
@@ -15,252 +13,430 @@ dominio.*
 
 | Integrante | Rol Principal | Horario de Reunión Individual | GitHub User |
 | :--- | :--- | :--- | :--- |
-| Jeider Gómez | Líder Técnico | *[por completar]* | @Jeider-Gomez |
+| Jeider Gómez | Líder Técnico y Backend | *[por completar]* | @Jeider-Gomez |
 | Jorge Cervantes | Calidad y Tablero | *[por completar]* | @*[por completar]* |
-| José López | Diseño UI/UX — Ventana Estándar | *[por completar]* | @*[por completar]* |
-| Julio Galvis | Diseño Instruccional — Contenidos y Navegación | *[por completar]* | @*[por completar]* |
+| José López | Diseño UI/UX | *[por completar]* | @*[por completar]* |
+| Julio Galvis | Diseño Instruccional y Navegación | *[por completar]* | @*[por completar]* |
 | Pedro Romero | Documentación, Bitácora y Pitch | *[por completar]* | @pedrorm20 |
 
 **Reunión de equipo:** viernes 8:00 – 8:40 p.m., videollamada, con los cinco integrantes.
 **Reportes escritos:** martes y jueves, 8:00 p.m., en el grupo del equipo.
-**Metodología completa:** [`docs/05_METODOLOGIA_Y_EQUIPO.md`](./docs/05_METODOLOGIA_Y_EQUIPO.md)
+**Metodología:** [`docs/05_METODOLOGIA_Y_EQUIPO.md`](./docs/05_METODOLOGIA_Y_EQUIPO.md)
 
 ---
 
-## 🎯 2. Avances del Sprint / Semana Actual
+## 🎯 2. Objetivo del Sprint / Semana Actual
 
-### 2.1 Entregables Cumplidos
+El objetivo de esta semana es **convertir el diseño MODESEC en una especificación completa y aprobada para los tres roles del sistema**, y utilizarla como fuente para iniciar de forma ordenada la nueva implementación frontend.
 
-#### 🔧 Jeider Gómez · Líder Técnico
+En paralelo, se busca cerrar los componentes fundamentales del backend que ya pueden considerarse funcionales, activar el Tutor IA real y dejar definida una estrategia viable para el sandbox de ejecución de código.
 
-- [x] **Ola 2 de remediación del backend, cerrada.** Suite completa en verde: **36/36 suites ·
-  215/215 pruebas**. Cobertura de sentencias del **26.88 % al 55.66 %**. El sistema es reproducible
-  desde cero y verificado (`npm ci → migration:run → db:seed:demo → build → start`).
-- [x] **Verificación ruta por ruta de los endpoints citados en las fichas de ventana.** Se leyeron
-  los `@Controller` y decoradores en `src/`, no la documentación. De las 7 rutas citadas en la
-  categoría 7 de las fichas V-01 a V-06: **1 existe tal cual, 2 existen con otra forma y 4 no
-  existen**. Documentado con archivo y línea en `docs/modesec/FASE_II_DISENO_MULTIMEDIAL.md` §5.1.
-  **No se modificó ninguna ficha de diseño para que encajara con el código:** el diseño manda, y las
-  rutas faltantes quedan declaradas como contrato de la Fase III.
-- [x] **Consolidación del borrador maestro de MODESEC Fase II**
-  (`docs/modesec/FASE_II_DISENO_MULTIMEDIAL.md`), tomando como norma la guía `DDS3-01.pdf` §3.
-- [x] **Reorganización documental del repositorio** (5 commits, `2b2dc16` → `27c224a`): se fusionaron
-  `CHANGELOG.md` y `RELEASE_NOTES.md`; se renombraron `00_VISION_FUNCIONAL.md` y
-  `ADR_DECISIONES_ARQUITECTURA.md` (al que se le añadió el ADR-08 de la cola en línea, publicado sin
-  payloads de exploit); se creó `docs/_archivo/` con los planes ya consumidos; se eliminaron 3
-  scripts obsoletos.
-- [x] **Auditoría de veracidad documental.** Se encontraron **12 afirmaciones falsas sobre Docker**
-  repartidas por `README.md`, `01_ARQUITECTURA`, `02_FLUJOS`, `04_ESTANDARES`, `00_VISION_FUNCIONAL`
-  y `docs/README.md`; **un log de ejemplo fabricado** en `02_FLUJOS_Y_OPERACIONES.md:245-246`; y un
-  bloque de resultados de pruebas desactualizado en `README.md:120-124`. **Hallazgo registrado, aún
-  no corregido** — pasa a la semana siguiente como prioridad máxima (ver §3).
-- [x] **Confirmado que el proyecto tiene frontend:** `frontend/` con Next 16.2.3 y React 19.2.4. Su
-  estado funcional todavía no está diagnosticado.
+### 2.1 Resultados esperados
 
-#### ✅ Jorge Cervantes · Calidad y Tablero
-
-> Las tres tareas de esta semana cierran hoy viernes; se confirman en la reunión de la noche.
-
-- [⚙️] **Tablero Kanban en Trello** con las cuatro listas (Backlog · Esta semana · En curso · Hecho)
-  y las tarjetas de la semana repartidas.
-- [⚙️] **Revisión de las 6 fichas de ventana contra las 7 categorías MODESEC.** Lo que se verifica:
-  que ninguna categoría quedó en blanco y que los "No aplica" llevan su justificación pedagógica
-  escrita, que es el criterio bloqueante de la guía.
-- [⚙️] **Checklist de verificación de los tres entregables** contra la rúbrica del docente, aplicado
-  antes de dar por buena cada pieza. Parte de este trabajo viene de la semana anterior, cuando
-  extrajo de la guía los criterios de aceptación de cada entregable.
-
-#### 🎨 José López · Diseño UI/UX — Ventana Estándar
-
-- [x] **§3.3 Ventana Estándar.** Maqueta con las cinco secciones funcionales (Header, Menú,
-  Contenido, Acciones, Footer) y la tabla donde **cada sección justifica su función pedagógica**, no
-  su apariencia. → `docs/modesec/ventanas/3.3_VENTANA_ESTANDAR.md`
-- [x] **§3.3.1 Fichas de Descripción de Ventana.** **Seis fichas (V-01 a V-06)** con las 7 categorías
-  MODESEC completas: Imagen · Nombre · Texto · Audio · Video · Animación · Acciones del estudiante.
-  → `docs/modesec/ventanas/3.3.1_FICHAS_VENTANAS.md`
-
-#### 📐 Julio Galvis · Diseño Instruccional — Contenidos y Navegación
-
-- [x] **§3.1 Diagrama de Contenidos.** Tres módulos (Fundamentos y representación → Control de flujo
-  → Datos elementales y modularidad), **13 temas**, cada uno con su resultado de aprendizaje en verbo
-  observable — ninguno empieza por "conocer" o "entender". Incluye las reglas de progresión
-  enlazadas con el motor de dominio: desbloqueo al 70 %, dominio al 85 %, tutoría proactiva por
-  debajo del 60 %. → `docs/modesec/contenidos/3.1_DIAGRAMA_CONTENIDOS.md`
-- [x] **§3.3.2 Guía de Metáforas.** Metáfora rectora única — **"el taller del algoritmista"** — con
-  tabla de equivalencias y las consecuencias visuales que se derivan de ella.
-  → `docs/modesec/contenidos/3.3.2_GUIA_METAFORAS.md`
-- [⚙️] **§3.3.3 Mapa de Navegación — iniciado.** El archivo existe con las 6 ventanas ya declaradas
-  como nodos; **falta la tabla de transiciones** (origen, destino, disparador, reversibilidad).
-  → `docs/modesec/contenidos/3.3.3_MAPA_NAVEGACION.md`
-
-#### 📝 Pedro Romero · Documentación, Bitácora y Pitch
-
-- [x] **Bitácora publicada en la raíz del repositorio** y mantenida por él desde GitHub —
-  `commit 78f47dc`, 27 de agosto.
-- [x] **Guión del pitch en inglés actualizado.** 138 palabras en los cuatro bloques (Hook · Problem ·
-  Solution & Value Prop · Tech Stack & CTA), con la afirmación sobre Docker corregida y la guía de
-  pronunciación fonética extraída del material del docente. → `docs/pitch/PITCH_RETO_01_EN.md`
-- [x] **Evidencia del prompt ROCAS** del pitch con sus iteraciones (ver §2.2).
-
-### 2.2 Evidencia de Ingeniería de Prompts (ROCAS + MOCAVI / MODESEC)
-
-**Prompt 01 — Guión del Pitch en Inglés (60 segundos)** — Pedro Romero
-
-* **Prompt Utilizado:**
-```
-[ROL] Actúa como un experto consultor de comunicación técnica en inglés y coach de pitch de
-startups EdTech.
-[OBJETIVO] Generar un guión de Elevator Pitch en inglés de exactamente 60 segundos (130–140
-palabras) para presentar STIRE-Soft, con guía de pronunciación fonética y consejos de oratoria.
-[CONTEXTO] Somos estudiantes de Informática Educativa de la Universidad de Córdoba (DDSE3).
-STIRE-Soft es un sistema tutor inteligente para la resolución de ejercicios de programación.
-Resuelve el problema: el estudiante que aprende a programar recibe retroalimentación tardía y
-genérica, repite ejercicios que ya domina y deja sin consolidar los que no. Aplicamos el modelo
-MOCAVI, aprendizaje por dominio y repetición espaciada.
-[ACCIÓN] 1. Redactar el guión en 4 bloques: Hook (0-10s), Problem (10-25s), Solution & Value
-Prop (25-45s), Tech Stack & CTA (45-60s). 2. Dar la guía fonética de los términos difíciles y 3
-pautas de lenguaje corporal.
-[SALIDA] Documento Markdown con el guión en bloque de código y tabla fonética.
-```
-* **Herramienta IA:** *[indicar: ChatGPT / Claude / Gemini]*
-* **Iteraciones realizadas:**
-  1. La primera salida dio **165 palabras** y se pasaba de los 60 segundos → se agregó al prompt un
-     límite duro de palabras por cada bloque.
-  2. El vocabulario técnico era genérico ("learning app") → se exigió usar los términos propios del
-     proyecto: *mastery learning*, *spaced repetition*, *sandboxed code execution*.
-  3. El guión afirmaba que el sistema usa **Docker**, y no lo usa → se corrigió a la arquitectura
-     real: sandbox propio con aislamiento de proceso del sistema operativo, sin Docker.
-* **Resultado Obtenido:** guión final de 138 palabras en 4 bloques + tabla fonética,
-  en `docs/pitch/PITCH_RETO_01_EN.md`.
-
-**Prompt 02 — Ventana Estándar y Diseño Multimedial (MODESEC Fase II)** — José López y Julio Galvis
-
-* **Prompt Utilizado:** adaptación del Prompt 02 oficial de la guía al contexto real de STIRE
-  (nivel educativo: universitario, 3.er semestre; competencia: resolución de problemas mediante
-  algoritmia y programación).
-* **Herramienta IA:** *[indicar]*
-* **Iteraciones realizadas:**
-  1. La primera Ventana Estándar describía la interfaz **visualmente** pero no explicaba para qué
-     sirve pedagógicamente cada sección → se reformuló la acción del prompt para exigir, por cada
-     sección, *qué función cumple en el aprendizaje*, no solo *cómo se ve*.
-  2. Las fichas dejaban vacías las categorías de audio y video → se exigió que **ninguna categoría
-     quede en blanco**: si no aplica, se escribe "No aplica" con su justificación.
-* **Resultado Obtenido:** las cuatro piezas cerradas de la Fase II, en `docs/modesec/`.
-
-### 2.3 Estado de MODESEC Fase II — 4 de 6 piezas cerradas
-
-| § | Pieza | Quién la escribe | Estado |
-|---|---|---|---|
-| 3.1 | Diagrama de Contenidos | Julio Galvis | ✅ cerrada |
-| 3.2 | Guión Técnico Multimedial | *por asignar* | ❌ no iniciada — requiere las fichas como insumo, y ya las tiene |
-| 3.3 | Ventana Estándar | José López | ✅ cerrada |
-| 3.3.1 | Fichas de Ventana (7 categorías) | José López | ✅ cerrada — 6 ventanas |
-| 3.3.2 | Guía de Metáforas | Julio Galvis | ✅ cerrada |
-| 3.3.3 | Mapa de Navegación | Julio Galvis | ⚙️ iniciada — nodos definidos, falta la tabla de transiciones |
+1. MODESEC reestructurado para cubrir **Estudiante, Docente y Administrador**.
+2. Vistas, navegación y responsabilidades de cada rol definidas antes de implementar frontend.
+3. Gráficos y fichas revisados, corregidos y aprobados como especificación de implementación.
+4. Decisión formal: **Vue 3 + Nuxt** para el nuevo frontend.
+5. Frontend experimental Next.js/React congelado como prueba histórica y sin nuevas funcionalidades.
+6. Backend auditado para identificar qué módulos pueden declararse cerrados y qué endpoints faltan para las vistas aprobadas.
+7. Tutor IA conectado a un proveedor LLM real, con configuración segura y pruebas.
+8. Sandbox documentado con una decisión realista de infraestructura; Docker no se considera requisito del sandbox actual.
+9. Tablero Trello actualizado con tareas, subtareas, responsables, dependencias y criterios de terminado.
+10. Pitch de avances preparado al cierre de la semana exclusivamente con evidencia verificable.
 
 ---
 
-## ⚠️ 3. Cuellos de Botella y Apoyo Requerido
+## 🧩 3. Retos y Actividades del Sprint
 
-* **Riesgos / Bloqueos:**
+### 🔵 RETO 1 — Reestructuración y cierre de MODESEC por roles
 
-  1. **La documentación afirma que el sistema usa Docker, y no lo usa.** Son 12 afirmaciones falsas
-     repartidas por el `README.md` y los documentos núcleo, más **un log de ejemplo fabricado**
-     (`02_FLUJOS_Y_OPERACIONES.md:245-246`) que presenta como real una salida de consola que nunca
-     ocurrió: cita un servicio inexistente, un contenedor de Python y un flujo que el sistema no
-     ejecuta. **Es el riesgo más grave que tiene el proyecto ahora mismo**, y no es técnico sino de
-     credibilidad: un jurado que lea ese log y luego revise el código deja de creerle al resto de la
-     documentación, incluida la parte que sí es cierta. Corrección programada para el lunes 31.
-     *La bitácora y el pitch ya dicen "sin Docker": están correctos.*
+**Objetivo:** ampliar la especificación actual para que represente las experiencias completas de los tres tipos de usuario: **estudiante, docente y administrador**.
 
-  2. **Cuatro de los siete endpoints citados en las fichas de ventana no existen todavía.** Ya está
-     verificado y documentado con evidencia (§5.1 del documento de Fase II). No obliga a cambiar el
-     diseño — el diseño manda —, pero define el trabajo de backend de la Fase III.
+#### Subtareas
 
-  3. **El frontend existe pero no está diagnosticado.** Hay `frontend/` con Next 16.2.3 y React
-     19.2.4, y el pitch lo menciona. Dado que en este proyecto varias cosas documentadas resultaron
-     ser simulaciones, **hay que saber qué hay ahí de verdad antes de la sustentación, no durante**.
+- [ ] Inventariar las funciones reales de cada rol en el backend y documentación.
+- [ ] Definir el flujo principal del estudiante.
+- [ ] Definir el flujo principal del docente.
+- [ ] Definir el flujo principal del administrador.
+- [ ] Determinar qué ventanas actuales pertenecen al estudiante.
+- [ ] Determinar qué ventanas nuevas necesita el docente.
+- [ ] Determinar qué ventanas nuevas necesita el administrador.
+- [ ] Revisar la Ventana Estándar para verificar qué elementos son comunes y cuáles dependen del rol.
+- [ ] Reestructurar el mapa de navegación para incluir los tres roles.
+- [ ] Crear/actualizar las fichas MODESEC de las nuevas ventanas.
+- [ ] Revisar la guía de metáforas frente a las nuevas vistas.
+- [ ] Revisar el guion técnico multimedial.
+- [ ] Actualizar los gráficos SVG y sus PNG.
+- [ ] Hacer revisión cruzada de diseño, pedagogía y viabilidad técnica.
+- [ ] Aprobar la versión que servirá como especificación oficial de frontend.
 
-  4. **Decisión pendiente sobre la animación de trazado de escritorio (ficha V-02).** Es la pieza de
-     mayor valor pedagógico del diseño y también la de mayor esfuerzo. **Recomendación:** si el
-     tiempo aprieta, degradarla a trazado estático tabulado, **nunca eliminarla** — sin ella la
-     unidad teórica queda en texto plano. Se decide en equipo en el cierre del viernes 28.
+**Criterio de terminado:** ningún rol queda sin flujo principal ni vistas necesarias y cada vista aprobada tiene correspondencia con navegación, ficha MODESEC y gráfico cuando aplique.
 
-  5. **La bitácora tiene dos manos escribiendo.** Pedro la edita desde la web de GitHub y el trabajo
-     técnico también la toca. **Regla adoptada:** la escribe Pedro; nadie más la
-     reescribe entera, y cualquier añadido se hace después de un `git pull`. Sin esa regla, el
-     entregable que califica el docente es justo el que se puede perder en un conflicto.
-
-* **Ayuda del Docente** *(preguntas para la clase de HOY, viernes 28, 10:00 – 12:00)*:
-
-  1. La **Ventana Estándar**: ¿se espera una única maqueta modelo que represente el estándar visual
-     del sistema, o una maqueta por cada tipo de ventana?
-  2. En las **7 categorías** (Imagen, Nombre de ventana, Texto, Audio, Video, Animación, Acciones):
-     ¿es válido declarar "No aplica" con justificación pedagógica cuando la ventana no contempla
-     audio o video?
-  3. El **pitch de 60 segundos**: ¿lo sustenta un solo integrante o se espera que los cinco
-     intervengan repartiéndose los cuatro bloques?
+**Dependencia:** esta actividad bloquea el desarrollo de nuevas vistas frontend.
 
 ---
 
-## 🎯 4. Acta del Cierre — hoy viernes 28 de agosto, 8:00 p.m.
+### 🟢 RETO 2 — Cierre progresivo del Backend
 
-> Se diligencia en la reunión de esta noche, con los cinco integrantes. Este bloque se completa y
-> se sube antes de las 9:00 p.m.
+**Objetivo:** dejar de considerar el backend como una colección de pruebas y llevarlo a un estado funcional alineado con MODESEC.
 
-```
-Asistencia: Jeider __ · Jorge __ · José __ · Julio __ · Pedro __
+#### Subtareas
 
-CERRADAS ESTA SEMANA: §3.1 · §3.3 · §3.3.1 · §3.3.2 · Ola 2 del backend ·
-                      verificación de endpoints
+- [ ] Auditar módulos existentes y clasificarlos: completo / requiere ajuste / falta implementar.
+- [ ] Verificar autenticación JWT y RBAC para estudiante, docente y administrador.
+- [ ] Verificar endpoints necesarios para el flujo de estudiante.
+- [ ] Identificar endpoints faltantes para docente.
+- [ ] Identificar endpoints faltantes para administrador.
+- [ ] Implementar únicamente los endpoints que correspondan a las vistas aprobadas.
+- [ ] Verificar persistencia de progreso/mastery.
+- [ ] Verificar programación SM-2.
+- [ ] Verificar flujo de entrega y evaluación.
+- [ ] Verificar actualización de progreso después de una evaluación.
+- [ ] Ejecutar pruebas unitarias y E2E relevantes.
+- [ ] Actualizar documentación de endpoints y contratos.
 
-POR CONFIRMAR HOY (Jorge): tablero en Trello · revisión de las 6 fichas ·
-                      checklist contra la rúbrica
+**Criterio de terminado:** cada función prioritaria del sprint tiene endpoint probado o queda explícitamente registrada como dependencia posterior.
 
-NO CERRADAS: §3.3.3 Mapa de Navegación — falta la tabla de transiciones — pasa al 1 de sep
+---
 
-DECISIÓN PENDIENTE — animación de trazado de escritorio (ficha V-02):
-   [ ] Se produce completa    [ ] Se degrada a trazado estático tabulado
-   Motivo: ______________________________________________
+### 🤖 RETO 3 — Tutor Inteligente funcional
 
-RESPUESTAS DEL DOCENTE (clase de las 10:00 a.m.):
-   1. Ventana Estándar, ¿una maqueta modelo o una por tipo de ventana? → ______
-   2. "No aplica" justificado en las 7 categorías, ¿es válido?          → ______
-   3. Pitch de 60 s, ¿lo sustenta uno o los cinco?                      → ______
+**Objetivo:** pasar del placeholder/mock a una integración real del Tutor IA.
 
-ACUERDO DE LA RETRO: ______________________________________________
+#### Subtareas
+
+- [ ] Auditar el estado real de `TutorService` y su proveedor LLM.
+- [ ] Configurar `OPENAI_API_KEY` mediante variables de entorno, nunca en código.
+- [ ] Implementar la llamada real al proveedor LLM.
+- [ ] Mantener el contexto de mastery del estudiante.
+- [ ] Mantener el contexto conversacional limitado y controlado.
+- [ ] Implementar las reglas socráticas definidas en MODESEC.
+- [ ] Impedir que el tutor entregue directamente la solución de programación.
+- [ ] Manejar errores, timeouts y ausencia de API key.
+- [ ] Aplicar límites de uso para evitar consumo accidental excesivo.
+- [ ] Crear pruebas del servicio y del endpoint.
+- [ ] Realizar una prueba real con un usuario de demostración.
+- [ ] Documentar el flujo y las variables necesarias.
+
+**Criterio de terminado:** `POST /tutor/chat` produce una respuesta real del modelo, contextualizada con el estudiante, y el flujo queda probado sin exponer credenciales.
+
+---
+
+### 🛡️ RETO 4 — Sandbox y decisión de Docker
+
+**Objetivo:** establecer una arquitectura de ejecución de código segura, reproducible y viable para desarrollo y futura producción.
+
+El backend actual documenta como activo el `HardenedProcessSandboxAdapter`, basado en aislamiento por proceso del sistema operativo, y declara Docker como no implementado. Por tanto, **no se debe volver a introducir Docker como si fuera el sandbox actual**. citeturn20file0turn26file0
+
+#### Decisión preliminar
+
+**Docker se conservará como herramienta opcional de infraestructura/desarrollo, no como requisito del sandbox actual.**
+
+La prioridad es:
+
+`HardenedProcessSandboxAdapter` → pruebas de seguridad → límites de recursos → ejecución real → documentación.
+
+Docker solo volverá al sandbox si se implementa y prueba un adaptador Docker real detrás de `SandboxAdapter`.
+
+#### Subtareas
+
+- [ ] Corregir las menciones documentales que presentan Docker como tecnología activa.
+- [ ] Mantener `hardened` como modo funcional por defecto.
+- [ ] Verificar que el sandbox siga ejecutando código real con límites de tiempo, memoria, red y procesos.
+- [ ] Evaluar Docker como segunda capa/aislamiento futuro, no como requisito inmediato.
+- [ ] Documentar requisitos de CPU, RAM y almacenamiento del sandbox.
+- [ ] Definir si el entorno de producción necesitará un worker independiente.
+- [ ] Documentar qué partes pueden ejecutarse en Vercel y cuáles no deben depender de Vercel Functions.
+
+**Criterio de terminado:** existe una decisión de infraestructura documentada y un flujo de ejecución que puede reproducirse sin depender de Docker.
+
+---
+
+### 🟣 RETO 5 — Nuevo Frontend con Vue 3 + Nuxt
+
+**Decisión:** el frontend experimental actual basado en Next.js/React se congela y no recibe nuevas funcionalidades. Se conserva únicamente como referencia histórica hasta realizar la migración o extracción de cualquier componente que realmente tenga valor.
+
+La guía de Semana 03 orienta el desarrollo frontend hacia **Nuxt (Vue 3)**, por lo que esta será la base de la nueva implementación. fileciteturn18file0turn18file2
+
+#### Subtareas
+
+- [ ] Crear la nueva aplicación Nuxt 3 + Vue 3.
+- [ ] Configurar TypeScript.
+- [ ] Definir estructura de carpetas.
+- [ ] Definir layout general.
+- [ ] Definir sistema de navegación por rol.
+- [ ] Definir manejo de autenticación JWT.
+- [ ] Definir cliente HTTP/API.
+- [ ] Definir componentes UI reutilizables.
+- [ ] Definir variables de entorno.
+- [ ] Configurar linting/formateo.
+- [ ] Crear únicamente la estructura base, sin implementar todas las vistas.
+- [ ] Esperar la aprobación MODESEC para construir las vistas definitivas.
+
+**Criterio de terminado:** el proyecto Nuxt inicia, compila y tiene una arquitectura base preparada para implementar las vistas aprobadas.
+
+---
+
+### 🟡 RETO 6 — Trello y control del sprint
+
+**Responsable:** Jorge.
+
+#### Subtareas
+
+- [ ] Crear/confirmar tablero.
+- [ ] Listas: BACKLOG / ESTA SEMANA / EN CURSO / EN REVISIÓN / BLOQUEADO / HECHO.
+- [ ] Etiquetas por área.
+- [ ] Crear tarjetas desde este documento.
+- [ ] Dividir cada tarjeta en checklist.
+- [ ] Asignar responsable.
+- [ ] Registrar dependencias.
+- [ ] Aplicar Definition of Done.
+- [ ] Registrar bloqueos.
+- [ ] Publicar enlace en la bitácora.
+- [ ] Mantener máximo una tarea activa por integrante cuando sea posible.
+
+---
+
+### 🟠 RETO 7 — Respaldo científico
+
+La guía de Semana 03 solicita 15 artículos indexados distribuidos en tres ejes: 5 pedagógico/cognitivo, 5 arquitectura/software/frontend y 5 GUI/UX/usabilidad. fileciteturn18file1
+
+#### Subtareas
+
+- [ ] Crear `docs/investigacion/`.
+- [ ] Diseñar matriz bibliográfica.
+- [ ] Registrar 5 artículos pedagógicos/cognitivos.
+- [ ] Registrar 5 artículos de arquitectura/software/frontend.
+- [ ] Registrar 5 artículos de GUI/UX/usabilidad.
+- [ ] Verificar DOI/indexación.
+- [ ] Registrar objetivo, metodología, resultados y aporte a STIRE.
+- [ ] Relacionar los artículos con decisiones de diseño.
+
+**Criterio de terminado:** 15 artículos verificables y trazables a decisiones concretas del proyecto.
+
+---
+
+### 🎤 RETO 8 — Pitch de avances
+
+**Actividad de cierre:** viernes 4 de septiembre.
+
+No se desarrolla al comienzo del sprint.
+
+#### Subtareas
+
+- [ ] Recopilar avances reales.
+- [ ] Seleccionar únicamente resultados demostrables.
+- [ ] Capturar evidencia.
+- [ ] Preparar guion.
+- [ ] Preparar material visual.
+- [ ] Ensayar.
+- [ ] Cronometrar.
+- [ ] Ajustar.
+- [ ] Presentar.
+
+El pitch no debe afirmar que una funcionalidad existe si solamente está documentada.
+
+---
+
+## 🔗 4. Dependencias del Sprint
+
+```text
+REESTRUCTURAR MODESEC POR ROLES
+        │
+        ├──────────────► APROBAR VISTAS Y NAVEGACIÓN
+        │                         │
+        │                         ▼
+        │                 ARQUITECTURA FRONTEND
+        │                         │
+        │                         ▼
+        │                 NUEVA BASE NUXT
+        │                         │
+        │                         ▼
+        │                  PRIMERA VISTA
+        │                         │
+        │                         ▼
+        │                    INTEGRACIÓN
+        │
+        ├──────────────► ENDPOINTS BACKEND NECESARIOS
+        │
+        └──────────────► REVISIÓN DE TUTOR / SANDBOX
+
+TRELLO ───────────────► seguimiento de todos los bloques
+INVESTIGACIÓN ────────► respaldo de decisiones
+PITCH ────────────────► cierre y evidencia del sprint
 ```
 
 ---
 
-## 📌 5. Compromisos para la Semana Siguiente (31 de agosto – 4 de septiembre · semana autónoma)
+## 📊 5. Priorización
 
-| Compromiso | Quién | Fecha |
+### 🔥 P0 — Obligatorio
+
+1. Reestructuración MODESEC para estudiante/docente/administrador.
+2. Aprobación de vistas y navegación.
+3. Decisión/documentación Vue 3 + Nuxt.
+4. Cierre de inconsistencias críticas de documentación Docker.
+5. Auditoría y cierre funcional prioritario del backend.
+6. Tutor IA real.
+7. Trello operativo.
+
+### 🟡 P1 — Importante
+
+8. Nueva base Nuxt compilando.
+9. Primer flujo frontend basado en MODESEC aprobado.
+10. Matriz de 15 artículos.
+11. Definición de estrategia de despliegue.
+
+### 🟢 P2 — Posterior
+
+12. Editor avanzado de código.
+13. Integración completa del sandbox como infraestructura independiente si llega a ser necesaria.
+14. Vistas secundarias no indispensables para el primer flujo.
+15. Optimización avanzada.
+
+---
+
+## 🗓️ 6. Plan de Trabajo — 31 de agosto al 4 de septiembre
+
+### Lunes 31
+
+**Objetivo:** establecer la nueva base de diseño y limpiar inconsistencias.
+
+- Reestructuración de MODESEC por roles.
+- Inventario de vistas existentes y nuevas.
+- Corrección de documentación Docker.
+- Auditoría inicial del backend y Tutor IA.
+- Creación/actualización de Trello.
+
+### Martes 1
+
+**Objetivo:** definir las vistas de los tres roles.
+
+- Flujos estudiante/docente/administrador.
+- Mapa de navegación actualizado.
+- Inventario de ventanas.
+- Primeros wireframes/gráficos.
+- Reporte de bloqueo si alguna decisión impide continuar.
+
+### Miércoles 2
+
+**Objetivo:** consolidar MODESEC y cerrar contratos técnicos.
+
+- Fichas por ventana.
+- Revisión gráfica.
+- Dependencias API por vista.
+- Auditoría profunda Tutor IA.
+- Decisión final sobre estructura Nuxt.
+
+### Jueves 3
+
+**Objetivo:** aprobar MODESEC e iniciar implementación técnica mínima.
+
+- Revisión cruzada.
+- Aprobación de vistas.
+- Crear nueva base Nuxt.
+- Configurar API/auth.
+- Avanzar integración real del Tutor IA.
+- Pruebas backend.
+
+### Viernes 4
+
+**Objetivo:** demostrar un incremento real y cerrar el sprint.
+
+- QA.
+- Consolidación documental.
+- Verificación Trello.
+- Recopilar evidencias.
+- Preparar y ensayar pitch.
+- Reunión de cierre 8:00 p.m.
+
+---
+
+## 👤 7. Distribución del Equipo
+
+| Integrante | Responsabilidad principal | Subtareas prioritarias |
 |---|---|---|
-| Corregir las 12 afirmaciones falsas sobre Docker y **eliminar el log fabricado** de `02_FLUJOS` | Jeider Gómez | lun 31 ago |
-| Actualizar el bloque de resultados de pruebas del `README.md` a la corrida vigente (36 suites / 215 pruebas) | Jeider Gómez | lun 31 ago |
-| **§3.3.3 Mapa de Navegación:** completar la tabla de transiciones y cerrar la pieza | Julio Galvis | mar 1 sep |
-| Diagnóstico del `frontend/`: qué rutas son reales, si consume la API o usa datos simulados, si compila | Jeider Gómez | mié 2 sep |
-| **§3.2 Guión Técnico Multimedial** (formatos 10 y 11 de la guía) | José López y Julio Galvis | jue 3 sep |
-| Revisión final de las 6 piezas de MODESEC contra la rúbrica | Jorge Cervantes | jue 3 sep |
-| Captura del tablero de Trello para adjuntar a la bitácora | Jorge Cervantes | vie 4 sep |
-| Ensayo cronometrado del pitch, segunda pasada | Los 5 | vie 4 sep |
-| Bitácora de cierre del Reto 1 | Pedro Romero | vie 4 sep |
+| **Jeider** | Liderazgo técnico / Backend | Backend, Tutor IA, sandbox, arquitectura Nuxt, API y decisiones técnicas |
+| **Jorge** | QA / Trello | Tablero, criterios de aceptación, revisión cruzada, QA de MODESEC y frontend |
+| **José** | UI/UX | Vistas de los tres roles, gráficos, fichas visuales, sistema visual |
+| **Julio** | Diseño instruccional | Flujos de usuario, navegación, coherencia pedagógica, contenidos por rol |
+| **Pedro** | Documentación / Pitch | Bitácora, evidencias, investigación, pitch y consolidación documental |
 
-**Congelación del Reto 1:** viernes 4 de septiembre, 8:00 p.m. — después solo se corrige forma.
-**Sustentación:** martes 8 de septiembre, clase presencial.
+> La asignación puede ajustarse en la reunión si el equipo demuestra una carga desigual, pero ningún integrante debe iniciar una tarea cuya dependencia todavía esté bloqueada.
 
 ---
 
-## 🗓️ 6. Bitácoras Anteriores
+## 🧪 8. Definition of Done del Sprint
+
+Una tarea solo pasa a **HECHO** cuando:
+
+- [ ] Está implementada o documentada según corresponda.
+- [ ] Tiene evidencia.
+- [ ] Está en GitHub.
+- [ ] Fue revisada por la persona responsable de QA cuando corresponda.
+- [ ] No contradice MODESEC.
+- [ ] Tiene sus dependencias resueltas.
+- [ ] Está registrada en Trello.
+
+---
+
+## 🎤 9. Pitch de Cierre
+
+El pitch debe demostrar la evolución del proyecto, no prometer funcionalidades futuras.
+
+Estructura propuesta:
+
+1. **Problema:** aprendizaje de programación con retroalimentación tardía/genérica.
+2. **Diseño:** MODESEC reestructurado para los tres roles.
+3. **Tecnología:** backend NestJS fortalecido + nueva arquitectura Vue 3/Nuxt.
+4. **Inteligencia:** Tutor IA funcional y adaptación mediante mastery/SM-2.
+5. **Seguridad:** sandbox aislado y decisión de infraestructura.
+6. **Cierre:** primera pieza implementada o incremento técnico realmente verificable.
+
+---
+
+## 📋 10. Acta de Cierre del Sprint
+
+> Se diligencia el viernes 4 de septiembre, 8:00 p.m.
+
+**Asistencia:** Jeider __ · Jorge __ · José __ · Julio __ · Pedro __
+
+**MODESEC:** ______________________________________________
+
+**Backend:** ______________________________________________
+
+**Tutor IA:** ______________________________________________
+
+**Sandbox/Docker:** ________________________________________
+
+**Frontend Nuxt:** __________________________________________
+
+**Trello:** _________________________________________________
+
+**Investigación:** __________________________________________
+
+**Pitch:** __________________________________________________
+
+**Acuerdo de retrospectiva:** ________________________________
+
+---
+
+## 📌 11. Compromisos para la Semana Siguiente
+
+Esta sección se completa al cierre del viernes 4, tomando únicamente tareas que hayan quedado realmente pendientes y que estén respaldadas por la retrospectiva.
+
+---
+
+## 🗂️ 12. Bitácoras Anteriores
 
 | N.º | Semana | Documento |
 |---|---|---|
-| 1 | 17 – 21 de agosto de 2026 | [`docs/seguimiento/MONITOREO_SEMANAL_01.md`](./docs/seguimiento/MONITOREO_SEMANAL_01.md) |
+| 1 | 17 – 21 de agosto de 2026 | [`MONITOREO_SEMANAL_01.md`](./seguimiento/MONITOREO_SEMANAL_01.md) |
+| 2 | 24 – 28 de agosto de 2026 | [`MONITOREO_SEMANAL_02.md`](./seguimiento/MONITOREO_SEMANAL_02.md) |
 
-Los compromisos de la bitácora N.º 1 son exactamente los entregables que aparecen cumplidos en la
-sección 2 de este documento: esa continuidad es la que permite seguir el avance semana a semana.
+Los documentos anteriores se conservan como historial. La semana en curso siempre vive en `MONITOREO_SEMANAL.md` en la raíz.
 
 ---
-*Actualizada cada viernes a las 8:00 p.m. durante la reunión de Cierre y Arranque.*
-*La mantiene Pedro Romero · Commit: `docs: actualiza bitacora semana X`*
+
+*Bitácora N.º 3 · Semana del 31 de agosto al 4 de septiembre de 2026.*
+*La mantiene Pedro Romero · Actualización durante la reunión de cierre.*
