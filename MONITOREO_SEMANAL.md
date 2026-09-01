@@ -17,7 +17,7 @@
 | **Jorge Cervantes** | **Gestión & Calidad:** Tablero Trello, QA de entregables e Investigación (15 artículos) | *[por completar]* | @*[por completar]* |
 | **José López** | **UI/UX & Comunicación:** Diseño visual, wireframes de vistas y Pitch de avances | *[Miércoles 2 a 4 pm]* | @JoseTheGoat90 |
 | **Julio Galvis** | **Diseño Instruccional:** MODESEC multi-rol, flujos pedagógicos y navegación | *[por completar]* | @*[por completar]* |
-| **Pedro Romero** | **Documentación & Bitácora:** Gestión de bitácoras, evidencias y actas de cierre | *[por completar]* | @pedrorm20 |
+| **Pedro Romero** | **Documentación & Bitácora:** Gestión de bitácoras, evidencias y actas de cierre | *Jueves 4 a 6 pm* | @pedrorm20 |
 
 **Reunión de equipo:** viernes 8:00 – 8:40 p.m., videollamada, con los cinco integrantes.
 **Reportes escritos:** martes y jueves, 8:00 p.m., en el grupo del equipo.
